@@ -1,0 +1,41 @@
+/*
+ * CIRCUIT — per-tool hue themes
+ *
+ * The hue registry keeps every erisera product — closed and open source —
+ * perceptually distinct on one color wheel. Existing closed products own a
+ * hue plus a ±20° buffer; every new OSS theme below sits outside all buffers.
+ *
+ * Registry (see docs/hue-registry.md for the full table + wheel diagram):
+ *   erisera default / matey   25°   (root default — no class needed)
+ *   nominos                  199°   existing, closed — buffer 179–219°
+ *   nominos-core             142°   existing, closed — buffer 122–162°
+ *   blog                     160°   existing, closed — buffer 140–180°
+ *   objectify                 70°   new, OSS
+ *   andbox                    95°   new, OSS
+ *   mcp-query                250°   new, OSS
+ *   ecmanim                  285°   new, OSS
+ *   clawser                  340°   new, OSS
+ *
+ * Blocked union: [122°, 219°]. Free arcs: (45°, 122°) and (219°, 365°).
+ * Adding a 7th OSS tool? Pick a hue in a free arc, ≥20° from every
+ * existing stop (open or closed).
+ */
+
+.theme-matey {
+  --hue: 25;
+}
+.theme-objectify {
+  --hue: 70;
+}
+.theme-andbox {
+  --hue: 95;
+}
+.theme-mcp-query {
+  --hue: 250;
+}
+.theme-ecmanim {
+  --hue: 285;
+}
+.theme-clawser {
+  --hue: 340;
+}

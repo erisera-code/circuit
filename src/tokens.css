@@ -1,0 +1,165 @@
+/*
+ * CIRCUIT DESIGN TOKENS
+ * The erisera OSS design system — one set of tokens, one accent hue per tool.
+ *
+ * Usage:
+ *   import '@erisera/circuit/tokens.css';
+ *   import '@erisera/circuit/themes.css';   // per-tool --hue overrides
+ *   <html class="theme-matey">              // and optionally .dark
+ *
+ * Three rules keep the family coherent — see README.md:
+ *   1. Neutrals are hue-stable (cool slate) regardless of --hue.
+ *   2. Semantic color (success/warning/error/info) never rotates.
+ *   3. Syntax-highlighting color never rotates.
+ * Only --accent (derived from --hue) changes per tool.
+ */
+
+:root {
+  /* ---- accent (the one thing that changes per tool) ---- */
+  --hue: 25; /* default: erisera / matey orange */
+  --accent: hsl(var(--hue) 95% 46%);
+  --accent-hover: hsl(var(--hue) 95% 40%);
+  --accent-soft: hsl(var(--hue) 95% 53% / 0.09);
+  --accent-border: hsl(var(--hue) 95% 46% / 0.35);
+
+  /* ---- semantic states (fixed — never rotate with --hue) ---- */
+  --success: #0f9d63;
+  --success-soft: #0f9d6314;
+  --warning: #b45f06;
+  --warning-soft: #b45f0614;
+  --error: #d13c30;
+  --error-soft: #d13c3014;
+  --info: #1d6fbf;
+  --info-soft: #1d6fbf14;
+
+  /* ---- neutral scale (fixed — hue-stable cool slate) ---- */
+  --n-0: #f8fafc;
+  --n-50: #f1f5f9;
+  --n-100: #e2e8f0;
+  --n-200: #cbd5e1;
+  --n-300: #94a3b8;
+  --n-400: #64748b;
+  --n-500: #475569;
+  --n-600: #334155;
+  --n-700: #1e293b;
+  --n-750: #16203a; /* dark-mode-only: panel-on-dark separation */
+  --n-800: #0f172a;
+  --n-900: #0b1120; /* dark-mode-only: deepest surface (code bg) */
+
+  /* ---- semantic surface roles (light) ---- */
+  --bg: var(--n-0);
+  --bg-panel: #ffffff;
+  --bg-inset: var(--n-50);
+  --ink: var(--n-700);
+  --ink-2: var(--n-400);
+  --ink-3: var(--n-300);
+  --line: var(--n-100);
+  --code-bg: var(--n-800);
+  --code-ink: #e2e8f0;
+
+  /* ---- syntax highlighting (fixed — never rotates with --hue) ---- */
+  --sx-kw: #d6337d;    /* keyword */
+  --sx-str: #0f9d63;   /* string */
+  --sx-fn: #1d6fbf;    /* function */
+  --sx-cm: #8b93a1;    /* comment */
+  --sx-num: #9333d6;   /* number */
+  --sx-tag: #b45f06;   /* tag */
+  --sx-attr: #1d8f8f;  /* attribute */
+  --sx-punct: var(--ink-3);
+  --sx-type: #7c4fd6;  /* type / class */
+  --sx-bool: #c0392b;  /* boolean */
+
+  /* ---- type ---- */
+  --f-display: 'JetBrains Mono Variable', 'JetBrains Mono', 'SF Mono', monospace;
+  --f-body: 'IBM Plex Sans Variable', 'IBM Plex Sans', system-ui, sans-serif;
+  --f-mono: 'JetBrains Mono Variable', 'JetBrains Mono', 'SF Mono', monospace;
+
+  /* ---- spacing (4px base unit) ---- */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-8: 32px;
+  --sp-10: 40px;
+  --sp-14: 56px;
+  --sp-20: 80px;
+
+  /* ---- radius ---- */
+  --r-sm: 6px;
+  --r: 8px;
+  --r-lg: 12px;
+  --r-xl: 16px;
+  --r-2xl: 24px;
+  --r-full: 999px;
+
+  /* ---- elevation ---- */
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
+  --shadow-md: 0 4px 10px -2px rgba(15, 23, 42, 0.1);
+  --shadow-lg: 0 14px 32px -8px rgba(15, 23, 42, 0.16);
+  --shadow-accent: 0 6px 18px -4px hsl(var(--hue) 95% 46% / 0.35);
+
+  /* ---- motion ---- */
+  --t-fast: 150ms ease;
+  --t-base: 200ms ease;
+}
+
+/*
+ * Dark mode: add class="dark" to any element carrying these tokens
+ * (typically <html> or a page-root wrapper). Shadows switch strategy —
+ * drop shadows read as fog on dark backgrounds, so dark mode uses a
+ * 1px border + accent glow instead.
+ */
+.dark {
+  --accent: hsl(var(--hue) 92% 58%);
+  --accent-hover: hsl(var(--hue) 92% 66%);
+  --accent-soft: hsl(var(--hue) 92% 58% / 0.13);
+  --accent-border: hsl(var(--hue) 92% 58% / 0.4);
+
+  --success: #3ecf8e;
+  --success-soft: #3ecf8e17;
+  --warning: #e0a84a;
+  --warning-soft: #e0a84a17;
+  --error: #f0665a;
+  --error-soft: #f0665a17;
+  --info: #5fa8e8;
+  --info-soft: #5fa8e817;
+
+  --bg: var(--n-800);
+  --bg-panel: var(--n-750);
+  --bg-inset: var(--n-700);
+  --ink: #e2e8f0;
+  --ink-2: var(--n-300);
+  --ink-3: var(--n-500);
+  --line: var(--n-600);
+  --code-bg: var(--n-900);
+  --code-ink: #dbe3ef;
+
+  --sx-kw: #f472b6;
+  --sx-str: #34d399;
+  --sx-fn: #38bdf8;
+  --sx-cm: #7e8aa0;
+  --sx-num: #c084fc;
+  --sx-tag: #f0b35c;
+  --sx-attr: #4fd1d1;
+  --sx-type: #a78bfa;
+  --sx-bool: #f16b5c;
+
+  --shadow-sm: none;
+  --shadow-md: 0 0 0 1px var(--line);
+  --shadow-lg: 0 0 0 1px var(--line), 0 20px 40px -12px rgba(0, 0, 0, 0.5);
+}
+
+/* Opt-in signature grid texture — a utility, not a token (page-layout concern) */
+.circuit-grid {
+  background-image:
+    linear-gradient(rgba(148, 163, 184, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.07) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+.dark.circuit-grid {
+  background-image:
+    linear-gradient(rgba(148, 163, 184, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.05) 1px, transparent 1px);
+}

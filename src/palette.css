@@ -1,0 +1,137 @@
+/*
+ * CIRCUIT — search / command palette
+ * Pair with palette.js, which mounts this markup and wires behavior.
+ */
+
+.c-search-trigger {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--bg-inset);
+  color: var(--ink-3);
+  font: 13px var(--f-body);
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: var(--t-fast);
+}
+.c-search-trigger:hover { border-color: var(--accent); color: var(--ink-2); }
+.c-search-trigger svg { flex-shrink: 0; opacity: 0.8; }
+.c-search-trigger kbd {
+  margin-left: auto;
+  font: 10.5px var(--f-mono);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 1px 6px;
+  background: var(--bg-panel);
+}
+
+.c-palette-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 10, 14, 0.55);
+  backdrop-filter: blur(2px);
+  z-index: 300;
+  display: flex;
+  justify-content: center;
+  padding-top: 12vh;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--t-base);
+}
+.c-palette-backdrop.open { opacity: 1; pointer-events: auto; }
+
+.c-palette {
+  width: min(600px, 90vw);
+  max-height: 60vh;
+  background: var(--bg-panel);
+  border: 1px solid var(--line);
+  border-radius: var(--r-xl);
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transform: translateY(-8px);
+  transition: transform var(--t-base);
+}
+.c-palette-backdrop.open .c-palette { transform: translateY(0); }
+
+.c-palette-input-row {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--line);
+  flex-shrink: 0;
+}
+.c-palette-input-row svg { flex-shrink: 0; color: var(--ink-3); }
+.c-palette-input-row input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--ink);
+  font: 15px var(--f-body);
+  min-width: 0;
+}
+.c-palette-input-row input::placeholder { color: var(--ink-3); }
+.c-palette-input-row kbd {
+  font: 10.5px var(--f-mono);
+  color: var(--ink-3);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+
+.c-palette-results { overflow-y: auto; padding: 8px; }
+.c-presult-group + .c-presult-group { margin-top: 4px; }
+.c-presult-label {
+  font: 10.5px var(--f-display);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-3);
+  padding: 8px 10px 4px;
+}
+.c-presult {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 9px 10px;
+  border-radius: var(--r-sm);
+  border-left: 2px solid transparent;
+  cursor: pointer;
+  color: var(--ink);
+}
+.c-presult .picon {
+  flex-shrink: 0;
+  width: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink-3);
+  font: 12px var(--f-mono);
+}
+.c-presult .ptext { flex: 1; min-width: 0; }
+.c-presult .ptitle { font-size: 13.5px; line-height: 1.3; }
+.c-presult .ptitle mark { background: none; color: var(--accent); font-weight: 700; }
+.c-presult .ppath { font: 11px var(--f-mono); color: var(--ink-3); margin-top: 1px; }
+.c-presult .penter { font: 10px var(--f-mono); color: var(--ink-3); opacity: 0; flex-shrink: 0; }
+.c-presult.sel { background: var(--accent-soft); border-left-color: var(--accent); }
+.c-presult.sel .picon { color: var(--accent); }
+.c-presult.sel .penter { opacity: 1; }
+
+.c-palette-empty { padding: 30px 16px; text-align: center; color: var(--ink-3); font-size: 13px; }
+
+.c-palette-footer {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 9px 16px;
+  border-top: 1px solid var(--line);
+  font: 11px var(--f-mono);
+  color: var(--ink-3);
+  flex-shrink: 0;
+}
+.c-palette-footer span { display: flex; align-items: center; gap: 5px; }
+.c-palette-footer kbd { border: 1px solid var(--line); border-radius: 4px; padding: 1px 5px; background: var(--bg-inset); }
