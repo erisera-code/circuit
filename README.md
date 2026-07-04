@@ -2,7 +2,7 @@
 
 The [erisera](https://erisera.com) OSS design system — one set of tokens, one accent hue per tool.
 
-**[Live showcase](https://circuit.erisera.com)** · every component on this page is real, imported from `src/`.
+> Not yet deployed to `circuit.erisera.com` — `docs/` (a Starlight site) and `showcase/index.html` (a standalone interactive demo) are both built and verified locally; see [Docs site](#docs-site) below.
 
 ## Why
 
@@ -69,8 +69,9 @@ Full wheel diagram: open `showcase/index.html` and scroll to **Color**.
 
 ## Logo marks
 
-One construction grammar — a small orthogonal trace on a 5-point grid, straight strokes only — six distinct patterns, each encoding an idea from its tool:
+One construction grammar — a small orthogonal trace on a 5-point grid, straight strokes only — one mark per product, each encoding an idea from what it represents:
 
+- **circuit** — a hub with four satellite nodes (one system, many tools)
 - **matey** — a four-way junction (universal adapter)
 - **mcp-query** — a closed diamond loop (cache / refetch cycle)
 - **ecmanim** — a zigzag (motion / curves)
@@ -96,6 +97,21 @@ createCommandPalette({
 ```
 
 Doubles as a **family-wide jump hub** (search from matey, land on an ecmanim page) and carries the agent-facing actions — copy this page as Markdown, open its `llms.txt` — that erisera's docs-for-agents positioning depends on.
+
+## Docs site
+
+`docs/` is a real [Astro Starlight](https://starlight.astro.build) site that consumes `@erisera/circuit` via a local `file:..` dependency — proof that the design system actually themes a third-party framework, not just its own showcase.
+
+```sh
+cd docs
+npm install
+npm run dev       # http://localhost:4321
+npm run build      # → docs/dist
+```
+
+`docs/src/styles/circuit-bridge.css` remaps Starlight's own themeable CSS variables onto Circuit's tokens. One gotcha worth flagging for any future Starlight-based site in the family: Starlight's `<Aside type="tip">` renders using its **purple** color variable, not green — despite "tip" reading as a positive/success signal. Circuit's fixed-semantic-color rule (`tip` → `--success`, always green) only holds if you redirect `--sl-color-purple`, not `--sl-color-green`, onto `--success` (see the bridge file for the full, verified mapping — pulled from Starlight's actual `asides.css` source, not assumed). Syntax highlighting uses a custom Shiki/Expressive-Code theme built from Circuit's fixed `--sx-*` palette (`docs/astro.config.mjs`) — Expressive Code applies its own accessibility contrast normalization on top, so rendered hex values are close to but not pixel-identical to the source tokens.
+
+Not yet wired to auto-deploy: `.github/workflows/deploy-docs.yml` is `workflow_dispatch`-only and needs `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID` repo secrets before it can run.
 
 ## Status
 

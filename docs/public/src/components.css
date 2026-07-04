@@ -1,0 +1,358 @@
+/*
+ * CIRCUIT COMPONENTS
+ * Requires tokens.css (and optionally themes.css) to be loaded first.
+ */
+
+/* ============ docs shell ============ */
+.c-header {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  padding: 0 28px;
+  height: 60px;
+  background: var(--bg-panel);
+  border-bottom: 1px solid var(--line);
+  border-top: 2px solid var(--accent);
+}
+.c-header .c-logo {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-family: var(--f-display);
+  font-size: 16px;
+}
+.c-header .c-logo .co {
+  color: var(--ink-3);
+  font-weight: 400;
+}
+.c-header .c-logo .co::after {
+  content: ' /';
+  color: var(--ink-3);
+}
+.c-header .c-logo .tool {
+  color: var(--ink);
+  font-weight: 700;
+}
+.c-header .c-logo .ver {
+  font-family: var(--f-mono);
+  font-size: 10.5px;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-radius: var(--r-sm);
+  padding: 2px 7px;
+}
+.c-header nav {
+  display: flex;
+  gap: 18px;
+  font-size: 13.5px;
+}
+.c-header nav a {
+  color: var(--ink-2);
+  text-decoration: none;
+}
+.c-header nav a[aria-current] {
+  color: var(--accent);
+}
+
+.c-side {
+  font-size: 13.5px;
+}
+.c-side h5 {
+  margin: 20px 0 8px;
+  font-family: var(--f-display);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  font-weight: 600;
+}
+.c-side h5:first-child {
+  margin-top: 0;
+}
+.c-side ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.c-side a {
+  display: block;
+  color: var(--ink-2);
+  text-decoration: none;
+  padding: 5px 10px;
+  border-radius: var(--r-sm);
+  border-left: 2px solid transparent;
+}
+.c-side a:hover {
+  color: var(--ink);
+}
+.c-side a.on {
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-left-color: var(--accent);
+}
+
+.c-crumb {
+  font: 12px var(--f-mono);
+  color: var(--ink-3);
+}
+.c-crumb b {
+  color: var(--ink-2);
+  font-weight: 500;
+}
+
+.c-pager {
+  display: flex;
+  gap: 14px;
+}
+.c-pager a {
+  flex: 1;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: 13px 16px;
+  text-decoration: none;
+  color: var(--ink);
+  background: var(--bg-panel);
+}
+.c-pager a:hover {
+  border-color: var(--accent);
+}
+.c-pager .dir {
+  font: 10.5px var(--f-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-3);
+  display: block;
+  margin-bottom: 4px;
+}
+.c-pager .next {
+  text-align: right;
+}
+.c-pager .t {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* ============ code block ============ */
+.c-codebox {
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--code-bg);
+  overflow: hidden;
+}
+.c-codebox .cap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 14px;
+  border-bottom: 1px solid var(--line);
+  font: 11px var(--f-mono);
+  color: var(--ink-3);
+}
+.c-codebox .cap .cp {
+  margin-left: auto;
+  font: 11px var(--f-mono);
+  color: var(--ink-2);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 3px 9px;
+  cursor: pointer;
+}
+.c-codebox .cap .cp:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+.c-codebox pre {
+  margin: 0;
+  padding: 16px 18px;
+  overflow-x: auto;
+  font: 13px/1.65 var(--f-mono);
+  color: var(--code-ink);
+}
+.sx-kw { color: var(--sx-kw); }
+.sx-str { color: var(--sx-str); }
+.sx-fn { color: var(--sx-fn); }
+.sx-cm { color: var(--sx-cm); font-style: italic; }
+.sx-num { color: var(--sx-num); }
+.sx-tag { color: var(--sx-tag); }
+.sx-attr { color: var(--sx-attr); }
+.sx-punct { color: var(--sx-punct); }
+.sx-type { color: var(--sx-type); }
+.sx-bool { color: var(--sx-bool); font-weight: 600; }
+
+/* ============ code groups (package-manager tabs) ============ */
+.c-codegroup .cgtabs {
+  display: flex;
+  gap: 2px;
+}
+.c-codegroup .cgtabs button {
+  font: 12px var(--f-mono);
+  background: var(--bg-inset);
+  color: var(--ink-2);
+  border: 1px solid var(--line);
+  border-bottom: none;
+  border-radius: var(--r-sm) var(--r-sm) 0 0;
+  padding: 7px 14px;
+  cursor: pointer;
+  position: relative;
+  top: 1px;
+}
+.c-codegroup .cgtabs button.on {
+  background: var(--code-bg);
+  color: var(--code-ink);
+  border-color: var(--line);
+}
+.c-codegroup .c-codebox {
+  border-radius: 0 var(--r-lg) var(--r-lg) var(--r-lg);
+}
+
+/* ============ terminal / output block ============ */
+.c-termbox {
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--code-bg);
+  overflow: hidden;
+}
+.c-termbox .twin {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--line);
+}
+.c-termbox .twin i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.c-termbox .twin i:nth-child(1) { background: #f0665a; }
+.c-termbox .twin i:nth-child(2) { background: #e0a84a; }
+.c-termbox .twin i:nth-child(3) { background: #3ecf8e; }
+.c-termbox pre {
+  margin: 0;
+  padding: 14px 18px;
+  font: 12.5px/1.7 var(--f-mono);
+  color: var(--code-ink);
+}
+.c-termbox .prompt { color: var(--accent); }
+.c-termbox .out { color: var(--ink-3); }
+
+/* ============ admonitions ============ */
+.c-callout {
+  display: flex;
+  gap: 10px;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--r);
+  background: var(--accent-soft);
+  padding: 11px 13px;
+}
+.c-callout.warning { border-left-color: var(--warning); background: var(--warning-soft); }
+.c-callout.tip { border-left-color: var(--success); background: var(--success-soft); }
+.c-callout.danger { border-left-color: var(--error); background: var(--error-soft); }
+.c-callout .ic { font-family: var(--f-mono); font-size: 12px; color: var(--accent); }
+.c-callout.warning .ic { color: var(--warning); }
+.c-callout.tip .ic { color: var(--success); }
+.c-callout.danger .ic { color: var(--error); }
+.c-callout p { margin: 0; font-size: 12.5px; line-height: 1.55; color: var(--ink); }
+.c-callout b { color: var(--ink); }
+
+/* ============ API parameter list ============ */
+.c-paramlist {
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  background: var(--bg-panel);
+}
+.c-paramrow {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  flex-wrap: wrap;
+  padding: 12px 15px;
+  border-bottom: 1px solid var(--line);
+}
+.c-paramrow:last-child { border-bottom: 0; }
+.c-paramrow .pname { font: 700 13px var(--f-mono); color: var(--ink); }
+.c-paramrow .ptype { font: 12px var(--f-mono); color: var(--accent); }
+.c-paramrow .pdefault { font: 11.5px var(--f-mono); color: var(--ink-3); }
+.c-paramrow .preq {
+  font: 10px var(--f-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 1px 7px;
+  border-radius: var(--r-sm);
+  margin-left: auto;
+}
+.c-paramrow .preq.required { background: var(--error-soft); color: var(--error); }
+.c-paramrow .preq.optional { background: var(--bg-inset); color: var(--ink-3); }
+.c-paramrow .pdesc { flex-basis: 100%; font-size: 13px; color: var(--ink-2); line-height: 1.55; }
+
+/* ============ buttons ============ */
+.c-btn {
+  font: 600 13px var(--f-body);
+  border-radius: var(--r-sm);
+  padding: 8px 15px;
+  cursor: pointer;
+  transition: var(--t-fast);
+}
+.c-btn.primary { background: var(--accent); color: #fff; border: 1px solid transparent; }
+.c-btn.primary:hover { background: var(--accent-hover); }
+.c-btn.primary:active { background: var(--accent-hover); box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2); }
+.c-btn.primary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.c-btn.primary:disabled { opacity: 0.4; cursor: not-allowed; }
+.c-btn.secondary { background: var(--bg-inset); color: var(--ink); border: 1px solid var(--line); }
+.c-btn.secondary:hover { border-color: var(--accent); color: var(--accent); }
+.c-btn.ghost { background: transparent; color: var(--accent); border: 1px solid transparent; padding: 8px 10px; }
+.c-btn.ghost:hover { background: var(--accent-soft); }
+
+/* ============ input ============ */
+.c-field {
+  width: 100%;
+  font: 13px var(--f-body);
+  border-radius: var(--r-sm);
+  border: 1px solid var(--line);
+  background: var(--bg-panel);
+  color: var(--ink);
+  padding: 8px 11px;
+}
+.c-field:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.c-field.is-error { border-color: var(--error); box-shadow: 0 0 0 3px var(--error-soft); }
+.c-field:disabled { opacity: 0.5; background: var(--bg-inset); }
+.c-fieldnote { font: 11px var(--f-mono); color: var(--error); margin-top: 5px; }
+
+/* ============ badges ============ */
+.c-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font: 600 11px var(--f-mono);
+  padding: 3px 9px;
+  border-radius: var(--r-full);
+}
+.c-badge.accent { background: var(--accent-soft); color: var(--accent); }
+.c-badge.success { background: var(--success-soft); color: var(--success); }
+.c-badge.warning { background: var(--warning-soft); color: var(--warning); }
+.c-badge.error { background: var(--error-soft); color: var(--error); }
+.c-badge.neutral { background: var(--bg-inset); color: var(--ink-2); border: 1px solid var(--line); }
+
+/* ============ tabs ============ */
+.c-tabbar {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--line);
+}
+.c-tabbar .tab {
+  font: 12.5px var(--f-body);
+  padding: 8px 4px;
+  color: var(--ink-2);
+  border-bottom: 2px solid transparent;
+  margin-right: 14px;
+  cursor: pointer;
+}
+.c-tabbar .tab:hover { color: var(--ink); }
+.c-tabbar .tab.on { color: var(--accent); border-bottom-color: var(--accent); }
