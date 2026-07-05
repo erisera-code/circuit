@@ -123,8 +123,7 @@
   .ogdim { font: 11px var(--f-mono); color: var(--ink-3); margin-top: 8px; }
   .search-trigger-row { display: flex; align-items: center; gap: 14px; margin-top: 18px; flex-wrap: wrap; }
   .search-hint { font: 12.5px var(--f-mono); color: var(--ink-3); }
-  .tabmock { display: flex; align-items: center; gap: 8px; background: var(--n-100); border-radius: 8px 8px 0 0; padding: 8px 14px; font: 12px var(--f-body); color: var(--n-700); }
-  #canvas.dark .tabmock { background: var(--n-700); color: var(--n-100); }
+  .tabmock { display: flex; align-items: center; gap: 8px; background: var(--bg-inset); border-radius: 8px 8px 0 0; padding: 8px 14px; font: 12px var(--f-body); color: var(--ink); }
 
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
@@ -133,7 +132,7 @@
 
 <div id="bar">
   <span><b>Circuit</b> v0.0.1 — live showcase, importing the real <code>src/*</code> package files</span>
-  <div class="right"><button class="mode" id="mode" aria-pressed="false">◐ dark</button></div>
+  <div class="right"><button class="mode" id="mode" aria-pressed="false" title="Cycle: auto (follows system) → dark → light">◐ auto</button></div>
 </div>
 
 <div id="canvas" class="circuit-grid">
@@ -323,14 +322,11 @@
 
 <script type="module">
 import { createCommandPalette, PAGE_ICON } from '../src/palette.js';
+import { initThemeToggle } from '../src/theme-toggle.js';
 
 const canvas = document.getElementById('canvas');
 const modeBtn = document.getElementById('mode');
-modeBtn.addEventListener('click', () => {
-  const dark = !canvas.classList.contains('dark');
-  canvas.classList.toggle('dark', dark);
-  modeBtn.textContent = dark ? '◑ light' : '◐ dark';
-});
+const theme = initThemeToggle({ root: canvas, button: modeBtn });
 
 function flash(el) {
   const f = document.createElement('span');
@@ -489,7 +485,7 @@ createCommandPalette({
     { title: 'Fallback strategies', path: 'docs / guides' },
   ],
   actions: [
-    { title: 'Toggle dark mode', icon: '◐', run: () => modeBtn.click() },
+    { title: 'Cycle theme (auto → dark → light)', icon: '◐', run: () => modeBtn.click() },
     { title: 'Copy page as Markdown', icon: PAGE_ICON, run: () => navigator.clipboard?.writeText('# Quickstart\n\nWrite against one interface, run against any model…'), feedback: 'Copied to clipboard' },
     { title: 'Open llms.txt for this page', icon: '</>', feedback: '→ opening llms.txt' },
   ],

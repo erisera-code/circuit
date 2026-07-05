@@ -25,6 +25,7 @@
     "./components.css": "./src/components.css",
     "./palette.css": "./src/palette.css",
     "./palette.js": "./src/palette.js",
+    "./theme-toggle.js": "./src/theme-toggle.js",
     "./index.css": "./src/index.css",
     "./marks/*": "./src/marks/*"
   },

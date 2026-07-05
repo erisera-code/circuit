@@ -106,13 +106,74 @@
 }
 
 /*
- * Dark mode: add class="dark" to any element carrying these tokens
- * (typically <html> or a page-root wrapper) — or set the equivalent
- * data-theme="dark" attribute, which some frameworks (e.g. Starlight)
- * use instead of a class. Shadows switch strategy — drop shadows read
- * as fog on dark backgrounds, so dark mode uses a 1px border + accent
- * glow instead.
+ * Dark mode — three states: system (default, follows the OS), or an
+ * explicit override to dark or light. Shadows switch strategy in dark —
+ * drop shadows read as fog on dark backgrounds, so dark mode uses a 1px
+ * border + accent glow instead.
+ *
+ *   system (default): no class/attribute needed — follows prefers-color-scheme
+ *   explicit dark:     class="dark"  or  data-theme="dark"
+ *   explicit light:    class="light" or  data-theme="light"  (opts out of
+ *                       system-dark even when the OS is in dark mode —
+ *                       this is the state a plain `:root` with no override
+ *                       was missing, which is what made a page default to
+ *                       light while the OS was in dark mode)
+ *
+ * `[data-theme]` is the attribute Starlight (and some other frameworks)
+ * set instead of a class; both are supported everywhere.
  */
+/*
+ * System-preference default: applied at :root, so any element that
+ * inherits its tokens from :root (i.e. hasn't been given its own
+ * explicit .dark/.light override) resolves to dark automatically when
+ * the OS is in dark mode. An element carrying `.light`/`data-theme="light"`
+ * still wins over this — see below — because a property set directly on
+ * an element always beats one it only inherited from :root, regardless
+ * of which came first in the stylesheet. This is what makes "system" a
+ * real third state rather than always defaulting to light.
+ */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --accent: hsl(var(--hue) 92% 58%);
+    --accent-hover: hsl(var(--hue) 92% 66%);
+    --accent-soft: hsl(var(--hue) 92% 58% / 0.13);
+    --accent-border: hsl(var(--hue) 92% 58% / 0.4);
+
+    --success: #3ecf8e;
+    --success-soft: #3ecf8e17;
+    --warning: #e0a84a;
+    --warning-soft: #e0a84a17;
+    --error: #f0665a;
+    --error-soft: #f0665a17;
+    --info: #5fa8e8;
+    --info-soft: #5fa8e817;
+
+    --bg: var(--n-800);
+    --bg-panel: var(--n-750);
+    --bg-inset: var(--n-700);
+    --ink: #e2e8f0;
+    --ink-2: var(--n-300);
+    --ink-3: var(--n-500);
+    --line: var(--n-600);
+    --code-bg: var(--n-900);
+    --code-ink: #dbe3ef;
+
+    --sx-kw: #f472b6;
+    --sx-str: #34d399;
+    --sx-fn: #38bdf8;
+    --sx-cm: #7e8aa0;
+    --sx-num: #c084fc;
+    --sx-tag: #f0b35c;
+    --sx-attr: #4fd1d1;
+    --sx-type: #a78bfa;
+    --sx-bool: #f16b5c;
+
+    --shadow-sm: none;
+    --shadow-md: 0 0 0 1px var(--line);
+    --shadow-lg: 0 0 0 1px var(--line), 0 20px 40px -12px rgba(0, 0, 0, 0.5);
+  }
+}
+
 .dark,
 [data-theme='dark'] {
   --accent: hsl(var(--hue) 92% 58%);
@@ -154,6 +215,55 @@
   --shadow-lg: 0 0 0 1px var(--line), 0 20px 40px -12px rgba(0, 0, 0, 0.5);
 }
 
+/*
+ * Explicit light override — re-declares the same values :root already
+ * uses in light mode. Necessary so that an element with `.light`/
+ * `data-theme="light"` stays light even when the OS is in dark mode
+ * (the system-dark block above only sets values at :root; an element
+ * that inherited dark from :root needs its own direct declaration to
+ * win back to light — inheritance always loses to a direct match).
+ */
+.light,
+[data-theme='light'] {
+  --accent: hsl(var(--hue) 95% 46%);
+  --accent-hover: hsl(var(--hue) 95% 40%);
+  --accent-soft: hsl(var(--hue) 95% 53% / 0.09);
+  --accent-border: hsl(var(--hue) 95% 46% / 0.35);
+
+  --success: #0f9d63;
+  --success-soft: #0f9d6314;
+  --warning: #b45f06;
+  --warning-soft: #b45f0614;
+  --error: #d13c30;
+  --error-soft: #d13c3014;
+  --info: #1d6fbf;
+  --info-soft: #1d6fbf14;
+
+  --bg: var(--n-0);
+  --bg-panel: #ffffff;
+  --bg-inset: var(--n-50);
+  --ink: var(--n-700);
+  --ink-2: var(--n-400);
+  --ink-3: var(--n-300);
+  --line: var(--n-100);
+  --code-bg: var(--n-800);
+  --code-ink: #e2e8f0;
+
+  --sx-kw: #d6337d;
+  --sx-str: #0f9d63;
+  --sx-fn: #1d6fbf;
+  --sx-cm: #8b93a1;
+  --sx-num: #9333d6;
+  --sx-tag: #b45f06;
+  --sx-attr: #1d8f8f;
+  --sx-type: #7c4fd6;
+  --sx-bool: #c0392b;
+
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
+  --shadow-md: 0 4px 10px -2px rgba(15, 23, 42, 0.1);
+  --shadow-lg: 0 14px 32px -8px rgba(15, 23, 42, 0.16);
+}
+
 /* Opt-in signature grid texture — a utility, not a token (page-layout concern) */
 .circuit-grid {
   background-image:
@@ -166,4 +276,11 @@
   background-image:
     linear-gradient(rgba(148, 163, 184, 0.05) 1px, transparent 1px),
     linear-gradient(90deg, rgba(148, 163, 184, 0.05) 1px, transparent 1px);
+}
+@media (prefers-color-scheme: dark) {
+  .circuit-grid:not(.light):not([data-theme='light']) {
+    background-image:
+      linear-gradient(rgba(148, 163, 184, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(148, 163, 184, 0.05) 1px, transparent 1px);
+  }
 }
