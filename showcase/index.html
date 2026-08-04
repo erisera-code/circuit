@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Circuit — erisera OSS design system</title>
-<link rel="stylesheet" href="../src/index.css">
+<link rel="stylesheet" href="../packages/circuit/src/index.css">
 <style>
   :root { --bar-h: 52px; }
   * { box-sizing: border-box; }
@@ -275,8 +275,8 @@
         <h3>Terminal / output block</h3>
         <div class="c-termbox">
           <div class="twin"><i></i><i></i><i></i></div>
-          <pre><span class="prompt">$</span> npm install @erisera/circuit
-<span class="out">✓ added @erisera/circuit@0.0.1</span></pre>
+          <pre><span class="prompt">$</span> npm install @erisera-code/circuit
+<span class="out">✓ added @erisera-code/circuit@0.0.1</span></pre>
         </div>
       </section>
 
@@ -321,8 +321,8 @@
 </div>
 
 <script type="module">
-import { createCommandPalette, PAGE_ICON } from '../src/palette.js';
-import { initThemeToggle } from '../src/theme-toggle.js';
+import { createCommandPalette, PAGE_ICON } from '../packages/circuit/src/palette.js';
+import { initThemeToggle } from '../packages/circuit/src/theme-toggle.js';
 
 const canvas = document.getElementById('canvas');
 const modeBtn = document.getElementById('mode');
@@ -443,7 +443,7 @@ renderAccentScale(25);
 });
 
 // code groups
-const cgCommands = { npm: 'npm install @erisera/circuit', pnpm: 'pnpm add @erisera/circuit', yarn: 'yarn add @erisera/circuit', bun: 'bun add @erisera/circuit' };
+const cgCommands = { npm: 'npm install @erisera-code/circuit', pnpm: 'pnpm add @erisera-code/circuit', yarn: 'yarn add @erisera-code/circuit', bun: 'bun add @erisera-code/circuit' };
 const cgtabs = document.getElementById('cgtabs'), cgpre = document.getElementById('cgpre');
 Object.keys(cgCommands).forEach((mgr,i) => {
   const b = document.createElement('button'); b.textContent = mgr; b.className = i === 0 ? 'on' : '';
@@ -461,19 +461,19 @@ const markgrid = document.getElementById('marks-grid');
 marks.forEach(m => {
   const card = document.createElement('div'); card.className = 'markcard';
   card.innerHTML = `
-    <div class="tile" style="background:#fff;border:1px solid var(--line)"><img src="../src/marks/${m.key}.svg" width="34" height="34" alt="${m.key} mark"></div>
+    <div class="tile" style="background:#fff;border:1px solid var(--line)"><img src="../packages/circuit/src/marks/${m.key}.svg" width="34" height="34" alt="${m.key} mark"></div>
     <div class="word"><span class="co">erisera</span><span class="nm">${m.key}</span></div>
     <div class="hue">hue ${m.hue}°</div>`;
   markgrid.appendChild(card);
 });
 document.getElementById('favrow').innerHTML = [48,32,16].map(size => `
   <div><div class="favset"><div>
-    <div class="f" style="width:${size}px;height:${size}px;background:#fff;border:1px solid var(--line)"><img src="../src/marks/matey.svg" width="${size*0.8}" height="${size*0.8}" alt=""></div>
+    <div class="f" style="width:${size}px;height:${size}px;background:#fff;border:1px solid var(--line)"><img src="../packages/circuit/src/marks/matey.svg" width="${size*0.8}" height="${size*0.8}" alt=""></div>
     <div class="favlab">${size}px</div>
   </div></div></div>`).join('') + `
-  <div class="tabmock"><img src="../src/marks/matey.svg" width="14" height="14" alt="">&nbsp;matey — Quickstart</div>`;
+  <div class="tabmock"><img src="../packages/circuit/src/marks/matey.svg" width="14" height="14" alt="">&nbsp;matey — Quickstart</div>`;
 
-document.getElementById('ogtile').innerHTML = `<img src="../src/marks/matey.svg" width="20" height="20" style="filter:brightness(0) invert(1)" alt="">`;
+document.getElementById('ogtile').innerHTML = `<img src="../packages/circuit/src/marks/matey.svg" width="20" height="20" style="filter:brightness(0) invert(1)" alt="">`;
 canvas.style.setProperty('--hue', 25);
 
 // search palette — the real module

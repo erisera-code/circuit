@@ -1,0 +1,143 @@
+/* AlertDialog Component Styles */
+
+/* ============================================
+   Overlay
+   ============================================ */
+
+.ds-alert-dialog-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--ds-z-modal);
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+}
+
+.ds-alert-dialog-overlay[data-state="open"] {
+  animation: ds-dialog-overlay-show var(--ds-duration-normal) var(--ds-ease-out);
+}
+
+.ds-alert-dialog-overlay[data-state="closed"] {
+  animation: ds-dialog-overlay-hide var(--ds-duration-normal) var(--ds-ease-in);
+}
+
+/* ============================================
+   Content
+   ============================================ */
+
+.ds-alert-dialog-content {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  z-index: var(--ds-z-modal);
+  display: flex;
+  flex-direction: column;
+  transform: translate(-50%, -50%);
+  background-color: var(--ds-surface);
+  border-radius: var(--ds-radius-xl);
+  box-shadow: var(--ds-shadow-xl);
+  overflow: hidden;
+}
+
+.ds-alert-dialog-content:focus {
+  outline: none;
+}
+
+.ds-alert-dialog-content[data-state="open"] {
+  animation: ds-dialog-content-show var(--ds-duration-slow) var(--ds-ease-out);
+}
+
+.ds-alert-dialog-content[data-state="closed"] {
+  animation: ds-dialog-content-hide var(--ds-duration-normal) var(--ds-ease-in);
+}
+
+/* Size variants */
+.ds-alert-dialog-content--sm {
+  width: 100%;
+  max-width: 24rem; /* 384px */
+}
+
+.ds-alert-dialog-content--md {
+  width: 100%;
+  max-width: 28rem; /* 448px */
+}
+
+.ds-alert-dialog-content--lg {
+  width: 100%;
+  max-width: 32rem; /* 512px */
+}
+
+/* Mobile responsiveness */
+@media (max-width: 640px) {
+  .ds-alert-dialog-content {
+    width: calc(100vw - var(--ds-space-8));
+    max-width: none;
+  }
+}
+
+/* ============================================
+   Header
+   ============================================ */
+
+.ds-alert-dialog-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-space-2);
+  padding: var(--ds-space-6);
+  padding-bottom: var(--ds-space-4);
+}
+
+/* ============================================
+   Title
+   ============================================ */
+
+.ds-alert-dialog-title {
+  margin: 0;
+  font-family: var(--ds-font-body);
+  font-size: var(--ds-text-lg);
+  font-weight: var(--ds-font-semibold);
+  line-height: var(--ds-leading-tight);
+  color: var(--ds-text);
+}
+
+/* ============================================
+   Description
+   ============================================ */
+
+.ds-alert-dialog-description {
+  margin: 0;
+  font-size: var(--ds-text-sm);
+  line-height: var(--ds-leading-relaxed);
+  color: var(--ds-text-secondary);
+}
+
+/* ============================================
+   Footer
+   ============================================ */
+
+.ds-alert-dialog-footer {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  gap: var(--ds-space-3);
+  padding: var(--ds-space-4) var(--ds-space-6);
+  padding-top: var(--ds-space-2);
+}
+
+/* Stack buttons on mobile */
+@media (max-width: 480px) {
+  .ds-alert-dialog-footer {
+    flex-direction: column-reverse;
+  }
+
+  .ds-alert-dialog-footer > * {
+    width: 100%;
+  }
+}
+
+/* ============================================
+   Destructive variant (for dangerous actions)
+   ============================================ */
+
+.ds-alert-dialog-content--destructive .ds-alert-dialog-title {
+  color: var(--ds-error);
+}

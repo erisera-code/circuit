@@ -1,0 +1,225 @@
+/* Button Component Styles */
+
+.ds-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ds-space-2);
+  font-family: var(--ds-font-body);
+  font-weight: var(--ds-font-medium);
+  line-height: 1;
+  text-decoration: none;
+  border: 1px solid transparent;
+  border-radius: var(--ds-radius-lg);
+  cursor: pointer;
+  transition:
+    background-color var(--ds-transition-fast),
+    border-color var(--ds-transition-fast),
+    color var(--ds-transition-fast),
+    box-shadow var(--ds-transition-fast),
+    transform var(--ds-transition-fast);
+  white-space: nowrap;
+  user-select: none;
+}
+
+.ds-button:focus-visible {
+  outline: 2px solid var(--ds-primary);
+  outline-offset: 2px;
+}
+
+.ds-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ds-button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+/* ============================================
+   Variants
+   ============================================ */
+
+/* Primary */
+.ds-button--primary {
+  background-color: var(--ds-primary);
+  color: #ffffff; /* Use pure white for better contrast */
+  border-color: var(--ds-primary);
+  text-shadow: none; /* Remove any text shadows */
+  box-shadow: none; /* Remove box shadows */
+}
+
+.ds-button--primary:hover:not(:disabled) {
+  background-color: var(--ds-primary-hover);
+  border-color: var(--ds-primary-hover);
+  box-shadow: var(--ds-shadow-primary);
+}
+
+/* Secondary */
+.ds-button--secondary {
+  background-color: var(--ds-surface);
+  color: var(--ds-text);
+  border-color: var(--ds-border);
+}
+
+.ds-button--secondary:hover:not(:disabled) {
+  background-color: var(--ds-surface-muted);
+  border-color: var(--ds-border-strong);
+}
+
+/* Ghost */
+.ds-button--ghost {
+  background-color: transparent;
+  color: var(--ds-text-secondary);
+  border-color: transparent;
+}
+
+.ds-button--ghost:hover:not(:disabled) {
+  background-color: var(--ds-surface-muted);
+  color: var(--ds-text);
+}
+
+/* Outline */
+.ds-button--outline {
+  background-color: transparent;
+  color: var(--ds-text);
+  border-color: var(--ds-border);
+}
+
+.ds-button--outline:hover:not(:disabled) {
+  border-color: var(--ds-primary);
+  color: var(--ds-primary);
+  background-color: hsl(var(--ds-primary-h), var(--ds-primary-s), var(--ds-primary-l), 0.05);
+}
+
+/* Danger */
+.ds-button--danger {
+  background-color: var(--ds-error);
+  color: white;
+  border-color: var(--ds-error);
+}
+
+.ds-button--danger:hover:not(:disabled) {
+  background-color: var(--ds-error-hover);
+  border-color: var(--ds-error-hover);
+}
+
+/* ============================================
+   Sizes
+   ============================================ */
+
+.ds-button--xs {
+  padding: var(--ds-space-1) var(--ds-space-2);
+  font-size: var(--ds-text-xs);
+  border-radius: var(--ds-radius-md);
+}
+
+.ds-button--sm {
+  padding: var(--ds-space-1-5) var(--ds-space-3);
+  font-size: var(--ds-text-xs);
+  border-radius: var(--ds-radius-md);
+}
+
+.ds-button--md {
+  padding: var(--ds-space-2) var(--ds-space-4);
+  font-size: var(--ds-text-sm);
+}
+
+.ds-button--lg {
+  padding: var(--ds-space-3) var(--ds-space-6);
+  font-size: var(--ds-text-base);
+}
+
+.ds-button--xl {
+  padding: var(--ds-space-4) var(--ds-space-8);
+  font-size: var(--ds-text-lg);
+  border-radius: var(--ds-radius-xl);
+}
+
+.ds-button--icon {
+  width: 2.25rem;   /* 36px square */
+  height: 2.25rem;
+  padding: 0;
+  font-size: var(--ds-text-sm);
+}
+
+/* ============================================
+   Modifiers
+   ============================================ */
+
+.ds-button--full-width {
+  width: 100%;
+}
+
+.ds-button--loading {
+  position: relative;
+  color: transparent !important;
+}
+
+.ds-button--loading .ds-button__text,
+.ds-button--loading .ds-button__icon {
+  visibility: hidden;
+}
+
+/* ============================================
+   Inner Elements
+   ============================================ */
+
+.ds-button__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ds-button__icon svg {
+  width: 1em;
+  height: 1em;
+}
+
+.ds-button--sm .ds-button__icon svg {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+.ds-button--lg .ds-button__icon svg,
+.ds-button--xl .ds-button__icon svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.ds-button__spinner {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ds-button__spinner svg {
+  width: 1.25rem;
+  height: 1.25rem;
+  animation: ds-spin 0.75s linear infinite;
+}
+
+.ds-button--primary .ds-button__spinner svg,
+.ds-button--danger .ds-button__spinner svg {
+  stroke: white;
+}
+
+.ds-button--secondary .ds-button__spinner svg,
+.ds-button--ghost .ds-button__spinner svg,
+.ds-button--outline .ds-button__spinner svg {
+  stroke: var(--ds-text-secondary);
+}
+
+@keyframes ds-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

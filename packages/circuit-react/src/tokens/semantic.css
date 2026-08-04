@@ -1,0 +1,113 @@
+/*
+ * ERISERA DESIGN SYSTEM - Semantic Token Bridge
+ *
+ * Maps shadcn-style semantic variables (used by the Nominos dashboard's
+ * Tailwind @theme inline block) onto the design system's --ds-* tokens.
+ * Where no --ds-* token exists (neutral oklch ramp, charts), the values
+ * mirror what the dashboard previously hardcoded so visuals are unchanged.
+ *
+ * Usage: @import '@erisera-code/circuit-react/tokens/semantic.css';
+ * (pulls in the base --ds-* tokens automatically)
+ */
+
+@import './index.css';
+
+:root {
+  /* ============================================
+     STATUS TOKENS (job lifecycle)
+     ============================================ */
+  --ds-status-draft: oklch(0.556 0 0);
+  --ds-status-queued: oklch(0.75 0.12 85);
+  --ds-status-running: oklch(0.62 0.10 145);
+  --ds-status-merging: oklch(0.65 0.16 303.9);
+  --ds-status-completed: oklch(0.55 0.10 250);
+  --ds-status-failed: oklch(0.60 0.15 27.325);
+  --ds-status-cancelled: oklch(0.65 0.12 55);
+
+  /* ============================================
+     SEMANTIC VARIABLES (light)
+     ============================================ */
+  --radius: 0.625rem;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --popover: oklch(1 0 0);
+  /* Brand primary — --ds-primary (hsl(25 95% 53%) for erisera) */
+  --primary: hsl(var(--ds-primary-h) var(--ds-primary-s) var(--ds-primary-l));
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.97 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: var(--ds-primary-subtle);
+  --accent-foreground: hsl(var(--ds-primary-h) var(--ds-primary-s) 35%);
+  --destructive: oklch(0.60 0.15 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: hsl(var(--ds-primary-h) var(--ds-primary-s) var(--ds-primary-l) / 0.5);
+
+  /* ============================================
+     KANBAN TOKENS (board layout + drag states)
+     Colors derive from the semantic variables above via color-mix so
+     they track theme changes; explicit dark overrides below tune the
+     few cases where a straight mix reads poorly on dark surfaces.
+     ============================================ */
+  /* Layout */
+  --ds-kanban-column-width: 18rem;          /* w-72 */
+  --ds-kanban-column-min-height: 120px;     /* dropzone min height */
+  --ds-kanban-column-empty-min-height: 80px;/* empty-state placeholder */
+  --ds-kanban-column-padding: 0.5rem;       /* p-2 */
+  --ds-kanban-card-padding: 0.75rem;        /* p-3 */
+  --ds-kanban-gap: 0.5rem;                  /* space-y-2 between cards */
+
+  /* Column (dropzone) colors */
+  --ds-kanban-column-bg: color-mix(in oklab, var(--card) 30%, transparent);
+  --ds-kanban-drop-valid-bg: color-mix(in oklab, var(--primary) 10%, transparent);
+  --ds-kanban-drop-valid-ring: color-mix(in oklab, var(--primary) 30%, transparent);
+  --ds-kanban-drop-destructive-bg: color-mix(in oklab, var(--destructive) 10%, transparent);
+  --ds-kanban-drop-destructive-ring: color-mix(in oklab, var(--destructive) 30%, transparent);
+  --ds-kanban-drop-invalid-opacity: 0.5;
+
+  /* Card colors + drag states */
+  --ds-kanban-card-bg: color-mix(in oklab, var(--secondary) 50%, transparent);
+  --ds-kanban-card-border: color-mix(in oklab, var(--border) 50%, transparent);
+  --ds-kanban-card-border-hover: color-mix(in oklab, var(--primary) 30%, transparent);
+  --ds-kanban-card-drag-opacity: 0.3;
+}
+
+/* ============================================
+   SEMANTIC VARIABLES (dark)
+   ============================================ */
+.ds-theme-dark,
+.dark {
+  /* Status colors (dark mode) */
+  --ds-status-draft: oklch(0.708 0 0);
+  --ds-status-queued: oklch(0.80 0.12 85);
+  --ds-status-running: oklch(0.72 0.10 145);
+  --ds-status-merging: oklch(0.65 0.16 303.9);
+  --ds-status-completed: oklch(0.70 0.10 250);
+  --ds-status-failed: oklch(0.70 0.12 22.216);
+  --ds-status-cancelled: oklch(0.72 0.12 55);
+
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --popover: oklch(0.205 0 0);
+  /* Brand primary (dark) — --ds-primary-hover for contrast on dark surfaces */
+  --primary: hsl(var(--ds-primary-h) var(--ds-primary-s) calc(var(--ds-primary-l) + 8%));
+  --primary-foreground: oklch(0.145 0 0);
+  --secondary: oklch(0.269 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: hsl(var(--ds-primary-h) 30% 20%);
+  --accent-foreground: hsl(var(--ds-primary-h) var(--ds-primary-s) 75%);
+  --destructive: oklch(0.70 0.12 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: hsl(var(--ds-primary-h) var(--ds-primary-s) calc(var(--ds-primary-l) + 8%) / 0.5);
+
+  /* Kanban (dark) — most tokens track the dark semantic variables
+     automatically via color-mix; cards get a slightly stronger fill so
+     they separate from the dark board background. */
+  --ds-kanban-card-bg: color-mix(in oklab, var(--secondary) 65%, transparent);
+  --ds-kanban-card-border: color-mix(in oklab, var(--border) 60%, transparent);
+}

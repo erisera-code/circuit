@@ -1,0 +1,86 @@
+/* Textarea Component Styles */
+
+.ds-textarea {
+  display: block;
+  font-family: var(--ds-font-body);
+  background-color: var(--ds-surface);
+  border: 1px solid var(--ds-border);
+  border-radius: var(--ds-radius-lg);
+  color: var(--ds-text);
+  transition:
+    border-color var(--ds-transition-fast),
+    box-shadow var(--ds-transition-fast);
+}
+
+.ds-textarea::placeholder {
+  color: var(--ds-text-muted);
+}
+
+.ds-textarea:hover:not(:disabled) {
+  border-color: var(--ds-border-strong);
+}
+
+.ds-textarea:focus {
+  outline: none;
+  border-color: var(--ds-primary);
+  box-shadow: 0 0 0 3px var(--ds-primary-glow);
+}
+
+.ds-textarea:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: var(--ds-surface-muted);
+}
+
+/* Size variants */
+.ds-textarea--sm {
+  min-height: 4rem;
+  padding: var(--ds-space-2) var(--ds-space-3);
+  font-size: var(--ds-text-xs);
+  line-height: var(--ds-leading-normal);
+}
+
+.ds-textarea--md {
+  min-height: 5rem;
+  padding: var(--ds-space-2-5) var(--ds-space-3);
+  font-size: var(--ds-text-sm);
+  line-height: var(--ds-leading-relaxed);
+}
+
+.ds-textarea--lg {
+  min-height: 6rem;
+  padding: var(--ds-space-3) var(--ds-space-4);
+  font-size: var(--ds-text-base);
+  line-height: var(--ds-leading-relaxed);
+}
+
+/* Error state */
+.ds-textarea--error {
+  border-color: var(--ds-error);
+}
+
+.ds-textarea--error:focus {
+  box-shadow: 0 0 0 3px hsla(0, 84%, 60%, 0.15);
+}
+
+/* Full width */
+.ds-textarea--full-width {
+  width: 100%;
+}
+
+/* Resize behavior */
+.ds-textarea--resize-none {
+  resize: none;
+}
+
+.ds-textarea--resize-vertical {
+  resize: vertical;
+}
+
+.ds-textarea--resize-horizontal {
+  resize: horizontal;
+}
+
+.ds-textarea--resize-both {
+  resize: both;
+}

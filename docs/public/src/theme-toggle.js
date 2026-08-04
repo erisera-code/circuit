@@ -9,7 +9,7 @@
  * while in "system" mode if the OS preference changes mid-session.
  *
  * @example
- *   import { initThemeToggle } from '@erisera/circuit/theme-toggle.js';
+ *   import { initThemeToggle } from '@erisera-code/circuit/theme-toggle.js';
  *   initThemeToggle({ root: document.getElementById('canvas'), button: document.getElementById('mode') });
  */
 

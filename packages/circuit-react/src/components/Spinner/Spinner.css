@@ -1,0 +1,82 @@
+/* Spinner Component Styles */
+
+.ds-spinner {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ds-spinner svg {
+  animation: ds-spin 0.75s linear infinite;
+}
+
+.ds-spinner__track {
+  stroke: currentColor;
+  opacity: 0.2;
+}
+
+.ds-spinner__indicator {
+  stroke: currentColor;
+}
+
+/* Screen reader only text */
+.ds-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* ============================================
+   Sizes
+   ============================================ */
+
+.ds-spinner--sm svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.ds-spinner--md svg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.ds-spinner--lg svg {
+  width: 2rem;
+  height: 2rem;
+}
+
+.ds-spinner--xl svg {
+  width: 3rem;
+  height: 3rem;
+}
+
+/* ============================================
+   Variants
+   ============================================ */
+
+.ds-spinner--primary {
+  color: var(--ds-primary);
+}
+
+.ds-spinner--secondary {
+  color: var(--ds-text-secondary);
+}
+
+.ds-spinner--white {
+  color: white;
+}
+
+@keyframes ds-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

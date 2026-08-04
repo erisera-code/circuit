@@ -1,0 +1,218 @@
+/* Toast Component Styles */
+
+/* ============================================
+   Toast Container
+   ============================================ */
+
+.ds-toast-container {
+  position: fixed;
+  z-index: var(--ds-z-toast);
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-space-3);
+  padding: var(--ds-space-4);
+  pointer-events: none;
+  max-width: 24rem;
+  width: 100%;
+}
+
+/* Position variants */
+.ds-toast-container--top-right {
+  top: 0;
+  right: 0;
+}
+
+.ds-toast-container--top-left {
+  top: 0;
+  left: 0;
+}
+
+.ds-toast-container--bottom-right {
+  bottom: 0;
+  right: 0;
+  flex-direction: column-reverse;
+}
+
+.ds-toast-container--bottom-left {
+  bottom: 0;
+  left: 0;
+  flex-direction: column-reverse;
+}
+
+.ds-toast-container--top-center {
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.ds-toast-container--bottom-center {
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  flex-direction: column-reverse;
+}
+
+/* ============================================
+   Toast
+   ============================================ */
+
+.ds-toast {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ds-space-3);
+  padding: var(--ds-space-4);
+  background-color: var(--ds-surface);
+  border: 1px solid var(--ds-border);
+  border-radius: var(--ds-radius-lg);
+  box-shadow: var(--ds-shadow-lg);
+  pointer-events: auto;
+  animation: ds-toast-slide-in var(--ds-duration-slow) var(--ds-ease-out);
+}
+
+/* Variant colors */
+.ds-toast--default .ds-toast__icon {
+  color: var(--ds-text-secondary);
+}
+
+.ds-toast--success {
+  border-color: var(--ds-success);
+}
+
+.ds-toast--success .ds-toast__icon {
+  color: var(--ds-success);
+}
+
+.ds-toast--error {
+  border-color: var(--ds-error);
+}
+
+.ds-toast--error .ds-toast__icon {
+  color: var(--ds-error);
+}
+
+.ds-toast--warning {
+  border-color: var(--ds-warning);
+}
+
+.ds-toast--warning .ds-toast__icon {
+  color: var(--ds-warning);
+}
+
+.ds-toast--info {
+  border-color: var(--ds-info);
+}
+
+.ds-toast--info .ds-toast__icon {
+  color: var(--ds-info);
+}
+
+/* ============================================
+   Toast Icon
+   ============================================ */
+
+.ds-toast__icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ds-toast__icon svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+/* ============================================
+   Toast Content
+   ============================================ */
+
+.ds-toast__content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-space-1);
+}
+
+/* ============================================
+   Toast Title
+   ============================================ */
+
+.ds-toast__title {
+  font-family: var(--ds-font-body);
+  font-size: var(--ds-text-sm);
+  font-weight: var(--ds-font-semibold);
+  line-height: var(--ds-leading-tight);
+  color: var(--ds-text);
+}
+
+/* ============================================
+   Toast Description
+   ============================================ */
+
+.ds-toast__description {
+  font-family: var(--ds-font-body);
+  font-size: var(--ds-text-sm);
+  line-height: var(--ds-leading-normal);
+  color: var(--ds-text-secondary);
+}
+
+/* ============================================
+   Toast Action
+   ============================================ */
+
+.ds-toast__action {
+  flex-shrink: 0;
+  padding: var(--ds-space-1-5) var(--ds-space-3);
+  font-family: var(--ds-font-body);
+  font-size: var(--ds-text-xs);
+  font-weight: var(--ds-font-medium);
+  color: var(--ds-primary);
+  background: transparent;
+  border: 1px solid var(--ds-primary);
+  border-radius: var(--ds-radius-md);
+  cursor: pointer;
+  transition:
+    background-color var(--ds-transition-fast),
+    color var(--ds-transition-fast);
+}
+
+.ds-toast__action:hover {
+  background-color: var(--ds-primary);
+  color: white;
+}
+
+.ds-toast__action:focus-visible {
+  outline: 2px solid var(--ds-primary);
+  outline-offset: 2px;
+}
+
+/* ============================================
+   Toast Close
+   ============================================ */
+
+.ds-toast__close {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  color: var(--ds-text-muted);
+  background: transparent;
+  border: none;
+  border-radius: var(--ds-radius-sm);
+  cursor: pointer;
+  transition: color var(--ds-transition-fast), background-color var(--ds-transition-fast);
+}
+
+.ds-toast__close:hover {
+  color: var(--ds-text);
+  background-color: var(--ds-surface-muted);
+}
+
+.ds-toast__close:focus-visible {
+  outline: 2px solid var(--ds-primary);
+  outline-offset: 2px;
+}

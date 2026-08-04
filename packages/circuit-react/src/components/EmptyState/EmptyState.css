@@ -1,0 +1,114 @@
+/* EmptyState Component Styles */
+
+.ds-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--ds-space-8);
+}
+
+/* ============================================
+   Sizes
+   ============================================ */
+
+.ds-empty-state--sm {
+  padding: var(--ds-space-6);
+}
+
+.ds-empty-state--sm .ds-empty-state__icon {
+  margin-bottom: var(--ds-space-3);
+}
+
+.ds-empty-state--sm .ds-empty-state__icon svg {
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+.ds-empty-state--sm .ds-empty-state__title {
+  font-size: var(--ds-text-base);
+}
+
+.ds-empty-state--sm .ds-empty-state__description {
+  font-size: var(--ds-text-sm);
+}
+
+.ds-empty-state--md {
+  padding: var(--ds-space-10);
+}
+
+.ds-empty-state--md .ds-empty-state__icon svg {
+  width: 3.5rem;
+  height: 3.5rem;
+}
+
+.ds-empty-state--lg {
+  padding: var(--ds-space-16);
+}
+
+.ds-empty-state--lg .ds-empty-state__icon svg {
+  width: 5rem;
+  height: 5rem;
+}
+
+.ds-empty-state--lg .ds-empty-state__title {
+  font-size: var(--ds-text-2xl);
+}
+
+.ds-empty-state--lg .ds-empty-state__description {
+  font-size: var(--ds-text-lg);
+}
+
+/* ============================================
+   Icon
+   ============================================ */
+
+.ds-empty-state__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--ds-space-4);
+  color: var(--ds-text-muted);
+}
+
+.ds-empty-state__icon svg {
+  width: 3.5rem;
+  height: 3.5rem;
+}
+
+/* ============================================
+   Title
+   ============================================ */
+
+.ds-empty-state__title {
+  margin: 0;
+  font-size: var(--ds-text-lg);
+  font-weight: var(--ds-font-semibold);
+  color: var(--ds-text);
+  line-height: var(--ds-leading-tight);
+}
+
+/* ============================================
+   Description
+   ============================================ */
+
+.ds-empty-state__description {
+  margin: var(--ds-space-2) 0 0;
+  font-size: var(--ds-text-base);
+  color: var(--ds-text-secondary);
+  line-height: var(--ds-leading-relaxed);
+  max-width: 28rem;
+}
+
+/* ============================================
+   Actions
+   ============================================ */
+
+.ds-empty-state__actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ds-space-3);
+  margin-top: var(--ds-space-6);
+}

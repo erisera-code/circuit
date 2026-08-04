@@ -1,0 +1,16 @@
+/* Separator Component Styles */
+
+.ds-separator {
+  flex-shrink: 0;
+  background-color: var(--ds-border);
+}
+
+.ds-separator--horizontal {
+  height: 1px;
+  width: 100%;
+}
+
+.ds-separator--vertical {
+  height: 100%;
+  width: 1px;
+}

@@ -1,6 +1,20 @@
 # Circuit
 
-The [erisera](https://erisera.com) OSS design system — one set of tokens, one accent hue per tool.
+The [erisera](https://erisera.com) OSS design system monorepo — one set of tokens, one accent hue per tool.
+
+Two packages, published under the `@erisera-code` scope:
+
+| Package | Directory | What it is |
+|---|---|---|
+| **`@erisera-code/circuit`** | [`packages/circuit/`](packages/circuit/) | The CSS foundation — tokens, per-tool themes, docs-shell components, command palette, logo marks. Zero dependencies, framework-agnostic. |
+| **`@erisera-code/circuit-react`** | [`packages/circuit-react/`](packages/circuit-react/) | React components (Radix-based), design tokens, and marketing-site CSS ported from the nominos design system. Ships compiled ESM + types from `dist/`. |
+
+The two are bridged by a single variable: circuit drives its accent from `--hue`
+(one value per tool), and circuit-react's token layer declares
+`--ds-primary-h: var(--hue, 25)` — so when both stylesheets are loaded, the
+React components' accent follows the active tool's hue automatically. Loaded
+standalone, circuit-react keeps its default orange (hue 25), same as circuit's
+default.
 
 > Not yet deployed to `circuit.erisera.com` — `docs/` (a Starlight site) and `showcase/index.html` (a standalone interactive demo) are both built and verified locally; see [Docs site](#docs-site) below.
 
@@ -14,19 +28,19 @@ erisera ships several independent open-source tools — [ai.matey](https://githu
 2. **Semantic color is fixed.** `success` / `warning` / `error` / `info` mean the same thing on every site, always the same color.
 3. **Syntax highlighting is fixed.** Code reads identically whether you're on matey's docs or ecmanim's.
 
-Only `--accent` (derived from `--hue`) changes per tool. See [`src/tokens.css`](src/tokens.css).
+Only `--accent` (derived from `--hue`) changes per tool. See [`packages/circuit/src/tokens.css`](packages/circuit/src/tokens.css).
 
 ## Install
 
 ```sh
-npm install @erisera/circuit
+npm install @erisera-code/circuit
 ```
 
 ```css
-@import '@erisera/circuit/tokens.css';
-@import '@erisera/circuit/themes.css';   /* per-tool --hue overrides */
-@import '@erisera/circuit/components.css';
-@import '@erisera/circuit/palette.css';
+@import '@erisera-code/circuit/tokens.css';
+@import '@erisera-code/circuit/themes.css';   /* per-tool --hue overrides */
+@import '@erisera-code/circuit/components.css';
+@import '@erisera-code/circuit/palette.css';
 ```
 
 Apply a theme and (optionally) dark mode via classes on your root element:
@@ -38,6 +52,8 @@ Apply a theme and (optionally) dark mode via classes on your root element:
 
 ## What's in the box
 
+All paths below are inside `packages/circuit/`:
+
 | File | Contents |
 |---|---|
 | `src/tokens.css` | Neutral scale, semantic colors, accent formula, type, spacing, radius, elevation, syntax colors |
@@ -45,7 +61,15 @@ Apply a theme and (optionally) dark mode via classes on your root element:
 | `src/components.css` | Docs shell (header/sidebar/pager), code block, code groups, terminal block, admonitions, API parameter list, buttons, inputs, badges, tabs |
 | `src/palette.css` + `src/palette.js` | A working search / command palette — framework-agnostic, ~150 lines, no dependencies |
 | `src/marks/*.svg` | Six standalone logo marks, one per tool, tool hue baked in |
-| `showcase/index.html` | The live spec/demo page — open it directly, or serve the repo root with any static file server |
+
+`@erisera-code/circuit-react` (in `packages/circuit-react/`) adds the React
+tier: 28 Radix-based components (`./react` export), the `--ds-*` token layer
+(`./tokens`, `./tokens/semantic.css`), and the marketing-site CSS bundle
+(`./css`, `./css/*.css`). Build it with `npm run build -w
+@erisera-code/circuit-react` (tsup → `dist/`).
+
+The repo-root `showcase/index.html` is the live spec/demo page — open it
+directly, or serve the repo root with any static file server.
 
 ## Hue registry
 
@@ -84,7 +108,7 @@ Each ships as a standalone SVG in `src/marks/` with the tool's hue baked in — 
 ## Search / command palette
 
 ```js
-import { createCommandPalette } from '@erisera/circuit/palette.js';
+import { createCommandPalette } from '@erisera-code/circuit/palette.js';
 
 createCommandPalette({
   trigger: document.getElementById('search-trigger'),
@@ -100,7 +124,7 @@ Doubles as a **family-wide jump hub** (search from matey, land on an ecmanim pag
 
 ## Docs site
 
-`docs/` is a real [Astro Starlight](https://starlight.astro.build) site that consumes `@erisera/circuit` via a local `file:..` dependency — proof that the design system actually themes a third-party framework, not just its own showcase.
+`docs/` is a real [Astro Starlight](https://starlight.astro.build) site that consumes `@erisera-code/circuit` via a local `file:../packages/circuit` dependency — proof that the design system actually themes a third-party framework, not just its own showcase.
 
 ```sh
 cd docs

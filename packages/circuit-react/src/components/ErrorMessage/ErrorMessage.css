@@ -1,0 +1,161 @@
+/* ErrorMessage Component Styles */
+
+.ds-error {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ds-space-3);
+}
+
+/* ============================================
+   Variants
+   ============================================ */
+
+/* Inline - simple text style */
+.ds-error--inline {
+  color: var(--ds-error);
+}
+
+.ds-error--inline .ds-error__icon svg {
+  width: 1rem;
+  height: 1rem;
+  margin-top: 0.125rem;
+}
+
+.ds-error--inline .ds-error__message {
+  font-size: var(--ds-text-sm);
+}
+
+/* Banner - full width alert */
+.ds-error--banner {
+  padding: var(--ds-space-3) var(--ds-space-4);
+  background-color: var(--ds-error-subtle);
+  border: 1px solid var(--ds-error-muted);
+  border-radius: var(--ds-radius-lg);
+}
+
+.ds-error--banner .ds-error__icon {
+  color: var(--ds-error);
+}
+
+.ds-error--banner .ds-error__icon svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+/* Card - elevated error display */
+.ds-error--card {
+  padding: var(--ds-space-4) var(--ds-space-5);
+  background-color: var(--ds-surface);
+  border: 1px solid var(--ds-error);
+  border-radius: var(--ds-radius-xl);
+  box-shadow: var(--ds-shadow-md);
+}
+
+.ds-error--card .ds-error__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  background-color: var(--ds-error-subtle);
+  border-radius: var(--ds-radius-lg);
+  color: var(--ds-error);
+  flex-shrink: 0;
+}
+
+.ds-error--card .ds-error__icon svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+/* ============================================
+   Icon
+   ============================================ */
+
+.ds-error__icon {
+  flex-shrink: 0;
+  color: var(--ds-error);
+}
+
+.ds-error__icon svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+/* ============================================
+   Content
+   ============================================ */
+
+.ds-error__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.ds-error__title {
+  margin: 0 0 var(--ds-space-1);
+  font-size: var(--ds-text-sm);
+  font-weight: var(--ds-font-semibold);
+  color: var(--ds-error);
+  line-height: var(--ds-leading-tight);
+}
+
+.ds-error__message {
+  margin: 0;
+  font-size: var(--ds-text-sm);
+  color: var(--ds-text-secondary);
+  line-height: var(--ds-leading-normal);
+}
+
+.ds-error--inline .ds-error__message {
+  color: var(--ds-error);
+}
+
+/* ============================================
+   Actions
+   ============================================ */
+
+.ds-error__retry {
+  display: inline-flex;
+  align-items: center;
+  margin-top: var(--ds-space-2);
+  padding: 0;
+  background: none;
+  border: none;
+  font-family: var(--ds-font-body);
+  font-size: var(--ds-text-sm);
+  font-weight: var(--ds-font-medium);
+  color: var(--ds-error);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color var(--ds-transition-fast);
+}
+
+.ds-error__retry:hover {
+  color: var(--ds-error-hover);
+}
+
+.ds-error__dismiss {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--ds-space-1);
+  background: none;
+  border: none;
+  border-radius: var(--ds-radius-md);
+  color: var(--ds-text-muted);
+  cursor: pointer;
+  transition:
+    background-color var(--ds-transition-fast),
+    color var(--ds-transition-fast);
+}
+
+.ds-error__dismiss:hover {
+  background-color: var(--ds-error-muted);
+  color: var(--ds-error);
+}
+
+.ds-error__dismiss svg {
+  width: 1rem;
+  height: 1rem;
+}

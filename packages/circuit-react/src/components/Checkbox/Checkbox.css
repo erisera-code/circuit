@@ -1,0 +1,145 @@
+/* Checkbox Component Styles */
+
+/* ============================================
+   Checkbox Button
+   ============================================ */
+
+.ds-checkbox {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background-color: var(--ds-surface);
+  border: 1px solid var(--ds-border-strong);
+  border-radius: var(--ds-radius-sm);
+  transition:
+    background-color var(--ds-transition-fast),
+    border-color var(--ds-transition-fast),
+    box-shadow var(--ds-transition-fast);
+  cursor: pointer;
+}
+
+.ds-checkbox:hover:not(:disabled) {
+  border-color: var(--ds-primary);
+}
+
+.ds-checkbox:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--ds-surface), 0 0 0 4px var(--ds-primary);
+}
+
+.ds-checkbox:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ds-checkbox[data-state="checked"],
+.ds-checkbox[data-state="indeterminate"] {
+  background-color: var(--ds-primary);
+  border-color: var(--ds-primary);
+}
+
+.ds-checkbox[data-state="checked"]:hover:not(:disabled),
+.ds-checkbox[data-state="indeterminate"]:hover:not(:disabled) {
+  background-color: var(--ds-primary-hover);
+  border-color: var(--ds-primary-hover);
+}
+
+/* Size variants */
+.ds-checkbox--sm {
+  width: 1rem;
+  height: 1rem;
+}
+
+.ds-checkbox--md {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.ds-checkbox--lg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+/* ============================================
+   Indicator
+   ============================================ */
+
+.ds-checkbox__indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.ds-checkbox__indicator[data-state="checked"] .ds-checkbox__icon--indeterminate,
+.ds-checkbox__indicator[data-state="indeterminate"] .ds-checkbox__icon--check,
+.ds-checkbox__indicator[data-state="unchecked"] .ds-checkbox__icon {
+  display: none;
+}
+
+/* ============================================
+   Icon
+   ============================================ */
+
+.ds-checkbox__icon {
+  width: 0.75em;
+  height: 0.75em;
+}
+
+.ds-checkbox--sm .ds-checkbox__icon {
+  width: 0.625rem;
+  height: 0.625rem;
+}
+
+.ds-checkbox--lg .ds-checkbox__icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* ============================================
+   Wrapper (with label)
+   ============================================ */
+
+.ds-checkbox-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-space-1);
+}
+
+.ds-checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: var(--ds-space-2);
+}
+
+/* ============================================
+   Label
+   ============================================ */
+
+.ds-checkbox-label {
+  font-family: var(--ds-font-body);
+  font-size: var(--ds-text-sm);
+  font-weight: var(--ds-font-normal);
+  line-height: var(--ds-leading-none);
+  color: var(--ds-text);
+  cursor: pointer;
+  user-select: none;
+}
+
+.ds-checkbox-label--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ============================================
+   Description
+   ============================================ */
+
+.ds-checkbox-description {
+  margin: 0;
+  margin-left: calc(1.25rem + var(--ds-space-2)); /* Align with label */
+  font-size: var(--ds-text-xs);
+  line-height: var(--ds-leading-normal);
+  color: var(--ds-text-secondary);
+}

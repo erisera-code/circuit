@@ -1,0 +1,217 @@
+/* ============================================
+   CodeBlock Container
+   ============================================ */
+
+.ds-code-block {
+  border-radius: var(--ds-radius-xl);
+  overflow: hidden;
+  font-family: var(--ds-font-mono);
+}
+
+/* Default variant */
+.ds-code-block--default {
+  background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+  border: 1px solid #334155;
+}
+
+/* Terminal variant */
+.ds-code-block--terminal {
+  background: #1a1a2e;
+  border: 1px solid #2d2d4a;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+/* ============================================
+   Header
+   ============================================ */
+
+.ds-code-block__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background: rgba(30, 41, 59, 0.5);
+  border-bottom: 1px solid #334155;
+}
+
+.ds-code-block--terminal .ds-code-block__header {
+  background: #16162a;
+  border-bottom-color: #2d2d4a;
+}
+
+.ds-code-block__header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.ds-code-block__window-controls {
+  display: flex;
+  gap: 0.375rem;
+}
+
+.ds-code-block__dot {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+}
+
+.ds-code-block__dot--red {
+  background: #ef4444;
+}
+
+.ds-code-block__dot--yellow {
+  background: #eab308;
+}
+
+.ds-code-block__dot--green {
+  background: #22c55e;
+}
+
+.ds-code-block__filename {
+  font-size: 0.875rem;
+  color: #94a3b8;
+}
+
+/* Copy button */
+.ds-code-block__copy-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.5rem;
+  background: transparent;
+  border: none;
+  border-radius: var(--ds-radius-sm);
+  color: #8b8ba7;
+  font-family: var(--ds-font-mono);
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: background var(--ds-transition-fast), color var(--ds-transition-fast);
+}
+
+.ds-code-block__copy-btn:hover {
+  background: #2d2d4a;
+  color: #e4e4eb;
+}
+
+.ds-code-block__copy-btn svg {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+/* ============================================
+   Body
+   ============================================ */
+
+.ds-code-block__body {
+  overflow: auto;
+}
+
+.ds-code-block__body pre {
+  margin: 0;
+  padding: 1.25rem;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+}
+
+.ds-code-block__body code {
+  display: block;
+  font-size: 0.875rem;
+  line-height: 1.7;
+  color: #e2e8f0;
+  white-space: pre;
+}
+
+/* Line numbers */
+.ds-code-block__lines {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.ds-code-block__line-number {
+  padding-right: 1rem;
+  text-align: right;
+  color: #4b5563;
+  user-select: none;
+  vertical-align: top;
+  width: 1%;
+}
+
+.ds-code-block__line-content {
+  padding-left: 1rem;
+  border-left: 1px solid #334155;
+  white-space: pre;
+}
+
+/* ============================================
+   Footer
+   ============================================ */
+
+.ds-code-block__footer {
+  padding: 0.75rem 1.25rem;
+  background: rgba(30, 41, 59, 0.3);
+  border-top: 1px solid #334155;
+}
+
+.ds-code-block--terminal .ds-code-block__footer {
+  background: rgba(22, 22, 42, 0.5);
+  border-top-color: #2d2d4a;
+}
+
+/* ============================================
+   CommandLine
+   ============================================ */
+
+.ds-command-line {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--ds-font-mono);
+  font-size: 0.875rem;
+  color: #e4e4eb;
+}
+
+.ds-command-line__prompt {
+  user-select: none;
+}
+
+.ds-command-line--primary .ds-command-line__prompt {
+  color: hsl(var(--ds-primary-h), var(--ds-primary-s), var(--ds-primary-l));
+}
+
+.ds-command-line--success .ds-command-line__prompt {
+  color: var(--ds-color-success);
+}
+
+.ds-command-line--muted .ds-command-line__prompt {
+  color: #6b6b8d;
+}
+
+.ds-command-line__command {
+  flex: 1;
+}
+
+/* ============================================
+   Syntax highlighting placeholder colors
+   ============================================ */
+
+.ds-code-block .token-comment {
+  color: #6b7280;
+}
+
+.ds-code-block .token-keyword {
+  color: #c084fc;
+}
+
+.ds-code-block .token-string {
+  color: #86efac;
+}
+
+.ds-code-block .token-number {
+  color: #fbbf24;
+}
+
+.ds-code-block .token-property {
+  color: #60a5fa;
+}

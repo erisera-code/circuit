@@ -1,0 +1,79 @@
+/* ============================================
+   Background Pattern
+   ============================================ */
+
+.ds-background-pattern {
+  --ds-pattern-color: var(--ds-color-text-muted);
+  pointer-events: none;
+}
+
+.ds-background-pattern--absolute {
+  position: absolute;
+  inset: 0;
+}
+
+/* Grid pattern */
+.ds-background-pattern--grid {
+  background-image:
+    linear-gradient(rgba(var(--ds-pattern-color), var(--ds-pattern-opacity)) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(var(--ds-pattern-color), var(--ds-pattern-opacity)) 1px, transparent 1px);
+  background-size: var(--ds-pattern-size) var(--ds-pattern-size);
+}
+
+/* Use a simpler approach with CSS */
+.ds-background-pattern--grid {
+  background-image:
+    linear-gradient(hsl(220 14% 60% / var(--ds-pattern-opacity)) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(220 14% 60% / var(--ds-pattern-opacity)) 1px, transparent 1px);
+  background-size: var(--ds-pattern-size) var(--ds-pattern-size);
+}
+
+/* Dots pattern */
+.ds-background-pattern--dots {
+  background-image: radial-gradient(
+    circle,
+    hsl(220 14% 60% / var(--ds-pattern-opacity)) 1px,
+    transparent 1px
+  );
+  background-size: var(--ds-pattern-size) var(--ds-pattern-size);
+}
+
+/* None - just a container */
+.ds-background-pattern--none {
+  background: transparent;
+}
+
+/* ============================================
+   Glow Effect
+   ============================================ */
+
+.ds-glow {
+  position: absolute;
+  width: var(--ds-glow-size);
+  height: var(--ds-glow-size);
+  border-radius: 50%;
+  filter: blur(var(--ds-glow-blur));
+  opacity: var(--ds-glow-opacity);
+  pointer-events: none;
+}
+
+/* Color variants */
+.ds-glow--primary {
+  background: hsl(var(--ds-primary-h), var(--ds-primary-s), var(--ds-primary-l));
+}
+
+.ds-glow--success {
+  background: var(--ds-color-success);
+}
+
+.ds-glow--warning {
+  background: var(--ds-color-warning);
+}
+
+.ds-glow--error {
+  background: var(--ds-color-error);
+}
+
+.ds-glow--custom {
+  background: var(--ds-glow-color, hsl(var(--ds-primary-h), var(--ds-primary-s), var(--ds-primary-l)));
+}
