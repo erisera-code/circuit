@@ -1,0 +1,104 @@
+/* DropdownMenu Component Styles */
+
+/* ============================================
+   Content
+   ============================================ */
+
+.ds-dropdown-content {
+  z-index: var(--ds-z-dropdown);
+  min-width: 10rem;
+  overflow: hidden;
+  padding: var(--ds-space-1);
+  background-color: var(--ds-surface);
+  border: 1px solid var(--ds-border);
+  border-radius: var(--ds-radius-lg);
+  box-shadow: var(--ds-shadow-lg);
+}
+
+.ds-dropdown-content[data-state="open"] {
+  animation: ds-dropdown-show var(--ds-duration-normal) var(--ds-ease-out);
+}
+
+.ds-dropdown-content[data-state="closed"] {
+  animation: ds-dropdown-hide var(--ds-duration-fast) var(--ds-ease-in);
+}
+
+/* ============================================
+   Item
+   ============================================ */
+
+.ds-dropdown-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--ds-space-2);
+  padding: var(--ds-space-2) var(--ds-space-3);
+  font-family: var(--ds-font-body);
+  font-size: var(--ds-text-sm);
+  color: var(--ds-text);
+  border-radius: var(--ds-radius-md);
+  cursor: pointer;
+  user-select: none;
+  outline: none;
+  transition: background-color var(--ds-transition-fast);
+}
+
+.ds-dropdown-item:focus,
+.ds-dropdown-item[data-highlighted] {
+  background-color: var(--ds-surface-muted);
+}
+
+.ds-dropdown-item[data-disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Destructive variant */
+.ds-dropdown-item--destructive {
+  color: var(--ds-error);
+}
+
+.ds-dropdown-item--destructive:focus,
+.ds-dropdown-item--destructive[data-highlighted] {
+  background-color: var(--ds-error-subtle);
+}
+
+/* Icon slot */
+.ds-dropdown-item svg {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+}
+
+/* ============================================
+   Label
+   ============================================ */
+
+.ds-dropdown-label {
+  padding: var(--ds-space-1-5) var(--ds-space-3);
+  font-size: var(--ds-text-xs);
+  font-weight: var(--ds-font-semibold);
+  color: var(--ds-text-muted);
+}
+
+/* ============================================
+   Separator
+   ============================================ */
+
+.ds-dropdown-separator {
+  height: 1px;
+  margin: var(--ds-space-1) calc(var(--ds-space-1) * -1);
+  background-color: var(--ds-border);
+}
+
+/* ============================================
+   Shortcut
+   ============================================ */
+
+.ds-dropdown-shortcut {
+  margin-left: auto;
+  font-size: var(--ds-text-xs);
+  color: var(--ds-text-muted);
+  letter-spacing: var(--ds-tracking-wider);
+}

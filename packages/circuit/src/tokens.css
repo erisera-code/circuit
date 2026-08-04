@@ -3,8 +3,8 @@
  * The erisera OSS design system — one set of tokens, one accent hue per tool.
  *
  * Usage:
- *   import '@erisera/circuit/tokens.css';
- *   import '@erisera/circuit/themes.css';   // per-tool --hue overrides
+ *   import '@erisera-code/circuit/tokens.css';
+ *   import '@erisera-code/circuit/themes.css';   // per-tool --hue overrides
  *   <html class="theme-matey">              // and optionally .dark
  *
  * Three rules keep the family coherent — see README.md:

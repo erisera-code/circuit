@@ -1,0 +1,23 @@
+/*
+ * ERISERA DESIGN SYSTEM - Complete CSS
+ *
+ * Import this single file to get all shared styles:
+ * @import '@erisera-code/circuit-react/css';
+ *
+ * Or import individually:
+ * @import '@erisera-code/circuit-react/css/tokens.css';
+ * @import '@erisera-code/circuit-react/css/base.css';
+ * @import '@erisera-code/circuit-react/css/layout.css';
+ * @import '@erisera-code/circuit-react/css/components.css';
+ * @import '@erisera-code/circuit-react/css/sections.css';
+ * @import '@erisera-code/circuit-react/css/utilities.css';
+ * @import '@erisera-code/circuit-react/css/animations.css';
+ */
+
+@import './tokens.css';
+@import './base.css';
+@import './layout.css';
+@import './components.css';
+@import './sections.css';
+@import './utilities.css';
+@import './animations.css';

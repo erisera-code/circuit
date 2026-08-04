@@ -1,0 +1,57 @@
+/* Container Component Styles */
+
+.ds-container {
+  width: 100%;
+}
+
+/* ============================================
+   Sizes (max-width)
+   ============================================ */
+
+.ds-container--sm {
+  max-width: 40rem; /* 640px */
+}
+
+.ds-container--md {
+  max-width: 48rem; /* 768px */
+}
+
+.ds-container--lg {
+  max-width: 64rem; /* 1024px */
+}
+
+.ds-container--xl {
+  max-width: 80rem; /* 1280px */
+}
+
+.ds-container--full {
+  max-width: none;
+}
+
+/* ============================================
+   Modifiers
+   ============================================ */
+
+.ds-container--center {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.ds-container--padded {
+  padding-left: var(--ds-space-4);
+  padding-right: var(--ds-space-4);
+}
+
+@media (min-width: 640px) {
+  .ds-container--padded {
+    padding-left: var(--ds-space-6);
+    padding-right: var(--ds-space-6);
+  }
+}
+
+@media (min-width: 1024px) {
+  .ds-container--padded {
+    padding-left: var(--ds-space-8);
+    padding-right: var(--ds-space-8);
+  }
+}

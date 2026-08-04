@@ -1,0 +1,33 @@
+/* Label Component Styles */
+
+.ds-label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ds-space-1);
+  font-family: var(--ds-font-body);
+  font-size: var(--ds-text-sm);
+  font-weight: var(--ds-font-medium);
+  line-height: var(--ds-leading-normal);
+  color: var(--ds-text);
+  cursor: default;
+  user-select: none;
+}
+
+/* Required indicator */
+.ds-label__required {
+  color: var(--ds-error);
+  font-weight: var(--ds-font-bold);
+}
+
+/* Optional indicator */
+.ds-label__optional {
+  font-size: var(--ds-text-xs);
+  font-weight: var(--ds-font-normal);
+  color: var(--ds-text-muted);
+}
+
+/* Disabled state - when label is associated with a disabled input */
+.ds-label[data-disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

@@ -1,0 +1,150 @@
+/* Badge Component Styles */
+
+.ds-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ds-space-1-5);
+  font-family: var(--ds-font-mono);
+  font-weight: var(--ds-font-medium);
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  border-radius: var(--ds-radius-md);
+  white-space: nowrap;
+}
+
+/* ============================================
+   Variants
+   ============================================ */
+
+.ds-badge--default {
+  background-color: var(--ds-gray-100);
+  color: var(--ds-gray-700);
+}
+
+.ds-badge--primary {
+  background-color: var(--ds-primary-subtle);
+  color: var(--ds-primary);
+}
+
+.ds-badge--secondary {
+  background-color: var(--ds-surface-muted);
+  color: var(--ds-text-secondary);
+  border: 1px solid var(--ds-border);
+}
+
+.ds-badge--success {
+  background-color: var(--ds-success-subtle);
+  color: #047857; /* emerald-700 */
+}
+
+.ds-badge--warning {
+  background-color: var(--ds-warning-subtle);
+  color: #b45309; /* amber-700 */
+}
+
+.ds-badge--error {
+  background-color: var(--ds-error-subtle);
+  color: #b91c1c; /* red-700 */
+}
+
+.ds-badge--info {
+  background-color: var(--ds-info-subtle);
+  color: #1d4ed8; /* blue-700 */
+}
+
+.ds-badge--outline {
+  background-color: transparent;
+  color: var(--ds-text);
+  border: 1px solid var(--ds-border);
+}
+
+/* ============================================
+   Sizes
+   ============================================ */
+
+.ds-badge--sm {
+  padding: var(--ds-space-0-5) var(--ds-space-1-5);
+  font-size: 0.625rem; /* 10px */
+}
+
+.ds-badge--md {
+  padding: var(--ds-space-1) var(--ds-space-2);
+  font-size: var(--ds-text-xs);
+}
+
+.ds-badge--lg {
+  padding: var(--ds-space-1-5) var(--ds-space-3);
+  font-size: var(--ds-text-sm);
+}
+
+/* ============================================
+   Modifiers
+   ============================================ */
+
+.ds-badge--pill {
+  border-radius: var(--ds-radius-full);
+}
+
+/* ============================================
+   Inner Elements
+   ============================================ */
+
+.ds-badge__dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: var(--ds-radius-full);
+  background-color: currentColor;
+  flex-shrink: 0;
+}
+
+/* Dot color variants */
+.ds-badge__dot--default {
+  background-color: var(--ds-gray-400);
+}
+
+.ds-badge__dot--success {
+  background-color: var(--ds-success);
+}
+
+.ds-badge__dot--warning {
+  background-color: var(--ds-warning);
+}
+
+.ds-badge__dot--error {
+  background-color: var(--ds-error);
+}
+
+.ds-badge__dot--info {
+  background-color: var(--ds-info);
+}
+
+.ds-badge__dot--running {
+  background-color: var(--ds-primary);
+  animation: ds-pulse 1.5s ease-in-out infinite;
+}
+
+.ds-badge__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ds-badge__icon svg {
+  width: 0.875em;
+  height: 0.875em;
+}
+
+.ds-badge__text {
+  flex-shrink: 0;
+}
+
+@keyframes ds-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}

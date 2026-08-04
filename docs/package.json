@@ -10,7 +10,7 @@
     "deploy": "npm run build && wrangler deploy"
   },
   "dependencies": {
-    "@erisera/circuit": "file:..",
+    "@erisera-code/circuit": "file:../packages/circuit",
     "@astrojs/starlight": "^0.41.3",
     "astro": "^7.0.6"
   },

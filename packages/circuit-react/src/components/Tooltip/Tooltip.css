@@ -1,0 +1,52 @@
+/* Tooltip Component Styles */
+
+/* ============================================
+   Tooltip Content
+   ============================================ */
+
+.ds-tooltip-content {
+  z-index: var(--ds-z-tooltip);
+  max-width: 20rem;
+  padding: var(--ds-space-2) var(--ds-space-3);
+  font-family: var(--ds-font-body);
+  font-size: var(--ds-text-xs);
+  line-height: var(--ds-leading-normal);
+  color: var(--ds-text-inverse);
+  background-color: var(--ds-gray-900);
+  border-radius: var(--ds-radius-md);
+  box-shadow: var(--ds-shadow-md);
+  user-select: none;
+}
+
+.ds-tooltip-content[data-state="delayed-open"] {
+  animation: ds-scale-in var(--ds-duration-normal) var(--ds-ease-out);
+}
+
+.ds-tooltip-content[data-state="closed"] {
+  animation: ds-scale-out var(--ds-duration-fast) var(--ds-ease-in);
+}
+
+/* Position-based animations */
+.ds-tooltip-content[data-side="top"] {
+  animation-name: ds-slide-in-from-bottom;
+}
+
+.ds-tooltip-content[data-side="bottom"] {
+  animation-name: ds-slide-in-from-top;
+}
+
+.ds-tooltip-content[data-side="left"] {
+  animation-name: ds-slide-in-from-right;
+}
+
+.ds-tooltip-content[data-side="right"] {
+  animation-name: ds-slide-in-from-left;
+}
+
+/* ============================================
+   Tooltip Arrow
+   ============================================ */
+
+.ds-tooltip-arrow {
+  fill: var(--ds-gray-900);
+}

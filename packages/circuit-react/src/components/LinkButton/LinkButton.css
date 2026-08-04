@@ -1,0 +1,115 @@
+.ds-link-button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ds-spacing-2);
+  font-family: var(--ds-font-sans);
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all var(--ds-transition-fast);
+}
+
+.ds-link-button:focus-visible {
+  outline: 2px solid hsl(var(--ds-primary-h), var(--ds-primary-s), var(--ds-primary-l));
+  outline-offset: 2px;
+  border-radius: var(--ds-radius-sm);
+}
+
+/* Sizes */
+.ds-link-button--sm {
+  font-size: var(--ds-font-size-sm);
+}
+
+.ds-link-button--sm .ds-link-button__icon-left svg,
+.ds-link-button--sm .ds-link-button__icon-right svg {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+.ds-link-button--md {
+  font-size: var(--ds-font-size-base);
+}
+
+.ds-link-button--md .ds-link-button__icon-left svg,
+.ds-link-button--md .ds-link-button__icon-right svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.ds-link-button--lg {
+  font-size: var(--ds-font-size-lg);
+}
+
+.ds-link-button--lg .ds-link-button__icon-left svg,
+.ds-link-button--lg .ds-link-button__icon-right svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+/* Default variant */
+.ds-link-button--default {
+  color: var(--ds-color-text);
+}
+
+.ds-link-button--default:hover {
+  color: hsl(var(--ds-primary-h), var(--ds-primary-s), var(--ds-primary-l));
+}
+
+.ds-link-button--default .ds-link-button__icon-right {
+  transition: transform var(--ds-transition-fast);
+}
+
+.ds-link-button--default:hover .ds-link-button__icon-right {
+  transform: translateX(4px);
+}
+
+/* Muted variant */
+.ds-link-button--muted {
+  color: var(--ds-color-text-muted);
+}
+
+.ds-link-button--muted:hover {
+  color: var(--ds-color-text);
+}
+
+.ds-link-button--muted .ds-link-button__icon-right {
+  transition: transform var(--ds-transition-fast);
+}
+
+.ds-link-button--muted:hover .ds-link-button__icon-right {
+  transform: translateX(4px);
+}
+
+/* Primary variant */
+.ds-link-button--primary {
+  color: hsl(var(--ds-primary-h), var(--ds-primary-s), var(--ds-primary-l));
+}
+
+.ds-link-button--primary:hover {
+  color: hsl(var(--ds-primary-h), var(--ds-primary-s), calc(var(--ds-primary-l) - 10%));
+}
+
+.ds-link-button--primary .ds-link-button__icon-right {
+  transition: transform var(--ds-transition-fast);
+}
+
+.ds-link-button--primary:hover .ds-link-button__icon-right {
+  transform: translateX(4px);
+}
+
+/* Icon containers */
+.ds-link-button__icon-left,
+.ds-link-button__icon-right {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.ds-link-button__text {
+  display: inline;
+}
+
+/* External icon doesn't translate, it lifts */
+.ds-link-button:has(.ds-link-button__icon-right svg[viewBox="0 0 24 24"]):hover .ds-link-button__icon-right {
+  /* Reset the translateX for external links */
+}

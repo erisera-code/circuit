@@ -6,9 +6,9 @@
  * without touching Starlight's component internals.
  */
 
-@import '@erisera/circuit/tokens.css';
-@import '@erisera/circuit/components.css';
-@import '@erisera/circuit/palette.css';
+@import '@erisera-code/circuit/tokens.css';
+@import '@erisera-code/circuit/components.css';
+@import '@erisera-code/circuit/palette.css';
 
 :root {
   --hue: 25; /* this site is Circuit's own docs — erisera default */

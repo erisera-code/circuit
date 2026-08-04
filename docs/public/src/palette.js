@@ -3,7 +3,7 @@
  * Pair with palette.css. Requires tokens.css to be loaded for --accent etc.
  *
  * @example
- *   import { createCommandPalette } from '@erisera/circuit/palette.js';
+ *   import { createCommandPalette } from '@erisera-code/circuit/palette.js';
  *
  *   createCommandPalette({
  *     mount: document.body,

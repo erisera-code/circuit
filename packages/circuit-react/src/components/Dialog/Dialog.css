@@ -1,0 +1,159 @@
+/* Dialog Component Styles */
+
+/* ============================================
+   Overlay
+   ============================================ */
+
+.ds-dialog-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--ds-z-modal);
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+}
+
+.ds-dialog-overlay[data-state="open"] {
+  animation: ds-dialog-overlay-show var(--ds-duration-normal) var(--ds-ease-out);
+}
+
+.ds-dialog-overlay[data-state="closed"] {
+  animation: ds-dialog-overlay-hide var(--ds-duration-normal) var(--ds-ease-in);
+}
+
+/* ============================================
+   Content
+   ============================================ */
+
+.ds-dialog-content {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  z-index: var(--ds-z-modal);
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - var(--ds-space-8));
+  transform: translate(-50%, -50%);
+  background-color: var(--ds-surface);
+  border-radius: var(--ds-radius-xl);
+  box-shadow: var(--ds-shadow-xl);
+  overflow: hidden;
+}
+
+.ds-dialog-content:focus {
+  outline: none;
+}
+
+.ds-dialog-content[data-state="open"] {
+  animation: ds-dialog-content-show var(--ds-duration-slow) var(--ds-ease-out);
+}
+
+.ds-dialog-content[data-state="closed"] {
+  animation: ds-dialog-content-hide var(--ds-duration-normal) var(--ds-ease-in);
+}
+
+/* Size variants */
+.ds-dialog-content--sm {
+  width: 100%;
+  max-width: 24rem; /* 384px */
+}
+
+.ds-dialog-content--md {
+  width: 100%;
+  max-width: 32rem; /* 512px */
+}
+
+.ds-dialog-content--lg {
+  width: 100%;
+  max-width: 42rem; /* 672px */
+}
+
+.ds-dialog-content--xl {
+  width: 100%;
+  max-width: 56rem; /* 896px */
+}
+
+.ds-dialog-content--full {
+  width: calc(100vw - var(--ds-space-8));
+  max-width: none;
+  height: calc(100vh - var(--ds-space-8));
+}
+
+/* Mobile responsiveness */
+@media (max-width: 640px) {
+  .ds-dialog-content {
+    width: calc(100vw - var(--ds-space-4));
+    max-width: none;
+  }
+}
+
+/* ============================================
+   Header
+   ============================================ */
+
+.ds-dialog-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-space-1);
+  padding: var(--ds-space-6);
+  padding-bottom: var(--ds-space-4);
+  border-bottom: 1px solid var(--ds-border);
+}
+
+/* ============================================
+   Title
+   ============================================ */
+
+.ds-dialog-title {
+  margin: 0;
+  font-family: var(--ds-font-body);
+  font-size: var(--ds-text-lg);
+  font-weight: var(--ds-font-semibold);
+  line-height: var(--ds-leading-tight);
+  color: var(--ds-text);
+}
+
+/* ============================================
+   Description
+   ============================================ */
+
+.ds-dialog-description {
+  margin: 0;
+  font-size: var(--ds-text-sm);
+  line-height: var(--ds-leading-normal);
+  color: var(--ds-text-secondary);
+}
+
+/* ============================================
+   Body
+   ============================================ */
+
+.ds-dialog-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--ds-space-6);
+}
+
+/* ============================================
+   Footer
+   ============================================ */
+
+.ds-dialog-footer {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  gap: var(--ds-space-3);
+  padding: var(--ds-space-4) var(--ds-space-6);
+  border-top: 1px solid var(--ds-border);
+  background-color: var(--ds-surface-muted);
+}
+
+/* Stack buttons on mobile */
+@media (max-width: 480px) {
+  .ds-dialog-footer {
+    flex-direction: column-reverse;
+  }
+
+  .ds-dialog-footer > * {
+    width: 100%;
+  }
+}

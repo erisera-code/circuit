@@ -35,7 +35,7 @@ export default defineConfig({
       title: 'Circuit',
       description: 'The erisera OSS design system — one set of tokens, one accent hue per tool.',
       logo: {
-        src: '../src/marks/circuit.svg',
+        src: '../packages/circuit/src/marks/circuit.svg',
       },
       customCss: ['./src/styles/circuit-bridge.css'],
       expressiveCode: {
