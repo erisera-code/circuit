@@ -25,6 +25,12 @@
   /* ---- surfaces & text ---- */
   --sl-color-text: var(--ink);
   --sl-color-text-accent: var(--accent);
+  /* Starlight's dark theme defines --sl-color-text-invert as accent-low and
+     uses it for text sitting on an accent-filled background (the current
+     sidebar link). Remapping accent-low to Circuit's translucent
+     --accent-soft above therefore paints that label in its own background
+     color, making it unreadable — so it needs an explicit opaque value. */
+  --sl-color-text-invert: var(--bg);
   --sl-color-bg: var(--bg);
   --sl-color-bg-nav: var(--bg-panel);
   --sl-color-bg-sidebar: var(--bg-panel);

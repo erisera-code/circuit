@@ -1,11 +1,11 @@
 {
   "name": "@erisera-code/circuit-react",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "React components (Radix-based), design tokens, and site CSS for the erisera OSS design system.",
   "license": "MIT",
   "type": "module",
   "author": "John Henry",
-  "homepage": "https://circuit.erisera.com",
+  "homepage": "https://opensource.johnhenry.me/circuit/",
   "repository": {
     "type": "git",
     "url": "github:erisera-code/circuit",

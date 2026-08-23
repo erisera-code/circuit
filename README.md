@@ -16,11 +16,13 @@ React components' accent follows the active tool's hue automatically. Loaded
 standalone, circuit-react keeps its default orange (hue 25), same as circuit's
 default.
 
-> Not yet deployed to `circuit.erisera.com` — `docs/` (a Starlight site) and `showcase/index.html` (a standalone interactive demo) are both built and verified locally; see [Docs site](#docs-site) below.
+> Documentation lives at **[opensource.johnhenry.me/circuit](https://opensource.johnhenry.me/circuit/)**, alongside the other open-source projects, with the standalone interactive demo at [/circuit/showcase](https://opensource.johnhenry.me/circuit/showcase/). The `docs/` directory here is the retired per-tool site that content came from; `circuit.erisera.com` is no longer served.
 
 ## Why
 
-erisera ships several independent open-source tools — [ai.matey](https://github.com/johnhenry/ai.matey), [mcp-query](https://github.com/johnhenry/mcp-query), [ecmanim](https://github.com/johnhenry/ecmanim), [clawser](https://github.com/johnhenry/clawser), [andbox](https://github.com/johnhenry/andbox), [objectify](https://github.com/johnhenry/objectify) — each with its own docs site. Circuit is what keeps them feeling like one family instead of six unrelated projects: identical neutrals, type, spacing, and components, with exactly **one** thing that changes per site — an accent hue.
+Several independent open-source tools — [ai.matey](https://github.com/johnhenry/ai.matey), [mcp-query](https://github.com/johnhenry/mcp-query), [ecmanim](https://github.com/johnhenry/ecmanim), [andbox](https://github.com/johnhenry/andbox), [objectify](https://github.com/johnhenry/objectify) — plus the [clawser](https://github.com/johnhenry/clawser) product, each with its own identity. Circuit is what keeps them feeling like one family instead of unrelated projects: identical neutrals, type, spacing, and components, with exactly **one** thing that changes per surface — an accent hue.
+
+The tool docs are now sections of one site, [opensource.johnhenry.me](https://opensource.johnhenry.me), where the hue switches per section rather than per site.
 
 ## The three rules
 
@@ -133,7 +135,7 @@ npm run dev       # http://localhost:4321
 npm run build      # → docs/dist
 ```
 
-`docs/src/styles/circuit-bridge.css` remaps Starlight's own themeable CSS variables onto Circuit's tokens. One gotcha worth flagging for any future Starlight-based site in the family: Starlight's `<Aside type="tip">` renders using its **purple** color variable, not green — despite "tip" reading as a positive/success signal. Circuit's fixed-semantic-color rule (`tip` → `--success`, always green) only holds if you redirect `--sl-color-purple`, not `--sl-color-green`, onto `--success` (see the bridge file for the full, verified mapping — pulled from Starlight's actual `asides.css` source, not assumed). Syntax highlighting uses a custom Shiki/Expressive-Code theme built from Circuit's fixed `--sx-*` palette (`docs/astro.config.mjs`) — Expressive Code applies its own accessibility contrast normalization on top, so rendered hex values are close to but not pixel-identical to the source tokens.
+`docs/src/styles/circuit-bridge.css` remaps Starlight's own themeable CSS variables onto Circuit's tokens. One gotcha worth flagging for any future Starlight-based site in the family: Starlight's `<Aside type="tip">` renders using its **purple** color variable, not green — despite "tip" reading as a positive/success signal. Circuit's fixed-semantic-color rule (`tip` → `--success`, always green) only holds if you redirect `--sl-color-purple`, not `--sl-color-green`, onto `--success` (see the bridge file for the full, verified mapping — pulled from Starlight's actual `asides.css` source, not assumed). A second gotcha in the same family: Starlight's dark theme uses `--sl-color-text-invert` for text on an accent-filled background (the current sidebar link), and defines it as `accent-low` — which the bridge remaps to Circuit's *translucent* `--accent-soft`, painting that label in its own background color. Map `--sl-color-text-invert` to an opaque token (`--bg`) or the active sidebar entry renders blank. Syntax highlighting uses a custom Shiki/Expressive-Code theme built from Circuit's fixed `--sx-*` palette (`docs/astro.config.mjs`) — Expressive Code applies its own accessibility contrast normalization on top, so rendered hex values are close to but not pixel-identical to the source tokens.
 
 Not yet wired to auto-deploy: `.github/workflows/deploy-docs.yml` is `workflow_dispatch`-only and needs `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID` repo secrets before it can run.
 
