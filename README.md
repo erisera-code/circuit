@@ -60,7 +60,7 @@ All paths below are inside `packages/circuit/`:
 |---|---|
 | `src/tokens.css` | Neutral scale, semantic colors, accent formula, type, spacing, radius, elevation, syntax colors |
 | `src/themes.css` | Per-tool `--hue` overrides + the hue registry (see below) |
-| `src/components.css` | Docs shell (header/sidebar/pager), code block, code groups, terminal block, admonitions, API parameter list, buttons, inputs, badges, tabs |
+| `src/components.css` | Docs shell (header/sidebar/pager), code block, code groups, terminal block, admonitions, API parameter list, buttons (primary/secondary/ghost/outline/danger, icon, link, group/split), fields + form groups, checkbox/radio/switch, badges, tabs — plus the app-chrome tier: status dot, chip, card, banner, toast + tray, dialog, popover, tooltip, dropdown menu, accordion, data table + key/value, list rows, empty state, spinner, meter, avatar, key cap, separator/section title, swatch, categorical ramp, app shell + statusbar + resize handle, board, scroll area, scrim, theme toggle, utilities. Reference: [`COMPONENTS.md`](packages/circuit/COMPONENTS.md) |
 | `src/palette.css` + `src/palette.js` | A working search / command palette — framework-agnostic, ~150 lines, no dependencies |
 | `src/marks/*.svg` | Six standalone logo marks, one per tool, tool hue baked in |
 
@@ -141,7 +141,7 @@ Not yet wired to auto-deploy: `.github/workflows/deploy-docs.yml` is `workflow_d
 
 ## Status
 
-`v0.0.1` — pre-release. Tokens and components are stable enough to build against; expect additions (data table, toast, modal, dropdown — the app-chrome tier needed by clawser and mcp-query's apps) as those tools land, not breaking changes to what's here.
+`v0.1.1` — pre-release. Tokens and components are stable enough to build against. The app-chrome tier (data table, toast, dialog, dropdown, shell…) landed as part of the cross-reproduction pass with jjhub and noitroidvania — see [`packages/circuit/COMPONENTS.md`](packages/circuit/COMPONENTS.md); expect additions, not breaking changes to what's here.
 
 ## License
 

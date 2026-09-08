@@ -125,6 +125,23 @@
   .search-hint { font: 12.5px var(--f-mono); color: var(--ink-3); }
   .tabmock { display: flex; align-items: center; gap: 8px; background: var(--bg-inset); border-radius: 8px 8px 0 0; padding: 8px 14px; font: 12px var(--f-body); color: var(--ink); }
 
+  /* demo framing for the app-chrome tier (not part of the shipped library) */
+  .demo { margin-top: 12px; }
+  .demo-flex { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 12px; }
+  .demo-stack { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; max-width: 68ch; }
+  .demo-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(240px,1fr)); gap: 14px; margin-top: 12px; }
+  .demo-shell { height: 340px; border: 1px solid var(--line); border-radius: var(--r-lg); overflow: hidden; margin-top: 12px; }
+  .demo-shell .c-shell { height: 100%; }
+  .demo-shell .c-header { position: static; height: 48px; padding: 0 18px; }
+  .demo .c-toasts { position: static; width: 100%; max-width: 360px; transform: none; }
+  .comppanel .c-form + .c-form { margin-top: 10px; }
+  .comppanel .c-choices + .c-choices { margin-top: 10px; }
+  .comppanel .c-choices + .c-switch { margin-top: 10px; }
+  .comppanel .c-meterrow + .c-meterrow { margin-top: 8px; }
+  .comppanel .c-row-flex { flex-wrap: wrap; }
+  .demo .c-card > .body p, .demo .c-empty .desc, .demo p { margin: 0; max-width: none; }
+  .demo .c-kv + .c-kv { margin-top: 14px; }
+
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
 </head>
@@ -156,6 +173,7 @@
         <h5>Applied</h5>
         <ul>
           <li><a href="#components">Components</a></li>
+          <li><a href="#app-chrome">App chrome</a></li>
           <li><a href="#search-palette">Search palette</a></li>
           <li><a href="#marks">Logo &amp; marks</a></li>
           <li><a href="#og">OG template</a></li>
@@ -231,24 +249,328 @@
         <div class="compgrid">
           <div class="comppanel">
             <h4>Buttons</h4>
-            <div class="staterow"><span class="slabel">primary</span><button class="c-btn primary">Publish</button></div>
-            <div class="staterow"><span class="slabel">secondary</span><button class="c-btn secondary">Cancel</button></div>
-            <div class="staterow"><span class="slabel">ghost</span><button class="c-btn ghost">Learn more</button></div>
-            <div class="staterow"><span class="slabel">disabled</span><button class="c-btn primary" disabled>Publish</button></div>
+            <div class="c-row-flex wrap">
+              <button class="c-btn primary">Publish</button>
+              <button class="c-btn secondary">Cancel</button>
+              <button class="c-btn ghost">Learn more</button>
+              <button class="c-btn outline">Preview</button>
+              <button class="c-btn danger">Delete</button>
+              <button class="c-btn primary" disabled>Publish</button>
+            </div>
           </div>
           <div class="comppanel">
-            <h4>Input field</h4>
-            <div class="staterow"><span class="slabel">default</span><input class="c-field" placeholder="you@example.com"></div>
-            <div><input class="c-field is-error" value="not-an-email"><div class="c-fieldnote">Enter a valid email address.</div></div>
+            <h4>Icon buttons</h4>
+            <div class="c-row-flex wrap">
+              <button class="c-iconbtn" aria-label="Refresh">↻</button>
+              <button class="c-iconbtn ghost" aria-label="Edit">✎</button>
+              <button class="c-iconbtn outline sm" aria-label="Close">✕</button>
+              <button class="c-iconbtn danger" aria-label="Delete">🗑</button>
+              <button class="c-iconbtn lg" aria-label="Add" disabled>+</button>
+            </div>
+          </div>
+          <div class="comppanel">
+            <h4>Link button</h4>
+            <p>Deployed to production. <button class="c-linkbtn">Undo</button> · <button class="c-linkbtn" disabled>View logs</button></p>
+          </div>
+          <div class="comppanel">
+            <h4>Button group / split</h4>
+            <div class="c-btngroup" role="group" aria-label="View">
+              <button class="c-btn secondary">Day</button>
+              <button class="c-btn secondary">Week</button>
+              <button class="c-btn secondary">Month</button>
+            </div>
+            <div class="c-split">
+              <button class="c-btn primary">Merge</button>
+              <details class="c-menu anchor-end">
+                <summary class="c-btn primary plain" aria-label="More merge options">▾</summary>
+                <div class="items">
+                  <button class="item">Squash and merge</button>
+                  <button class="item">Rebase and merge</button>
+                  <hr class="sep">
+                  <button class="item danger">Close without merging</button>
+                </div>
+              </details>
+            </div>
+          </div>
+          <div class="comppanel">
+            <h4>Form field</h4>
+            <div class="c-form">
+              <label class="c-label" for="f-email">Email<span class="req" aria-hidden="true">*</span></label>
+              <input class="c-field" id="f-email" type="email" placeholder="you@example.com" aria-describedby="f-email-hint">
+              <div class="c-hint" id="f-email-hint">We only use this for deploy notifications.</div>
+            </div>
+            <div class="c-form">
+              <label class="c-label" for="f-bad">Handle</label>
+              <input class="c-field is-error" id="f-bad" value="not a handle" aria-invalid="true" aria-describedby="f-bad-err">
+              <div class="c-fieldnote" id="f-bad-err">Handles are lowercase letters and dashes.</div>
+            </div>
+            <div class="c-form">
+              <label class="c-label" for="f-notes">Notes<span class="opt">optional</span></label>
+              <textarea class="c-field" id="f-notes" placeholder="Anything the reviewer should know…"></textarea>
+            </div>
+            <div class="c-form">
+              <label class="c-label" for="f-region">Region</label>
+              <span class="c-select"><select class="c-field" id="f-region"><option>us-east-1</option><option>eu-west-2</option><option>ap-south-1</option></select></span>
+            </div>
+          </div>
+          <div class="comppanel">
+            <h4>Checkbox / radio / switch</h4>
+            <div class="c-choices">
+              <label class="c-check"><input type="checkbox" checked> Email me on failure</label>
+              <label class="c-check"><input type="checkbox" disabled> Page on-call (needs a rota)</label>
+            </div>
+            <div class="c-choices inline" role="radiogroup" aria-label="Strategy">
+              <label class="c-radio"><input type="radio" name="strategy" checked> cascade</label>
+              <label class="c-radio"><input type="radio" name="strategy"> race</label>
+            </div>
+            <label class="c-switch"><input type="checkbox" role="switch" checked> Auto-deploy on green</label>
           </div>
           <div class="comppanel">
             <h4>Badges</h4>
-            <div class="staterow"><span class="c-badge accent">accent</span><span class="c-badge success">deployed</span></div>
-            <div class="staterow"><span class="c-badge warning">degraded</span><span class="c-badge error">failed</span></div>
+            <div class="c-row-flex wrap">
+              <span class="c-badge accent">accent</span>
+              <span class="c-badge success">deployed</span>
+              <span class="c-badge warning">degraded</span>
+              <span class="c-badge error">failed</span>
+              <span class="c-badge neutral">draft</span>
+            </div>
+          </div>
+          <div class="comppanel">
+            <h4>Status dot</h4>
+            <div class="c-row-flex wrap">
+              <span class="c-dot live pulse" role="img" aria-label="live"></span> live
+              <span class="c-dot idle" role="img" aria-label="idle"></span> idle
+              <span class="c-dot running" role="img" aria-label="running"></span> running
+              <span class="c-dot warning" role="img" aria-label="warning"></span> warning
+              <span class="c-dot error" role="img" aria-label="error"></span> error
+            </div>
+          </div>
+          <div class="comppanel">
+            <h4>Chips</h4>
+            <div class="c-row-flex wrap">
+              <span class="c-chip">react <span class="count">12</span></span>
+              <span class="c-chip">design-system <button class="x" aria-label="Remove design-system">✕</button></span>
+              <span class="c-chip accent"><span class="c-avatar sm">jh</span> john <button class="x" aria-label="Remove john">✕</button></span>
+            </div>
+          </div>
+          <div class="comppanel">
+            <h4>Avatar</h4>
+            <div class="c-row-flex wrap">
+              <span class="c-avatar sm">jh</span>
+              <span class="c-avatar" title="John Henry">jh</span>
+              <span class="c-avatar lg square">mq</span>
+              <span class="c-avatar neutral">?</span>
+              <span class="c-avatars" aria-label="3 reviewers"><span class="c-avatar sm">jh</span><span class="c-avatar sm">ab</span><span class="c-avatar sm neutral">+1</span></span>
+            </div>
+          </div>
+          <div class="comppanel">
+            <h4>Key caps</h4>
+            <div class="c-row-flex wrap">
+              <span class="c-keys"><kbd class="c-key">⌘</kbd>+<kbd class="c-key">K</kbd></span>
+              <kbd class="c-key">Esc</kbd>
+              <kbd class="c-key">↵</kbd>
+            </div>
+          </div>
+          <div class="comppanel">
+            <h4>Spinner</h4>
+            <div class="c-row-flex wrap">
+              <span class="c-spinner sm" role="status" aria-label="Loading"></span>
+              <span class="c-spinner" role="status" aria-label="Loading"></span>
+              <span class="c-spinner lg" role="status" aria-label="Loading"></span>
+              <button class="c-btn primary" disabled><span class="c-spinner sm" aria-hidden="true"></span>Deploying…</button>
+            </div>
+          </div>
+          <div class="comppanel">
+            <h4>Meter / progress</h4>
+            <div class="c-meterrow"><span>cpu</span><meter class="c-meter" min="0" max="1" value="0.62" aria-label="CPU 62%"></meter><span class="val">62%</span></div>
+            <div class="c-meterrow"><span>build</span><progress class="c-meter success" max="100" value="80" aria-label="Build 80%"></progress><span class="val">80%</span></div>
+            <div class="c-meterrow"><span>disk</span><div class="c-meter warning" role="meter" aria-valuemin="0" aria-valuemax="1" aria-valuenow="0.86" aria-label="Disk 86%" style="--f: 0.86"></div><span class="val">86%</span></div>
+            <div class="c-meterrow"><span>errors</span><div class="c-meter error lg" role="meter" aria-valuenow="0.3" aria-valuemin="0" aria-valuemax="1" aria-label="Errors 30%" style="--f: 0.3"></div><span class="val">30%</span></div>
+          </div>
+          <div class="comppanel">
+            <h4>Swatch</h4>
+            <div class="c-row-flex wrap">
+              <span class="c-swatchrow"><span class="c-swatch" style="--sw: var(--accent)"></span>accent</span>
+              <span class="c-swatchrow"><span class="c-swatch round" style="--sw: var(--success)"></span>success</span>
+              <span class="c-swatchrow"><span class="c-swatch lg" style="--sw: var(--n-700)"></span>n-700</span>
+              <span class="c-swatchrow"><span class="c-swatch sm" style="--sw: var(--warning)"></span>warning</span>
+            </div>
+          </div>
+          <div class="comppanel">
+            <h4>Categorical ramp</h4>
+            <div class="c-row-flex wrap">
+              <span class="c-ramp" data-step="1">lane 1</span>
+              <span class="c-ramp" data-step="2">lane 2</span>
+              <span class="c-ramp" data-step="3">lane 3</span>
+              <span class="c-ramp solid" data-step="4">4</span>
+              <span class="c-ramp dot" data-step="5" role="img" aria-label="step 5"></span>
+              <span class="c-ramp ink" data-step="6">step 6 as text</span>
+            </div>
+          </div>
+          <div class="comppanel">
+            <h4>Theme toggle</h4>
+            <button class="c-theme-toggle" id="themeToggle" aria-pressed="false">◐ auto</button>
           </div>
           <div class="comppanel">
             <h4>Tabs</h4>
             <div class="c-tabbar"><span class="tab on">Overview</span><span class="tab">Reference</span><span class="tab">Examples</span></div>
+          </div>
+        </div>
+
+        <h3>Cards</h3>
+        <div class="demo-grid">
+          <div class="c-card">
+            <div class="head">Deploy summary <span class="sub">#4821</span><span class="actions"><button class="c-iconbtn ghost sm" aria-label="More">⋯</button></span></div>
+            <div class="body">Three services rolled out to <code>us-east-1</code> in 42s. No config drift detected.</div>
+            <div class="foot"><span class="c-dot success"></span> healthy <span class="actions"><button class="c-btn ghost">Logs</button></span></div>
+          </div>
+          <a class="c-card hoverable clickable" href="#components">
+            <div class="body"><b>Hoverable + clickable</b><br>Lifts on hover, focus ring on keyboard.</div>
+          </a>
+          <div class="c-card compact">
+            <div class="head">Compact</div>
+            <div class="body">Tighter padding for boards and rails.</div>
+          </div>
+        </div>
+
+        <h3>Banner</h3>
+        <div class="demo-stack">
+          <div class="c-banner warning" role="status">
+            <span class="ic">▲</span>
+            <span class="msg"><b>Your branch has diverged.</b> 3 commits behind main.</span>
+            <span class="actions"><button class="c-btn secondary">Rebase</button></span>
+            <button class="x" aria-label="Dismiss">✕</button>
+          </div>
+          <div class="c-banner success" role="status"><span class="ic">✓</span><span class="msg">All checks passed.</span><button class="x" aria-label="Dismiss">✕</button></div>
+          <div class="c-banner error" role="alert"><span class="ic">✕</span><span class="msg">Deploy failed: <code>ECONNREFUSED</code></span><span class="actions"><button class="c-btn outline">Retry</button></span></div>
+          <div class="c-banner info"><span class="ic">ⓘ</span><span class="msg">A new version of the CLI is available.</span></div>
+        </div>
+
+        <h3>Toast + tray</h3>
+        <p class="dek">The tray is <code>position: fixed</code> in real use (<code>.bottom-right</code> default, <code>.top-left</code>, <code>.top-center</code>…); it is pinned inline here. <button class="c-linkbtn" id="fireToast">Fire a live one</button>.</p>
+        <div class="demo">
+          <div class="c-toasts bottom-right" aria-live="polite">
+            <div class="c-toast success" role="status">
+              <span class="ic">✓</span>
+              <span class="msg"><span class="title">Deployed</span>matey@0.4.2 is live in us-east-1. <button class="c-linkbtn">View</button></span>
+              <button class="x" aria-label="Dismiss">✕</button>
+            </div>
+            <div class="c-toast error" role="alert"><span class="ic">✕</span><span class="msg"><span class="title">Build failed</span>Type error in <code>src/index.ts</code>.</span><button class="x" aria-label="Dismiss">✕</button></div>
+            <div class="c-toast"><span class="c-spinner sm" role="status" aria-label="Working"></span><span class="msg">Warming cache…</span></div>
+          </div>
+        </div>
+
+        <h3>Dialog</h3>
+        <p class="dek">Native <code>&lt;dialog&gt;</code> — <code>::backdrop</code> is painted with <code>--scrim</code>; <code>&lt;form method="dialog"&gt;</code> closes it.</p>
+        <div class="demo-flex">
+          <button class="c-btn secondary" id="openDialog">Open dialog</button>
+          <button class="c-btn danger" id="openConfirm">Delete project…</button>
+
+          <dialog class="c-dialog" id="demoDialog" aria-labelledby="demoDialogTitle">
+            <form method="dialog">
+              <div class="head"><span id="demoDialogTitle">Rename project</span><button class="x" value="cancel" aria-label="Close">✕</button></div>
+              <div class="body">
+                <div class="c-form">
+                  <label class="c-label" for="dlg-name">Name</label>
+                  <input class="c-field" id="dlg-name" value="matey">
+                  <div class="c-hint">Used in URLs and the CLI.</div>
+                </div>
+              </div>
+              <div class="actions"><button class="c-btn ghost" value="cancel">Cancel</button><button class="c-btn primary" value="ok">Rename</button></div>
+            </form>
+          </dialog>
+
+          <dialog class="c-dialog confirm" id="demoConfirm" aria-labelledby="demoConfirmTitle">
+            <form method="dialog">
+              <div class="head" id="demoConfirmTitle">Delete matey?</div>
+              <div class="body">This removes the project and its 14 deploys. It cannot be undone.</div>
+              <div class="actions"><button class="c-btn ghost" value="cancel">Keep</button><button class="c-btn danger" value="ok">Delete</button></div>
+            </form>
+          </dialog>
+        </div>
+
+        <h3>Popover</h3>
+        <p class="dek">Native <code>[popover]</code>; <code>.anchored</code> sits under its invoker where CSS anchor positioning exists and is centred elsewhere.</p>
+        <div class="demo-flex">
+          <button class="c-btn secondary" popovertarget="demoPop">Share ▾</button>
+          <div class="c-popover anchored" id="demoPop" popover>
+            <div class="head">Share this page</div>
+            <div class="desc">Anyone with the link can view. Editors need an invite.</div>
+            <div class="actions"><button class="c-btn ghost" popovertarget="demoPop" popovertargetaction="hide">Close</button><button class="c-btn primary">Copy link</button></div>
+          </div>
+        </div>
+
+        <h3>Tooltip</h3>
+        <div class="demo-flex">
+          <span class="c-tooltip"><button class="c-iconbtn" aria-describedby="tip-refresh">↻</button><span class="tip" role="tooltip" id="tip-refresh">Refresh (R)</span></span>
+          <span class="c-tooltip bottom"><button class="c-btn ghost">Hover me</button><span class="tip" role="tooltip">Tooltips need no JS</span></span>
+        </div>
+
+        <h3>Dropdown menu</h3>
+        <p class="dek"><code>&lt;details&gt;</code>-backed, so it opens without JS. <code>.anchor-start</code> (default) / <code>.anchor-end</code> / <code>.up</code>.</p>
+        <div class="demo-flex">
+          <details class="c-menu">
+            <summary class="c-btn secondary">Actions</summary>
+            <div class="items">
+              <div class="label">Project</div>
+              <button class="item"><span class="glyph">✎</span>Rename<kbd class="c-key">R</kbd></button>
+              <button class="item"><span class="glyph">⧉</span>Duplicate<kbd class="c-key">D</kbd></button>
+              <a class="item" href="#components"><span class="glyph">↗</span>Open in new tab</a>
+              <hr class="sep">
+              <button class="item" disabled><span class="glyph">⇪</span>Archive</button>
+              <button class="item danger"><span class="glyph">✕</span>Delete</button>
+            </div>
+          </details>
+          <details class="c-menu anchor-end">
+            <summary class="c-iconbtn" aria-label="More options">⋯</summary>
+            <div class="items"><button class="item">Pin</button><button class="item">Mute</button></div>
+          </details>
+        </div>
+
+        <h3>Accordion</h3>
+        <div class="demo">
+          <div class="c-accordions">
+            <details class="c-accordion" open>
+              <summary>Why is the accent the only thing that moves?</summary>
+              <div class="body">Neutrals, semantic colours and syntax colours are fixed so six tools read as one family.</div>
+            </details>
+            <details class="c-accordion">
+              <summary>Does dark mode change the elevation model? <span class="c-badge neutral">tokens</span></summary>
+              <div class="body">Yes — <code>--shadow-*</code> become 1px lines in dark so panels never read as fog.</div>
+            </details>
+            <details class="c-accordion">
+              <summary>Can I use these outside a docs site?</summary>
+              <div class="body">That is what the app-chrome tier below is for.</div>
+            </details>
+          </div>
+        </div>
+
+        <h3>Empty state</h3>
+        <div class="demo-stack">
+          <div class="c-empty">
+            <div class="glyph">◌</div>
+            <div class="title">No deploys yet</div>
+            <div class="desc">Push to <code>main</code> or run <code>matey deploy</code> to see activity here.</div>
+            <div class="actions"><button class="c-btn primary">Deploy now</button><button class="c-btn ghost">Read the guide</button></div>
+          </div>
+          <div class="c-empty sm"><div class="glyph">⌕</div><div class="desc">No results for “quorum”.</div></div>
+        </div>
+
+        <h3>Separator &amp; section title</h3>
+        <div class="demo">
+          <div class="c-section">Foundations <span class="count">4</span></div>
+          <p>Tokens, themes, type, spacing.</p>
+          <hr class="c-sep">
+          <p>inline <span class="c-sep vertical"></span> separator</p>
+          <div class="c-section plain">Plain title</div>
+        </div>
+
+        <h3>Utilities</h3>
+        <div class="demo">
+          <div class="c-stack">
+            <div class="c-row-flex"><span class="c-caps">caps</span><span class="c-dim">dim</span><span class="c-muted">muted</span><span class="c-success">success</span><span class="c-warning">warning</span><span class="c-error">error</span><span class="c-info">info</span><span class="c-accent">accent</span><span class="c-mono">mono</span></div>
+            <div class="c-row-flex"><span class="c-nowrap">never wraps</span><span class="c-grow c-truncate">grow + truncate — this text is long enough to be cut off at the end of the row</span><button class="c-btn ghost">end</button></div>
+            <p><span class="c-sr-only">screen-reader only text lives here</span>The line above contains hidden text for assistive tech.</p>
           </div>
         </div>
 
@@ -277,6 +599,110 @@
           <div class="twin"><i></i><i></i><i></i></div>
           <pre><span class="prompt">$</span> npm install @erisera-code/circuit
 <span class="out">✓ added @erisera-code/circuit@0.0.1</span></pre>
+        </div>
+      </section>
+
+      <section id="app-chrome">
+        <h2>App chrome</h2>
+        <p class="dek">The application tier — the same component vocabulary that jjhub and noitroidvania carry in their own idioms, expressed here in circuit's. Every block is real markup from <code>components.css</code>; see <a href="../packages/circuit/COMPONENTS.md">COMPONENTS.md</a> for the reference.</p>
+
+        <h3>Shell</h3>
+        <p class="dek"><code>.c-shell</code> is a header / rail / main / statusbar grid; <code>--c-rail-w</code> sets the rail width and <code>.c-resize</code> draws the handle.</p>
+        <div class="demo-shell">
+          <div class="c-shell" style="--c-rail-w: 200px">
+            <header class="c-header"><span class="c-logo"><span class="co">erisera</span><span class="tool">clawser</span></span><nav><a href="#app-chrome" aria-current="page">Runs</a><a href="#app-chrome">Settings</a></nav></header>
+            <aside class="c-rail">
+              <div class="c-side">
+                <h5>Runs</h5>
+                <ul><li><a href="#app-chrome" class="on">Today</a></li><li><a href="#app-chrome">Yesterday</a></li></ul>
+              </div>
+              <button class="c-resize" aria-label="Resize sidebar"></button>
+            </aside>
+            <main class="c-main">
+              <div class="c-section">Latest run</div>
+              <p class="c-muted">The main pane scrolls independently of the rail.</p>
+            </main>
+            <footer class="c-status"><span class="seg"><span class="c-dot live"></span> connected</span><span class="seg">branch <b>main</b></span><span class="sp"></span><span class="seg">3 jobs</span><span class="seg">v0.1.1</span></footer>
+          </div>
+        </div>
+
+        <h3>List rows</h3>
+        <div class="demo" style="max-width: 520px">
+          <ul class="c-list bordered" role="listbox" aria-label="Files">
+            <li class="c-row" role="option" aria-selected="true"><span class="glyph">◆</span><span class="title">tokens.css</span><span class="meta">4.1 kB</span><span class="actions"><button class="c-iconbtn ghost sm" aria-label="Open tokens.css">↗</button></span></li>
+            <li class="c-row cursor" role="option" aria-selected="false"><span class="glyph">◇</span><span class="title">components.css</span><span class="meta">38 kB</span><span class="actions"><button class="c-iconbtn ghost sm" aria-label="Open components.css">↗</button></span></li>
+            <li class="c-row" role="option" aria-selected="false"><span class="glyph">◇</span><span class="title">palette.css — a very long file name that truncates with an ellipsis</span><span class="meta">3.2 kB</span></li>
+            <li class="c-row dim" role="option" aria-selected="false"><span class="glyph">·</span><span class="title">themes.css</span><span class="meta">ignored</span></li>
+          </ul>
+        </div>
+
+        <h3>Data table</h3>
+        <div class="demo">
+          <div class="c-tablewrap">
+            <table class="c-table">
+              <thead><tr><th>Service</th><th>Region</th><th class="sort" aria-sort="descending" tabindex="0">Uptime</th><th class="num">p95</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr><td>matey-api</td><td class="mono">us-east-1</td><td class="num">99.98%</td><td class="num">142 ms</td><td><span class="c-dot success"></span> healthy</td></tr>
+                <tr class="selected"><td>mcp-query</td><td class="mono">eu-west-2</td><td class="num">99.91%</td><td class="num">210 ms</td><td><span class="c-dot warning"></span> degraded</td></tr>
+                <tr class="dim"><td>ecmanim-render</td><td class="mono">ap-south-1</td><td class="num">—</td><td class="num">—</td><td><span class="c-dot idle"></span> paused</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <h3>Key / value</h3>
+        <div class="demo" style="max-width: 420px">
+          <table class="c-kv">
+            <tbody>
+              <tr><th scope="row">version</th><td class="mono">0.1.1</td></tr>
+              <tr><th scope="row">hue</th><td>25° · <span class="c-swatch sm" style="--sw: var(--accent)"></span> accent</td></tr>
+              <tr><th scope="row">shipped</th><td>2026-09-07</td></tr>
+            </tbody>
+          </table>
+          <dl class="c-kv">
+            <dt>package</dt><dd class="mono">@erisera-code/circuit</dd>
+            <dt>license</dt><dd>MIT</dd>
+          </dl>
+        </div>
+
+        <h3>Board</h3>
+        <div class="demo">
+          <div class="c-board">
+            <section class="col"><div class="head">Queued <span class="count">2</span></div>
+              <div class="c-card"><div class="body">Rotate signing key</div><div class="foot"><span class="c-ramp dot" data-step="1"></span> infra</div></div>
+              <div class="c-card"><div class="body">Docs: hue registry</div><div class="foot"><span class="c-ramp dot" data-step="3"></span> docs</div></div>
+            </section>
+            <section class="col"><div class="head">Running <span class="count">1</span></div>
+              <div class="c-card"><div class="body">Build 4821</div><div class="foot"><span class="c-spinner sm" aria-hidden="true"></span> 42s</div></div>
+            </section>
+            <section class="col over"><div class="head">Done <span class="count">0</span></div><div class="c-empty sm"><div class="desc">Drop here</div></div></section>
+          </div>
+        </div>
+
+        <h3>Scroll area</h3>
+        <div class="demo" style="max-width: 420px">
+          <div class="c-scroll" style="height: 120px" tabindex="0">
+            <pre class="c-mono" style="margin:0">01 tokens.css
+          02 themes.css
+          03 components.css
+          04 palette.css
+          05 palette.js
+          06 theme-toggle.js
+          07 marks/matey.svg
+          08 marks/mcp-query.svg
+          09 marks/ecmanim.svg
+          10 marks/clawser.svg
+          11 marks/andbox.svg
+          12 marks/objectify.svg</pre>
+          </div>
+        </div>
+
+        <h3>Scrim</h3>
+        <div class="demo-flex">
+          <button class="c-btn secondary" id="openScrim">Show scrim</button>
+          <div class="c-scrim center" id="demoScrim" hidden>
+            <div class="c-card" style="max-width: 320px"><div class="body">Any custom layer sits on <code>--scrim</code>. Click anywhere to close.</div></div>
+          </div>
         </div>
       </section>
 
@@ -490,6 +916,31 @@ createCommandPalette({
     { title: 'Open llms.txt for this page', icon: '</>', feedback: '→ opening llms.txt' },
   ],
 });
+
+// app-chrome demos: native elements do the work; this only opens things and removes dismissed ones
+document.getElementById('openDialog').addEventListener('click', () => document.getElementById('demoDialog').showModal());
+document.getElementById('openConfirm').addEventListener('click', () => document.getElementById('demoConfirm').showModal());
+const scrim = document.getElementById('demoScrim');
+document.getElementById('openScrim').addEventListener('click', () => { scrim.hidden = false; });
+scrim.addEventListener('click', () => { scrim.hidden = true; });
+document.addEventListener('click', (e) => {
+  const x = e.target.closest('.c-chip > .x, .c-banner > .x, .c-toast > .x');
+  if (x) x.parentElement.remove();
+});
+document.getElementById('fireToast').addEventListener('click', () => {
+  let tray = document.getElementById('liveToasts');
+  if (!tray) { tray = document.createElement('div'); tray.id = 'liveToasts'; tray.className = 'c-toasts bottom-right'; tray.setAttribute('aria-live', 'polite'); document.body.appendChild(tray); }
+  const t = document.createElement('div'); t.className = 'c-toast info'; t.setAttribute('role', 'status');
+  t.innerHTML = '<span class="ic">ⓘ</span><span class="msg"><span class="title">Live toast</span>Slides in, dismisses in 4s.</span><button class="x" aria-label="Dismiss">✕</button>';
+  tray.appendChild(t); setTimeout(() => t.remove(), 4000);
+});
+// .c-theme-toggle — same three-state cycle as the bar's #mode button (both driven by theme-toggle.js)
+const themeBtn = document.getElementById('themeToggle');
+const cycle = ['system', 'dark', 'light'];
+const syncThemeBtn = () => { themeBtn.textContent = modeBtn.textContent; themeBtn.setAttribute('aria-pressed', modeBtn.getAttribute('aria-pressed')); };
+themeBtn.addEventListener('click', () => { theme.set(cycle[(cycle.indexOf(theme.get()) + 1) % 3]); syncThemeBtn(); });
+modeBtn.addEventListener('click', () => queueMicrotask(syncThemeBtn));
+syncThemeBtn();
 
 // scroll-spy
 const sideLinks = [...document.querySelectorAll('.c-side a')];

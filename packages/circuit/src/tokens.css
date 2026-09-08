@@ -12,6 +12,16 @@
  *   2. Semantic color (success/warning/error/info) never rotates.
  *   3. Syntax-highlighting color never rotates.
  * Only --accent (derived from --hue) changes per tool.
+ *
+ * Two further fixed groups added for the app-chrome tier (shared vocabulary
+ * with jjhub / noitroidvania — see packages/circuit/COMPONENTS.md):
+ *   --scrim        the overlay wash behind <dialog>::backdrop, .c-scrim and
+ *                  any modal layer. Slate-tinted in light, near-black in dark.
+ *   --cat-1 … 6    a six-step categorical ramp for data that is *not* a
+ *                  status (labels, series, lanes). Fixed like the semantic
+ *                  colours — never rotates with --hue — and deliberately
+ *                  distinct from success/warning/error/info so a category
+ *                  never reads as a state. Consumed by .c-ramp[data-step].
  */
 
 :root {
@@ -31,6 +41,17 @@
   --error-soft: #d13c3014;
   --info: #1d6fbf;
   --info-soft: #1d6fbf14;
+
+  /* ---- overlay scrim (fixed) ---- */
+  --scrim: rgba(15, 23, 42, 0.45);
+
+  /* ---- categorical ramp (fixed — never rotates with --hue) ---- */
+  --cat-1: #2563eb; /* blue */
+  --cat-2: #0d9488; /* teal */
+  --cat-3: #7c3aed; /* violet */
+  --cat-4: #db2777; /* pink */
+  --cat-5: #d97706; /* amber */
+  --cat-6: #65a30d; /* lime */
 
   /* ---- neutral scale (fixed — hue-stable cool slate) ---- */
   --n-0: #f8fafc;
@@ -148,6 +169,15 @@
     --info: #5fa8e8;
     --info-soft: #5fa8e817;
 
+    --scrim: rgba(2, 6, 23, 0.65);
+
+    --cat-1: #60a5fa;
+    --cat-2: #2dd4bf;
+    --cat-3: #a78bfa;
+    --cat-4: #f472b6;
+    --cat-5: #fbbf24;
+    --cat-6: #a3e635;
+
     --bg: var(--n-800);
     --bg-panel: var(--n-750);
     --bg-inset: var(--n-700);
@@ -189,6 +219,15 @@
   --error-soft: #f0665a17;
   --info: #5fa8e8;
   --info-soft: #5fa8e817;
+
+  --scrim: rgba(2, 6, 23, 0.65);
+
+  --cat-1: #60a5fa;
+  --cat-2: #2dd4bf;
+  --cat-3: #a78bfa;
+  --cat-4: #f472b6;
+  --cat-5: #fbbf24;
+  --cat-6: #a3e635;
 
   --bg: var(--n-800);
   --bg-panel: var(--n-750);
@@ -238,6 +277,15 @@
   --error-soft: #d13c3014;
   --info: #1d6fbf;
   --info-soft: #1d6fbf14;
+
+  --scrim: rgba(15, 23, 42, 0.45);
+
+  --cat-1: #2563eb;
+  --cat-2: #0d9488;
+  --cat-3: #7c3aed;
+  --cat-4: #db2777;
+  --cat-5: #d97706;
+  --cat-6: #65a30d;
 
   --bg: var(--n-0);
   --bg-panel: #ffffff;

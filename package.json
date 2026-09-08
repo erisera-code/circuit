@@ -15,6 +15,10 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "npm run build -w @erisera-code/circuit-react"
+    "build": "npm run build -w @erisera-code/circuit-react",
+    "check:css": "node scripts/check-css.mjs"
+  },
+  "devDependencies": {
+    "postcss": "^8.5.6"
   }
 }
