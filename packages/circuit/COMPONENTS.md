@@ -67,6 +67,16 @@ columns describe the sibling systems as of the matrix).
 | 41 | Scroll area (thin themed scrollbar) | `.c-scroll` (+ `.x/.y`) | `.rail` inline → `.scroll` | `.scroll` ✓ |
 | 42 | Overlay layer / scrim | `.c-scrim` (+ `.center`), token `--scrim` | `.modal-overlay`, `.cmdk-overlay` → shared `.scrim` | `.ui-layer`, `.scrim` ✓ |
 | 43 | Theme toggle control | `.c-theme-toggle` + `theme-toggle.js` | data-theme attr only → `.theme-toggle` control | contrast mode only → `.ui-theme-toggle` |
+| 44 | Slider (range input, styled) | `.c-slider` on `input[type=range]` | — → `.slider` | — → `.ui-slider` |
+| 45 | Segmented control (single-choice, joined) | `.c-segmented` on real radio inputs | — → `.segmented` | — → `.ui-segmented` |
+| 46 | Combobox (filterable input + listbox) | `.c-combobox` (+ `.panel`, reuses `.c-list`/`.c-row`) | — → `.combobox` | — → `.ui-combobox` |
+| 47 | Skeleton (loading placeholder, shimmer) | `.c-skeleton` (+ `.text`, `.avatar`) | — → `.skeleton` | — → `.ui-skeleton` |
+| 48 | Stat (value + label + trend) | `.c-stat` (+ `.value`, `.label`, `.trend.up/.down/.flat`) | — → `.stat` | — → `.ui-stat` |
+| 49 | Rating (read-only, fractional) | `.c-rating` (`--val`, `role=img`) | — → `.rating` | — → `.ui-rating` |
+| 50 | Stepper (numbered multi-step progress) | `.c-stepper` (+ `.done`, `.current`) | — → `.stepper` | — → `.ui-stepper` |
+| 51 | Timeline (vertical dated events) | `.c-timeline` (+ `.current`) | — → `.timeline` | — → `.ui-timeline` |
+| 52 | Carousel (scroll-snap slides, prev/next, dots) | `.c-carousel` (+ `.track`, `.nav`, `.dots`) | — → `.carousel` | — → `.ui-carousel` |
+| 53 | Drawer (edge-anchored dialog) | `dialog.c-dialog.drawer` (+ `.left/.top/.bottom`) | — → `.drawer` | — → `.ui-drawer` |
 
 Layering, top to bottom: `.c-scrim` 300 (same as the palette backdrop) ·
 `.c-toasts` 250 · menus and tooltips 100. `<dialog>` and `[popover]` use the
@@ -646,6 +656,159 @@ Single-purpose helpers.
   <div class="c-row-flex"><span class="c-nowrap">never wraps</span><span class="c-grow c-truncate">grow + truncate — this text is long enough to be cut off at the end of the row</span><button class="c-btn ghost">end</button></div>
   <p><span class="c-sr-only">screen-reader only text lives here</span>The line above contains hidden text for assistive tech.</p>
 </div>
+```
+
+## Extended vocabulary
+
+Rows 44-53, added to keep pace with the shared vocabulary. Same conventions
+as the rest of the file; stepper and timeline connectors stay `var(--line)` —
+never an accent-coloured rail.
+
+### Slider
+
+`.c-slider` on a native `<input type="range">` — thin track, round accent thumb, visible focus ring.
+
+```html
+<input class="c-slider" type="range" min="0" max="100" value="40" aria-label="Volume">
+<input class="c-slider" type="range" min="0" max="100" value="70" disabled aria-label="Volume (disabled)">
+```
+
+### Segmented control
+
+`.c-segmented` — a single-choice group of real radio inputs; the checked label fills.
+
+```html
+<div class="c-segmented" role="radiogroup" aria-label="View">
+  <label><input type="radio" name="view" checked>Day</label>
+  <label><input type="radio" name="view">Week</label>
+  <label><input type="radio" name="view">Month</label>
+</div>
+```
+
+### Combobox
+
+`.c-combobox` wraps a `.c-field` input (`role="combobox"`) and a `.panel` popup listbox; option rows reuse `.c-list` / `.c-row`. Opening, filtering and arrow-key navigation are JS — this file only styles the field and the panel.
+
+```html
+<div class="c-combobox">
+  <input class="c-field" type="text" role="combobox" aria-expanded="true" aria-controls="cb-fruit" aria-autocomplete="list" placeholder="Search fruit…">
+  <ul class="panel c-list" role="listbox" id="cb-fruit">
+    <li class="c-row" role="option" aria-selected="true">Apple</li>
+    <li class="c-row" role="option">Apricot</li>
+    <li class="c-row" role="option">Avocado</li>
+  </ul>
+</div>
+```
+
+### Skeleton
+
+`.c-skeleton` — a loading placeholder; a highlight sweeps across a flat tone, never colour-cycling. Presentational only — pair the container with `aria-busy`.
+
+- `.text` a line of type (last one narrows) · `.avatar` a disc
+
+```html
+<div class="c-stack" aria-busy="true">
+  <div class="c-skeleton avatar"></div>
+  <div class="c-skeleton text"></div>
+  <div class="c-skeleton text"></div>
+  <div class="c-skeleton text"></div>
+</div>
+```
+
+### Stat
+
+`.c-stat` — a big `.value`, a `.label`, and an optional `.trend`. Trend colour is never the only carrier — the glyph goes in the markup.
+
+- `.trend.up` (success + `▲`) · `.trend.down` (error + `▼`) · `.trend.flat` (dim + `→`)
+
+```html
+<div class="c-stat">
+  <span class="value">1,204</span>
+  <span class="label">Active users</span>
+  <span class="trend up">▲ 4.2%</span>
+</div>
+<div class="c-stat">
+  <span class="value">42ms</span>
+  <span class="label">p95 latency</span>
+  <span class="trend down">▼ 8ms</span>
+</div>
+```
+
+### Rating
+
+`.c-rating` — read-only, fractional out of 5 via `--val`. The fraction is visual only, so `role="img"` and `aria-label` carry the number.
+
+```html
+<span class="c-rating" role="img" aria-label="4.5 out of 5 stars" style="--val: 4.5"></span>
+<span class="c-rating" role="img" aria-label="3 out of 5 stars" style="--val: 3"></span>
+```
+
+### Stepper
+
+`.c-stepper` — a horizontal numbered progress indicator (`<ol>` + `<li>`, numbers via a CSS counter). `.done` / `.current` / upcoming (no class); the connecting line stays `var(--line)`.
+
+```html
+<ol class="c-stepper">
+  <li class="done">Account</li>
+  <li class="current">Shipping</li>
+  <li>Payment</li>
+  <li>Confirm</li>
+</ol>
+```
+
+### Timeline
+
+`.c-timeline` — a vertical sequence of dated events (`<ol>` + `<li>`, optional leading `<time>`). A dot marks each item; a neutral line runs behind them in a fixed gutter, same discipline as the stepper.
+
+```html
+<ol class="c-timeline">
+  <li><time datetime="2026-09-01">Sep 1</time><p>Repo created.</p></li>
+  <li><time datetime="2026-09-07">Sep 7</time><p>v0.1.1 shipped.</p></li>
+  <li class="current"><time datetime="2026-09-09">Sep 9</time><p>Extended vocabulary landed.</p></li>
+</ol>
+```
+
+### Carousel
+
+`.c-carousel` — a CSS scroll-snap `.track`, prev/next `.nav` (real `.c-iconbtn`s floating over the track in the same grid cell), and dot pagination in `.dots`. Advancing the track and syncing the dots is a few lines of JS.
+
+```html
+<div class="c-carousel">
+  <div class="track">
+    <div class="c-card"><div class="body">Slide 1</div></div>
+    <div class="c-card"><div class="body">Slide 2</div></div>
+    <div class="c-card"><div class="body">Slide 3</div></div>
+  </div>
+  <div class="nav">
+    <button class="c-iconbtn ghost" aria-label="Previous">‹</button>
+    <button class="c-iconbtn ghost" aria-label="Next">›</button>
+  </div>
+  <div class="dots" role="tablist" aria-label="Slide">
+    <button role="tab" aria-selected="true" aria-label="Slide 1"></button>
+    <button role="tab" aria-selected="false" aria-label="Slide 2"></button>
+    <button role="tab" aria-selected="false" aria-label="Slide 3"></button>
+  </div>
+</div>
+```
+
+### Drawer
+
+`.c-dialog.drawer` — the same native `<dialog>` as the modal above (`showModal()`, `<form method="dialog">`, `::backdrop`), anchored to an edge instead of centred. Default is the right edge; `.left` / `.top` / `.bottom` pick another.
+
+```html
+<button class="c-btn secondary" id="openDrawer">Open drawer</button>
+<dialog class="c-dialog drawer" id="demoDrawer" aria-labelledby="demoDrawerTitle">
+  <form method="dialog">
+    <div class="head"><span id="demoDrawerTitle">Filters</span><button class="x" value="cancel" aria-label="Close">✕</button></div>
+    <div class="body">
+      <div class="c-choices">
+        <label class="c-check"><input type="checkbox" checked> Healthy only</label>
+        <label class="c-check"><input type="checkbox"> Include paused</label>
+      </div>
+    </div>
+    <div class="actions"><button class="c-btn ghost" value="cancel">Reset</button><button class="c-btn primary" value="ok">Apply</button></div>
+  </form>
+</dialog>
 ```
 
 ## Pre-existing components
