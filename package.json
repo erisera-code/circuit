@@ -16,7 +16,9 @@
   ],
   "scripts": {
     "build": "npm run build -w @erisera-code/circuit-react",
-    "check:css": "node scripts/check-css.mjs"
+    "check:css": "node scripts/check-css.mjs",
+    "check:rails": "node scripts/check-rails.mjs",
+    "test": "npm run check:css && npm run check:rails"
   },
   "devDependencies": {
     "postcss": "^8.5.6"

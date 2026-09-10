@@ -106,7 +106,7 @@ rotates with `--hue`, distinct from the semantic colours).
 <button class="c-iconbtn" aria-label="Refresh">↻</button>
 <button class="c-iconbtn ghost" aria-label="Edit">✎</button>
 <button class="c-iconbtn outline sm" aria-label="Close">✕</button>
-<button class="c-iconbtn danger" aria-label="Delete">🗑</button>
+<button class="c-iconbtn danger" aria-label="Delete">✕</button>
 <button class="c-iconbtn lg" aria-label="Add" disabled>+</button>
 ```
 
