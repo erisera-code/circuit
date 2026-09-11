@@ -20,7 +20,7 @@ default.
 
 ## Why
 
-Several independent open-source tools — [ai.matey](https://github.com/johnhenry/ai.matey), [mcp-query](https://github.com/johnhenry/mcp-query), [ecmanim](https://github.com/johnhenry/ecmanim), [andbox](https://github.com/johnhenry/andbox), [objectify](https://github.com/johnhenry/objectify) — plus the [clawser](https://github.com/johnhenry/clawser) product, each with its own identity. Circuit is what keeps them feeling like one family instead of unrelated projects: identical neutrals, type, spacing, and components, with exactly **one** thing that changes per surface — an accent hue.
+Several independent open-source tools — [aimatey](https://github.com/johnhenry/aimatey), [mcp-query](https://github.com/johnhenry/mcp-query), [ecmanim](https://github.com/johnhenry/ecmanim), [andbox](https://github.com/johnhenry/andbox), [objectify](https://github.com/johnhenry/objectify) — plus the [clawser](https://github.com/johnhenry/clawser) product, each with its own identity. Circuit is what keeps them feeling like one family instead of unrelated projects: identical neutrals, type, spacing, and components, with exactly **one** thing that changes per surface — an accent hue.
 
 The tool docs are now sections of one site, [opensource.johnhenry.me](https://opensource.johnhenry.me), where the hue switches per section rather than per site.
 
