@@ -2,7 +2,7 @@
   "name": "circuit-monorepo",
   "private": true,
   "version": "0.0.0",
-  "description": "The erisera OSS design system monorepo — CSS foundation (@erisera-code/circuit) and React components (@erisera-code/circuit-react).",
+  "description": "The erisera OSS design system monorepo \u2014 CSS foundation (@erisera-code/circuit) and React components (@erisera-code/circuit-react).",
   "license": "MIT",
   "type": "module",
   "author": "John Henry",
@@ -15,10 +15,10 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "npm run build -w @erisera-code/circuit-react",
+    "build": "npm run build -w @erisera-code/circuit && npm run build -w @erisera-code/circuit-react",
     "check:css": "node scripts/check-css.mjs",
     "check:rails": "node scripts/check-rails.mjs",
-    "test": "npm run check:css && npm run check:rails"
+    "test": "npm run check:css && npm run check:rails && npm test -w @erisera-code/circuit"
   },
   "devDependencies": {
     "postcss": "^8.5.6"

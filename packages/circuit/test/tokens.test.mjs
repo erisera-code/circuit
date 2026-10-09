@@ -74,7 +74,7 @@ function legacy() {
   return { light, dark: { ...light, ...dark } };
 }
 function resolve(set, v, depth = 0) {
-  return v.replace(/var\((--[\w-]+)\)/g, (_, n) => (depth < 8 && set[n] ? resolve(set, set[n], depth + 1) : `var(${n})`));
+  return v.replace(/var\((--[\w-]+)\)/g, (_, n) => (depth < 8 && n !== '--hue' && set[n] ? resolve(set, set[n], depth + 1) : `var(${n})`));
 }
 const MAP = { bg: '--bg', surface: '--bg-panel', inset: '--bg-inset', text: '--ink', dim: '--ink-2', faint: '--ink-3',
   border: '--line', accent: '--accent', 'accent-hover': '--accent-hover', danger: '--error', success: '--success',

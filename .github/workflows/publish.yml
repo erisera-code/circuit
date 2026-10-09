@@ -1,0 +1,34 @@
+# NOTE: the FILENAME of this workflow is part of npm trusted publishing -- keep it.
+# .github/workflows/publish.yml -- publishes @erisera-code/circuit (packages/circuit).
+name: Publish to npm
+
+# Publish model: main is the release branch. A push to main publishes only if
+# packages/circuit/package.json's version isn't on npm yet (otherwise a clean
+# no-op), then tags v<version> and creates a GitHub Release. See
+# johnhenry/workflows' README.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+concurrency:
+  group: publish-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    permissions:
+      contents: write # tag + GitHub Release by-product of npm-publish.yml
+      id-token: write # npm provenance
+    uses: johnhenry/workflows/.github/workflows/npm-publish.yml@v1
+    with:
+      node-version: "26"
+      working-directory: packages/circuit
+      # the lockfile and workspaces live at the repo root
+      install-command: cd ../.. && npm ci
+      node-cache: npm
+      gate-commands: |
+        cd ../..
+        npm run build
+        npm test
+    secrets: inherit
