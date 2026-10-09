@@ -1,7 +1,14 @@
 # Changelog
 
-## Unreleased
+## 0.5.0 — 2026-10-09
 
+- Moved into the erisera-code/circuit monorepo as `@erisera-code/circuit-engine`
+  (was `@johnhenry/design-engine`, never published).
+- New `./mount` export: `mountSkin`, `skinFromParam`, `geometryOf`, with
+  types — mounts an instance over an existing app's own stylesheets without
+  a rebuild.
+- New `examples/starter/index.html`: a page in the grammar with an instance
+  switcher.
 - Deep re-audit of the whole project: removed the accent-coloured masthead
   rule and the rounded/tinted callout-banner-chip treatment from `circuit`,
   the tinted callout/banner wash from `snake`, capped `botanical`'s card
