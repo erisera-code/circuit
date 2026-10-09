@@ -52,12 +52,76 @@ Apply a theme and (optionally) dark mode via classes on your root element:
 <html class="theme-matey dark">   <!-- dark mode -->
 ```
 
+## Using circuit in an application
+
+`tokens.css` is built for sites that adopt circuit wholesale: it declares generic
+properties (`--bg`, `--accent`, `--ink`, ...) on `:root`, so importing it into an
+application overwrites the app's own theme variables. Applications should use the
+**namespaced token set** instead. Every property is `--circuit-*`, so nothing can
+collide, and it carries light and dark values: light by default, dark when the OS
+prefers it (unless the page sets `data-theme="light"`), or explicitly with
+`data-theme="dark"`.
+
+From CSS:
+
+```css
+@import '@erisera-code/circuit/namespaced.css';
+```
+
+From JS only (an import map / vendor pipeline that bundles JS and cannot consume a
+CSS-only package):
+
+```js
+import { tokens, tokensCss } from '@erisera-code/circuit/tokens';
+
+const style = document.createElement('style');
+style.id = 'circuit-tokens';
+style.textContent = tokensCss();            // or tokensCss({ selector: '.app' }) to scope it
+document.head.append(style);
+
+tokens.light.accent;   // 'hsl(var(--circuit-hue) 95% 46%)'
+tokens.dark.bg;        // '#0f172a'
+```
+
+`tokens` is `{ shared, light, dark }` (keys are the role names without the prefix; types
+ship in `tokens.d.ts`). `tokensCss()` is the same text as `namespaced.css`; a test keeps
+them in sync.
+
+Map your app's roles onto the tokens in your own stylesheet; circuit never touches
+your variable names:
+
+| App role | Token |
+|---|---|
+| bg | `--circuit-bg` |
+| surface | `--circuit-surface` (inset: `--circuit-inset`) |
+| text | `--circuit-text` |
+| dim | `--circuit-dim` (fainter: `--circuit-faint`) |
+| accent | `--circuit-accent` (`-hover`, `-soft`, `-border`) |
+| border | `--circuit-border` |
+| danger | `--circuit-danger` (`--circuit-danger-soft`) |
+
+```css
+:root { --bg: var(--circuit-bg); --accent: var(--circuit-accent); /* ... */ }
+```
+
+The accent derives from `--circuit-hue` (default 25); set it on any element to retint a
+subtree. Semantic (`success`, `warning`, `danger`, `info`), categorical (`cat-1`..`cat-6`),
+syntax (`sx-*`), type, spacing, radius and motion tokens are also exported.
+
+## Releasing
+
+Publishing runs from `.github/workflows/publish.yml` on every push to `main`: it
+publishes `packages/circuit` only if its `version` is not on npm yet (otherwise a green
+no-op), then tags `v<version>` and creates a GitHub Release. Bump the version in the PR that
+should release.
+
 ## What's in the box
 
 All paths below are inside `packages/circuit/`:
 
 | File | Contents |
 |---|---|
+| `src/namespaced.css` + `src/tokens.js` | The same tokens as `--circuit-*` custom properties with light/dark values, as CSS and as a JS module (see [Using circuit in an application](#using-circuit-in-an-application)) |
 | `src/tokens.css` | Neutral scale, semantic colors, accent formula, type, spacing, radius, elevation, syntax colors |
 | `src/themes.css` | Per-tool `--hue` overrides + the hue registry (see below) |
 | `src/components.css` | Docs shell (header/sidebar/pager), code block, code groups, terminal block, admonitions, API parameter list, buttons (primary/secondary/ghost/outline/danger, icon, link, group/split), fields + form groups, checkbox/radio/switch, badges, tabs — plus the app-chrome tier: status dot, chip, card, banner, toast + tray, dialog, popover, tooltip, dropdown menu, accordion, data table + key/value, list rows, empty state, spinner, meter, avatar, key cap, separator/section title, swatch, categorical ramp, app shell + statusbar + resize handle, board, scroll area, scrim, theme toggle, utilities. Reference: [`COMPONENTS.md`](packages/circuit/COMPONENTS.md) |
@@ -141,7 +205,7 @@ Not yet wired to auto-deploy: `.github/workflows/deploy-docs.yml` is `workflow_d
 
 ## Status
 
-`v0.1.1` — pre-release. Tokens and components are stable enough to build against. The app-chrome tier (data table, toast, dialog, dropdown, shell…) landed as part of the cross-reproduction pass with jjhub and noitroidvania — see [`packages/circuit/COMPONENTS.md`](packages/circuit/COMPONENTS.md); expect additions, not breaking changes to what's here.
+`v0.2.0` — pre-release. Tokens and components are stable enough to build against. The app-chrome tier (data table, toast, dialog, dropdown, shell…) landed as part of the cross-reproduction pass with jjhub and noitroidvania — see [`packages/circuit/COMPONENTS.md`](packages/circuit/COMPONENTS.md); expect additions, not breaking changes to what's here.
 
 ## License
 

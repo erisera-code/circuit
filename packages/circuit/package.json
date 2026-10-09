@@ -1,7 +1,7 @@
 {
   "name": "@erisera-code/circuit",
-  "version": "0.1.1",
-  "description": "The erisera OSS design system — one set of tokens, one accent hue per tool.",
+  "version": "0.2.0",
+  "description": "The erisera OSS design system \u2014 one set of tokens, one accent hue per tool.",
   "license": "MIT",
   "type": "module",
   "author": "John Henry",
@@ -15,7 +15,8 @@
     "design-system",
     "css-tokens",
     "docs-theme",
-    "erisera"
+    "erisera",
+    "design-tokens"
   ],
   "files": [
     "src"
@@ -28,9 +29,19 @@
     "./palette.js": "./src/palette.js",
     "./theme-toggle.js": "./src/theme-toggle.js",
     "./index.css": "./src/index.css",
-    "./marks/*": "./src/marks/*"
+    "./marks/*": "./src/marks/*",
+    "./tokens": {
+      "types": "./src/tokens.d.ts",
+      "import": "./src/tokens.js",
+      "default": "./src/tokens.js"
+    },
+    "./namespaced.css": "./src/namespaced.css"
   },
   "publishConfig": {
     "access": "public"
+  },
+  "scripts": {
+    "build": "node ../../scripts/build-namespaced.mjs",
+    "test": "node --test \"test/*.test.mjs\""
   }
 }
