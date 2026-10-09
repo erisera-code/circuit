@@ -1,0 +1,28 @@
+/*
+  design-engine — instance: default
+  -----------------------------------------------------------------------------
+  The neutral control. Polished, system-ui. Selected automatically when no
+  data-instance is set; also available explicitly as data-instance="default"
+  or as a facet source (data-shape="default" …). Token-only: it is the core
+  semantic palette with slightly softer radii.
+*/
+
+@layer de.instances.type {
+  :where([data-engine], [data-engine] *):where([data-instance="default"]:not([data-type]), [data-type="default"]),
+  :where([data-engine]:not([data-instance]):not([data-type]):not([data-engine] [data-engine])) {
+    --de-font-body: var(--de-font-system);
+    --de-font-display: var(--de-font-system);
+    --de-font-code: var(--de-font-mono);
+  }
+}
+
+@layer de.instances.shape {
+  :where([data-engine], [data-engine] *):where([data-instance="default"]:not([data-shape]), [data-shape="default"]),
+  :where([data-engine]:not([data-instance]):not([data-shape]):not([data-engine] [data-engine])) {
+    --de-radius-sm: 0.375rem;
+    --de-radius-md: 0.625rem;
+    --de-radius-lg: 1rem;
+    --de-shadow-opacity: 0.08;
+  }
+}
+/* signature: the neutral control — the core tokens, unadorned. */

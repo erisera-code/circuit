@@ -1,0 +1,43 @@
+/*
+  design-engine — foundation: accessibility
+  -----------------------------------------------------------------------------
+  Global accessibility baseline: color-scheme is declared so native form
+  controls, scrollbars, and the canvas follow the theme; `prefers-*` queries
+  are honored (contrast, transparency, data). These are defaults — modes/
+  can tighten them per [data-*] attribute.
+*/
+
+@layer de.properties {
+  :where([data-engine]) {
+    /* follow the OS theme for native UI chrome; modes/ force a side */
+    color-scheme: light dark;
+    /* keep the accent on native range/checkbox controls */
+    accent-color: var(--de-color-accent);
+    caret-color: var(--de-color-accent);
+  }
+
+  /* honor reduced transparency: zero the blur token (every backdrop-filter
+     in the engine reads it) */
+  @media (prefers-reduced-transparency: reduce) {
+    :where([data-engine]) {
+      --de-blur: 0px;
+      --de-saturate: 1;
+    }
+  }
+
+  /* honor reduced data: drop non-essential visual effects */
+  @media (prefers-reduced-data: reduce) {
+    :where([data-engine]) {
+      --de-shadow-1: none;
+      --de-shadow-2: none;
+    }
+  }
+
+  /* boost contrast on request */
+  @media (prefers-contrast: more) {
+    :where([data-engine]) {
+      --de-color-line: var(--de-color-fg);
+      --de-border-w: 1.5px;
+    }
+  }
+}

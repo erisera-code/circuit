@@ -1,0 +1,78 @@
+/*
+  design-engine — components: stepper
+  -----------------------------------------------------------------------------
+  A numbered multi-step progress indicator inferred from ol[data-steps]:
+    <ol data-steps>
+      <li data-status="done">Account</li>
+      <li data-status="current">Shipping</li>
+      <li>Payment</li>
+    </ol>
+  Numbers come from a CSS counter; a neutral connecting line runs behind
+  each dot (the same "line in a gutter, not a rail on the content" idea as
+  the timeline). data-status: done | current | (absent = upcoming).
+*/
+
+@layer de.components {
+  :where([data-engine]) :where(ol[data-steps]) {
+    display: flex;
+    list-style: none;
+    counter-reset: de-step;
+    padding: 0;
+    margin: 0;
+  }
+  :where([data-engine]) :where(ol[data-steps] > li) {
+    counter-increment: de-step;
+    position: relative;
+    flex: 1 1 0;
+    display: grid;
+    justify-items: center;
+    gap: var(--de-space-1);
+    text-align: center;
+    font-size: var(--de-text-sm);
+    color: var(--de-color-muted);
+  }
+  :where([data-engine]) :where(ol[data-steps] > li)::before {
+    content: counter(de-step);
+    display: grid;
+    place-items: center;
+    inline-size: 1.75rem;
+    block-size: 1.75rem;
+    border-radius: 50%;
+    border: 1px solid var(--de-color-edge);
+    background: var(--de-color-surface);
+    color: var(--de-color-fg);
+    font-size: var(--de-text-sm);
+    font-weight: var(--de-weight-strong);
+    position: relative;
+    z-index: 1;
+  }
+  :where([data-engine]) :where(ol[data-steps] > li:not(:first-child))::after {
+    content: "";
+    position: absolute;
+    inset-inline-end: 50%;
+    inset-block-start: 0.875rem;
+    inline-size: 100%;
+    block-size: 1px;
+    background: var(--de-color-line);
+  }
+  :where([data-engine]) :where(ol[data-steps] > li[data-status="done"]) {
+    color: var(--de-color-fg);
+  }
+  :where([data-engine]) :where(ol[data-steps] > li[data-status="done"])::before {
+    content: "✓";
+    background: var(--de-color-accent);
+    border-color: var(--de-color-accent);
+    color: var(--de-color-accent-fg);
+  }
+  :where([data-engine]) :where(ol[data-steps] > li[data-status="done"])::after {
+    background: var(--de-color-accent);
+  }
+  :where([data-engine]) :where(ol[data-steps] > li[data-status="current"]) {
+    color: var(--de-color-fg);
+    font-weight: var(--de-weight-strong);
+  }
+  :where([data-engine]) :where(ol[data-steps] > li[data-status="current"])::before {
+    border-color: var(--de-color-accent);
+    color: var(--de-color-accent);
+  }
+}

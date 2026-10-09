@@ -1,0 +1,42 @@
+/*
+  design-engine — foundation: @property registrations
+  -----------------------------------------------------------------------------
+  Registered custom properties get a real type, inheritance, and an initial
+  value, which makes them animatable and lets `attr()` feed them safely (a
+  bad attribute value falls back to initial-value instead of poisoning the
+  cascade). Two rules of thumb decide what gets registered:
+
+  1. COLOR TOKENS ARE NOT REGISTERED. A registered <color> is resolved on the
+     element that declares it, so a `light-dark()` value freezes to one side
+     there and inherits already-resolved. Unregistered tokens carry the
+     `light-dark()` expression down the tree and resolve where they are used,
+     so a nested `<section data-theme="dark">` just works. Color transitions
+     still animate because the consuming properties (background-color, color,
+     border-color…) are animatable themselves.
+
+  2. INITIAL VALUES MUST BE COMPUTATIONALLY INDEPENDENT. `rem`, `em`, `vw`,
+     `ch`… are rejected and the whole registration is silently dropped
+     (verified: `initial-value: 1rem` → not registered). Use px / unitless.
+
+  Verbatim syntax:
+    @property --name { syntax: "<type>"; inherits: <bool>; initial-value: <v>; }
+*/
+
+@layer de.properties {
+  /* ---- animatable design knobs ---- */
+  @property --de-border-w        { syntax: "<length>";  inherits: true;  initial-value: 1px; }
+  @property --de-shadow-opacity  { syntax: "<number>";  inherits: true;  initial-value: 0.08; }
+  @property --de-blur            { syntax: "<length>";  inherits: true;  initial-value: 0px; }
+  @property --de-saturate        { syntax: "<number>";  inherits: true;  initial-value: 1; }
+  @property --de-overlay-opacity { syntax: "<number>";  inherits: false; initial-value: 0; }
+  @property --de-tilt            { syntax: "<angle>";   inherits: false; initial-value: 0deg; }
+
+  /* ---- per-element knobs fed by typed attr() (see capabilities/knobs.css) ---- */
+  @property --de-cols    { syntax: "<integer>"; inherits: false; initial-value: 0; }
+  @property --de-span    { syntax: "<integer>"; inherits: false; initial-value: 1; }
+  @property --de-hue     { syntax: "<number>";  inherits: true;  initial-value: 250; }
+  @property --de-chroma  { syntax: "<number>";  inherits: true;  initial-value: 0.16; }
+
+  /* ---- reduced-motion swap slot (see reset.css) ---- */
+  @property --de-animation-reduced { syntax: "*"; inherits: false; initial-value: none; }
+}

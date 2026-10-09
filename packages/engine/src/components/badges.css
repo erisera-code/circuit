@@ -1,0 +1,39 @@
+/*
+  design-engine — components: badges
+  -----------------------------------------------------------------------------
+  Badges inferred from <data value>, [data-badge], and inline [role="status"].
+  Not a pill: a small, square-cornered label with a hairline border, set in
+  small caps-like spacing. Tone (data-tone) changes the text colour only.
+*/
+
+@layer de.components {
+  :where([data-engine]) :where(data, [data-badge], [role="status"]:not([data-callout])) {
+    display: inline-block;
+    padding: 0 0.45em;
+    font-size: var(--de-text-xs);
+    font-weight: var(--de-weight-strong);
+    letter-spacing: 0.04em;
+    line-height: 1.6;
+    color: var(--de-color-fg);
+    border: 1px solid var(--de-color-line);
+    border-radius: var(--de-radius-sm);
+    vertical-align: 0.1em;
+    max-inline-size: none;
+  }
+
+  :where([data-engine]) :where([data-tone="info"])   { color: var(--de-color-accent-2); border-color: currentColor; }
+  :where([data-engine]) :where([data-tone="ok"])     { color: var(--de-color-ok); border-color: currentColor; }
+  :where([data-engine]) :where([data-tone="warn"])   { color: var(--de-color-warn); border-color: currentColor; }
+  :where([data-engine]) :where([data-tone="danger"]) { color: var(--de-color-danger); border-color: currentColor; }
+
+  /* a dot indicator preceding a label */
+  :where([data-engine]) :where(data[data-dot])::before {
+    content: "";
+    display: inline-block;
+    inline-size: 0.5em;
+    block-size: 0.5em;
+    margin-inline-end: 0.35em;
+    border-radius: 50%;
+    background: currentColor;
+  }
+}

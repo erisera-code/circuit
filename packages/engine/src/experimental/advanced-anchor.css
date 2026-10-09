@@ -1,0 +1,31 @@
+/*
+  design-engine — experimental: advanced anchor positioning
+  -----------------------------------------------------------------------------
+  OPT-IN. The volatile parts of anchor positioning: @position-try fallback
+  blocks and position-try-order, plus anchor-size() for sizing. Syntax is
+  still settling (W3C 2025); import separately and verify in your target
+  browsers. Verified syntax (MDN):
+    @position-try --name { position-area: block-start; }
+    position-try: --name;
+    inline-size: anchor-size(--a width);
+*/
+
+@layer de.experimental {
+  @supports (anchor-name: --x) {
+    /* a tooltip that flips above when it would overflow below */
+    @position-try --de-tip-above {
+      position-area: block-start;
+      margin: var(--de-space-1);
+    }
+
+    :where([data-engine]) :where([role="tooltip"], [data-tooltip]) {
+      position-try-fallbacks: --de-tip-above, flip-block;
+      position-try-order: most-space;
+    }
+
+    /* size a popover to match its anchor's width */
+    :where([data-engine]) :where([data-popover][data-match-width]) {
+      inline-size: anchor-size(var(--de-anchor-name, --de-anchor) width);
+    }
+  }
+}

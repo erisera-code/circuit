@@ -1,0 +1,37 @@
+/*
+  design-engine — structure: split layouts
+  -----------------------------------------------------------------------------
+  A two-column split inferred from a [data-split] container, or from
+  <aside> placed as a sibling of main content. The split responds to the
+  viewport and to the container (container query, not viewport).
+*/
+
+@layer de.structure {
+  :where([data-engine]) :where([data-split]) {
+    display: grid;
+    gap: var(--de-space-5);
+    grid-template-columns: var(--de-split-main) var(--de-split-side);
+    align-items: start;
+    max-inline-size: none;
+  }
+
+  /* collapse the split on narrow viewports */
+  @media (max-width: 48rem) {
+    :where([data-engine]) :where([data-split]) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* invert the side (side on the left) */
+  :where([data-engine]) :where([data-split="side-start"]) {
+    grid-template-columns: var(--de-split-side) var(--de-split-main);
+  }
+
+  /* sticky aside within a split — the classic "sticky sidebar" */
+  :where([data-engine]) :where([data-split] > aside, [data-split] > [data-sidebar]) {
+    position: sticky;
+    top: var(--de-space-4);
+    max-height: 100dvh;
+    overflow: auto;
+  }
+}

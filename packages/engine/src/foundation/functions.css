@@ -1,0 +1,61 @@
+/*
+  design-engine — foundation: custom functions (@function)
+  -----------------------------------------------------------------------------
+  Reusable, parameterized value logic. A function body sees the calling
+  element's custom properties, and may contain @media / @supports /
+  @container blocks whose `result:` wins when they match — so a function can
+  return a different value under reduced motion, in a narrow container, etc.
+
+  SUPPORT (Sept 2026): Chromium only. So every USE of a function is guarded:
+    - in a real property: write the plain fallback declaration first, then the
+      function version (the browser keeps the last one it can parse);
+    - in a custom property: wrap the override in `@supports at-rule(@function)`
+      (custom properties accept any token stream at parse time, so a
+      fallback-first pair would NOT work — the last declaration always wins).
+  Functions are global (not layered); this file is only definitions.
+
+  Verbatim syntax:
+    @function --name(--param <type>, --opt: default) returns <type> { result: …; }
+*/
+
+/* alpha: the token with a new opacity, hue/lightness untouched */
+@function --de-alpha(--c <color>, --a <number>) returns <color> {
+  result: oklch(from var(--c) l c h / var(--a));
+}
+
+/* tint / shade: mix toward white or black in oklab (stays in gamut) */
+@function --de-tint(--c <color>, --p <percentage>: 20%) returns <color> {
+  result: color-mix(in oklab, var(--c), white var(--p));
+}
+@function --de-shade(--c <color>, --p <percentage>: 20%) returns <color> {
+  result: color-mix(in oklab, var(--c), black var(--p));
+}
+
+/* mix two tokens */
+@function --de-mix(--a <color>, --b <color>, --p <percentage>: 50%) returns <color> {
+  result: color-mix(in oklab, var(--a), var(--b) var(--p));
+}
+
+/* a step on the spacing scale, honoring the density mode */
+@function --de-space(--n <number>) returns <length> {
+  result: calc(var(--de-space-unit) * var(--n));
+}
+
+/* fluid size: grows with the viewport between a floor and a ceiling */
+@function --de-fluid(--min <length>, --max <length>, --slope: 2vw) returns <length> {
+  result: clamp(var(--min), calc(var(--min) + var(--slope)), var(--max));
+}
+
+/* a duration that collapses to zero under reduced motion — the conditional
+   lives INSIDE the function, so callers need no media query */
+@function --de-dur(--d <time>) returns <time> {
+  result: var(--d);
+  @media (prefers-reduced-motion: reduce) { result: 0s; }
+}
+
+/* a shadow that follows the instance's shadow-ink token and vanishes for
+   users who asked for reduced data — the conditional lives in the body */
+@function --de-shadow(--y <length>, --blur <length>, --spread <length>: 0px) {
+  result: 0 var(--y) var(--blur) var(--spread) var(--de-shadow-ink);
+  @media (prefers-reduced-data: reduce) { result: none; }
+}

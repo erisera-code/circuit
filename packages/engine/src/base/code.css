@@ -1,0 +1,41 @@
+/*
+  design-engine — base: code
+  -----------------------------------------------------------------------------
+  Inline code, keyboard, samp, and <pre> blocks. Uses the component-level
+  --de-code-* tokens so an instance can retune just code surfaces.
+*/
+
+@layer de.base {
+  :where([data-engine]) :where(code, kbd, samp) {
+    font-family: var(--de-font-code);
+    font-size: 0.9em;
+    background: var(--de-code-bg);
+    padding-inline: 0.3em;
+    border-radius: var(--de-code-radius);
+  }
+
+  :where([data-engine]) :where(kbd) {
+    border: 1px solid var(--de-color-line);
+    border-block-end-width: 2px;
+    font-size: 0.85em;
+  }
+
+  :where([data-engine]) :where(pre) {
+    font-family: var(--de-font-code);
+    font-size: var(--de-text-sm);
+    line-height: var(--de-leading);
+    background: var(--de-code-bg);
+    padding: var(--de-space-3) var(--de-space-4);
+    border-radius: var(--de-code-radius);
+    overflow-x: auto;
+    max-inline-size: 100%;
+    tab-size: 2;
+  }
+
+  :where([data-engine]) :where(pre code) {
+    background: none;
+    padding: 0;
+    font-size: inherit;
+    border-radius: 0;
+  }
+}

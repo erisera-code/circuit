@@ -1,0 +1,80 @@
+/*
+  design-engine — components: range slider
+  -----------------------------------------------------------------------------
+  A native <input type="range"> styled on its own pseudo-elements — no
+  wrapper markup needed:
+    <input type="range" min="0" max="100" value="40">
+  `accent-color` alone already gives a correct, theme-matched baseline in
+  every engine; the vendor pseudo-elements underneath refine the track and
+  thumb shape where supported so it reads as part of the family rather than
+  raw browser chrome, and degrade to the accent-color baseline everywhere
+  else.
+*/
+
+@layer de.components {
+  :where([data-engine]) :where(input[type="range"]) {
+    appearance: none;
+    accent-color: var(--de-color-accent);
+    inline-size: 100%;
+    block-size: var(--de-space-4);
+    margin: 0;
+    background: transparent;
+    cursor: pointer;
+  }
+  :where([data-engine]) :where(input[type="range"]:disabled) {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* webkit/blink: flat track, round thumb, a visible ring on the thumb when focused */
+  :where([data-engine]) :where(input[type="range"])::-webkit-slider-runnable-track {
+    block-size: 0.25rem;
+    border-radius: var(--de-radius-full);
+    background: var(--de-color-faint);
+  }
+  :where([data-engine]) :where(input[type="range"])::-webkit-slider-thumb {
+    appearance: none;
+    inline-size: 1.1rem;
+    block-size: 1.1rem;
+    margin-block-start: -0.4375rem;
+    border-radius: 50%;
+    background: var(--de-color-accent);
+    box-shadow: 0 0 0 3px var(--de-color-surface);
+    transition: box-shadow var(--de-dur-fast) var(--de-ease);
+  }
+  :where([data-engine]) :where(input[type="range"]:focus-visible)::-webkit-slider-thumb {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--de-color-surface), 0 0 0 5px var(--de-color-accent);
+  }
+
+  /* firefox: track + the filled progress segment + thumb */
+  :where([data-engine]) :where(input[type="range"])::-moz-range-track {
+    block-size: 0.25rem;
+    border-radius: var(--de-radius-full);
+    background: var(--de-color-faint);
+  }
+  :where([data-engine]) :where(input[type="range"])::-moz-range-progress {
+    block-size: 0.25rem;
+    border-radius: var(--de-radius-full);
+    background: var(--de-color-accent);
+  }
+  :where([data-engine]) :where(input[type="range"])::-moz-range-thumb {
+    inline-size: 1.1rem;
+    block-size: 1.1rem;
+    border: 0;
+    border-radius: 50%;
+    background: var(--de-color-accent);
+    box-shadow: 0 0 0 3px var(--de-color-surface);
+  }
+  :where([data-engine]) :where(input[type="range"]:focus-visible)::-moz-range-thumb {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--de-color-surface), 0 0 0 5px var(--de-color-accent);
+  }
+
+  /* a value readout inferred from an <output> right after the slider in the same label/field */
+  :where([data-engine]) :where(input[type="range"] + output) {
+    font-variant-numeric: tabular-nums;
+    font-size: var(--de-text-sm);
+    color: var(--de-color-muted);
+  }
+}

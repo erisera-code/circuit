@@ -1,0 +1,47 @@
+/*
+  design-engine — components: breadcrumbs
+  -----------------------------------------------------------------------------
+  Breadcrumbs inferred from <nav aria-label="breadcrumb"> containing a <ul>,
+  or a [data-breadcrumbs] container. The list becomes an inline, slash-
+  separated trail. Inferred from the nav's aria-label, not a class.
+*/
+
+@layer de.components {
+  :where([data-engine]) :where(nav[aria-label="breadcrumb"] ul, [data-breadcrumbs] ul) {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--de-space-2);
+    max-inline-size: none;
+  }
+
+  /* separator between items, except after the last */
+  :where([data-engine]) :where(nav[aria-label="breadcrumb"] li, [data-breadcrumbs] li) {
+    display: flex;
+    align-items: center;
+    gap: var(--de-space-2);
+    font-size: var(--de-text-sm);
+  }
+
+  :where([data-engine]) :where(nav[aria-label="breadcrumb"] li + li, [data-breadcrumbs] li + li)::before {
+    content: "/";
+    color: var(--de-color-faint);
+  }
+
+  :where([data-engine]) :where(nav[aria-label="breadcrumb"] a, [data-breadcrumbs] a) {
+    color: var(--de-color-muted);
+    text-decoration: none;
+  }
+  :where([data-engine]) :where(nav[aria-label="breadcrumb"] a:hover, [data-breadcrumbs] a:hover) {
+    color: var(--de-color-accent);
+  }
+
+  /* the last (current) item is not a link */
+  :where([data-engine]) :where(nav[aria-label="breadcrumb"] li:last-child, [data-breadcrumbs] li:last-child) {
+    color: var(--de-color-fg);
+    font-weight: 550;
+  }
+}

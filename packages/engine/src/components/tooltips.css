@@ -1,0 +1,27 @@
+/*
+  design-engine — components: tooltips
+  -----------------------------------------------------------------------------
+  Tooltips via the Popover API + anchor positioning. The invoker carries
+  [data-anchor] (anchor-name); the tooltip sets position-anchor and
+  position-area (wired in capabilities/anchor-positioning.css, guarded).
+*/
+
+@layer de.components {
+  :where([data-engine]) :where([role="tooltip"], [data-tooltip]) {
+    margin: var(--de-space-1);
+    border: 1px solid var(--de-color-line);
+    border-radius: var(--de-radius-sm);
+    background: var(--de-color-fg);
+    color: var(--de-color-bg);
+    padding: var(--de-space-2) var(--de-space-3);
+    font-size: var(--de-text-xs);
+    line-height: 1.4;
+    inline-size: max-content;
+    max-inline-size: 16rem;
+    box-shadow: var(--de-shadow-1);
+  }
+
+  :where([data-engine] :is([role="tooltip"], [data-tooltip]))::backdrop {
+    background: transparent;
+  }
+}

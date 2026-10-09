@@ -1,0 +1,114 @@
+/*
+  design-engine — components: banners & toasts
+  -----------------------------------------------------------------------------
+  Two kinds of notice, both bound by intent attribute + ARIA role for tone:
+
+    <section data-banner role="alert"><p>The remote moved.</p><p><button>Rebase</button></p></section>
+    <output data-toasts="bottom-end">
+      <article data-toast role="status"><p>Saved.</p><button aria-label="Dismiss">×</button></article>
+    </output>
+
+  A banner is a full-width strip: rules above and below in the tone colour,
+  content and actions on one row when they fit. A toast tray is fixed to a
+  corner; each toast is a hairline panel whose tone is carried by a leading
+  glyph (✓ ! ✕ i) in the tone colour and by the border. The engine never
+  draws a coloured side rule on a content container — that rounded-box-with-
+  a-coloured-edge is the most recognisable machine-generated tell there is.
+  Tones follow role: status = ok, alert = danger; data-tone overrides.
+*/
+
+@layer de.components {
+  /* ---- banner ---- */
+  :where([data-engine]) :where([data-banner]) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--de-space-2) var(--de-space-4);
+    padding-block: var(--de-space-3);
+    border-block: 1px solid var(--de-color-accent);
+    row-gap: var(--de-space-2);
+    max-inline-size: none;
+    font-size: var(--de-text-sm);
+  }
+  :where([data-engine]) :where([data-banner]) > :where(p) { max-inline-size: none; }
+  :where([data-engine]) :where([data-banner]) > :where(p:first-child) { flex: 1 1 24rem; }
+  :where([data-engine]) :where([data-banner]) > :where(p:has(> button)) {
+    display: flex;
+    gap: var(--de-space-2);
+    margin-inline-start: auto;
+  }
+  :where([data-engine]) :where([data-banner][role="status"], [data-banner][data-tone="ok"]) { border-color: var(--de-color-ok); }
+  :where([data-engine]) :where([data-banner][data-tone="warn"]) { border-color: var(--de-color-warn); }
+  :where([data-engine]) :where([data-banner][role="alert"], [data-banner][data-tone="danger"]) { border-color: var(--de-color-danger); }
+
+  /* ---- toast tray ---- */
+  :where([data-engine]) :where([data-toasts]) {
+    position: fixed;
+    inset-block-end: var(--de-space-4);
+    inset-inline-end: var(--de-space-4);
+    z-index: var(--de-z-toast);
+    display: grid;
+    gap: var(--de-space-2);
+    inline-size: min(24rem, calc(100vw - var(--de-space-4) * 2));
+    pointer-events: none;
+  }
+  :where([data-engine]) :where([data-toasts="bottom-start"]) { inset-inline: var(--de-space-4) auto; }
+  :where([data-engine]) :where([data-toasts="top-end"])      { inset-block: var(--de-space-4) auto; }
+  :where([data-engine]) :where([data-toasts="top-start"])    { inset-block: var(--de-space-4) auto; inset-inline: var(--de-space-4) auto; }
+  /* a tray inside a positioned demo stage stays inside it */
+  :where([data-engine]) :where([data-stage] [data-toasts]) { position: absolute; }
+
+  /* ---- toast ---- */
+  :where([data-engine]) :where([data-toast]) {
+    --de-toast-tone: var(--de-color-accent);
+    --de-toast-glyph: "i";
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: var(--de-space-2) var(--de-space-3);
+    align-items: start;
+    padding: var(--de-space-3) var(--de-space-3) var(--de-space-3) var(--de-space-4);
+    background: var(--de-color-surface);
+    color: var(--de-color-fg);
+    border: 1px solid var(--de-toast-tone);
+    border-radius: var(--de-radius-sm);
+    box-shadow: var(--de-shadow-2);
+    font-size: var(--de-text-sm);
+    pointer-events: auto;
+    row-gap: var(--de-space-1);
+  }
+  /* the tone glyph, in the tone colour, in the first column */
+  :where([data-engine]) :where([data-toast])::before {
+    content: var(--de-toast-glyph);
+    grid-column: 1;
+    grid-row: 1 / span 9;
+    color: var(--de-toast-tone);
+    font-weight: var(--de-weight-strong);
+    font-family: var(--de-font-code);
+    line-height: inherit;
+  }
+  :where([data-engine]) :where([data-toast]) > :where(p) { max-inline-size: none; grid-column: 2; }
+  :where([data-engine]) :where([data-toast]) > :where(p:has(> button)) { display: flex; gap: var(--de-space-2); }
+  :where([data-engine]) :where([data-toast]) > :where(button[aria-label]) {
+    grid-column: 3;
+    grid-row: 1;
+    padding: 0 0.3em;
+    min-inline-size: 0;
+    min-block-size: 0;
+    border: 0;
+    background: transparent;
+    color: var(--de-color-muted);
+    line-height: 1;
+  }
+  :where([data-engine]) :where([data-toast][role="status"], [data-toast][data-tone="ok"]) { --de-toast-tone: var(--de-color-ok); --de-toast-glyph: "✓"; }
+  :where([data-engine]) :where([data-toast][data-tone="warn"]) { --de-toast-tone: var(--de-color-warn); --de-toast-glyph: "!"; }
+  :where([data-engine]) :where([data-toast][role="alert"], [data-toast][data-tone="danger"]) { --de-toast-tone: var(--de-color-danger); --de-toast-glyph: "✕"; }
+
+  /* a demo stage: a positioned box that fixed/absolute components stay inside */
+  :where([data-engine]) :where([data-stage]) {
+    position: relative;
+    min-block-size: 12rem;
+    overflow: hidden;
+    border: 1px dashed var(--de-color-line);
+    contain: layout;
+  }
+}

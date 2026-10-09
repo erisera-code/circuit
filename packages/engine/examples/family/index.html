@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Design-system family — every component, every system</title>
+<style>
+  :root { color-scheme: dark; --bg:#0b0d10; --panel:#13171c; --line:#252b33; --fg:#e6e8eb; --dim:#8b949e; --accent:#2f6df6; }
+  html[data-theme="light"] { color-scheme: light; --bg:#f6f7f9; --panel:#fff; --line:#dde2e8; --fg:#14181d; --dim:#5b6470; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg); font: 13px/1.5 ui-monospace, "SF Mono", Menlo, monospace; display:grid; grid-template-columns: 240px 1fr; min-height:100dvh; }
+  nav { border-right:1px solid var(--line); padding:12px 0; position:sticky; top:0; height:100dvh; overflow:auto; background:var(--panel); }
+  nav h1 { font-size:13px; margin:0 14px 10px; letter-spacing:.04em; }
+  nav a { display:block; padding:3px 14px; color:var(--dim); text-decoration:none; }
+  nav a:hover, nav a[aria-current] { color:var(--fg); background: color-mix(in oklab, var(--accent) 18%, transparent); }
+  nav a small { color:var(--dim); margin-right:6px; }
+  nav .ctl { display:flex; gap:6px; margin:0 14px 12px; flex-wrap:wrap; }
+  nav button { font:inherit; background:var(--bg); color:var(--fg); border:1px solid var(--line); border-radius:4px; padding:3px 8px; cursor:pointer; }
+  nav button[aria-pressed="true"] { border-color:var(--accent); color:var(--accent); }
+  main { padding:16px 20px 60px; min-width:0; }
+  section { margin-bottom:28px; scroll-margin-top:12px; }
+  section h2 { font-size:14px; margin:0 0 2px; }
+  section h2 small { color:var(--dim); font-weight:normal; margin-left:8px; }
+  .panes { display:grid; grid-template-columns: repeat(var(--cols, 4), minmax(0,1fr)); gap:10px; margin-top:8px; }
+  .pane { border:1px solid var(--line); background:var(--panel); border-radius:4px; overflow:hidden; display:flex; flex-direction:column; min-width:0; }
+  .pane header { font-size:11px; color:var(--dim); padding:4px 8px; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; }
+  .pane iframe { border:0; width:100%; height:120px; background:transparent; display:block; }
+  .hidden { display:none; }
+  @media (max-width: 1400px) { .panes { --cols: 3; } }
+  @media (max-width: 1000px) { .panes { --cols: 2; } }
+  @media (max-width: 700px) { body { grid-template-columns: 1fr; } nav { position:static; height:auto; } .panes { --cols: 1; } }
+</style>
+</head>
+<body>
+<nav>
+  <h1>design-system family</h1>
+  <div class="ctl">
+    <button id="mode-one" aria-pressed="true">one</button>
+    <button id="mode-all">all</button>
+    <button id="theme">◐ dark</button>
+  </div>
+  <div class="ctl" id="systems"></div>
+  <div class="ctl"><label style="color:var(--dim)">engine design <select id="instance"></select></label></div>
+  <div id="list"></div>
+</nav>
+<main id="main"></main>
+<script type="module">
+  import { COMPONENTS, SYSTEMS } from "./components.mjs";
+  const list = document.getElementById("list"), main = document.getElementById("main"), sysCtl = document.getElementById("systems");
+  const INSTANCES = ["default","editorial","brutal","glass","terminal","zine","synthwave","blueprint","botanical","circuit","jjhub","noitroidvania","snake"];
+  const state = { mode: "one", theme: "dark", current: location.hash.slice(1) || COMPONENTS[0].id, systems: new Set(SYSTEMS.map(s => s.id)), instance: "default" };
+  const frameSrc = (s, c) => `frame.html?system=${s}&c=${c}&theme=${state.theme}${s === "design-engine" ? `&instance=${state.instance}` : ""}`;
+  const instSel = document.getElementById("instance");
+  instSel.innerHTML = INSTANCES.map(i => `<option value="${i}">${i}</option>`).join("");
+  instSel.onchange = () => { state.instance = instSel.value; render(); };
+  const section = (c) => {
+    const panes = SYSTEMS.filter(s => state.systems.has(s.id)).map(s => `<div class="pane"><header><span>${s.title}</span><a href="${frameSrc(s.id, c.id)}" target="_blank" style="color:inherit">↗</a></header><iframe loading="lazy" title="${s.title}: ${c.title}" src="${frameSrc(s.id, c.id)}" data-frame="${s.id}:${c.id}"></iframe></div>`).join("");
+    return `<section id="${c.id}"><h2>${c.n}. ${c.title}<small>${c.note}</small></h2><div class="panes" style="--cols:${state.systems.size}">${panes}</div></section>`;
+  };
+  const render = () => {
+    list.innerHTML = COMPONENTS.map(c => `<a href="#${c.id}" ${c.id === state.current ? 'aria-current="true"' : ""}><small>${String(c.n).padStart(2, "0")}</small>${c.title}</a>`).join("");
+    sysCtl.innerHTML = SYSTEMS.map(s => `<button data-sys="${s.id}" aria-pressed="${state.systems.has(s.id)}">${s.title}</button>`).join("");
+    main.innerHTML = (state.mode === "all" ? COMPONENTS : COMPONENTS.filter(c => c.id === state.current)).map(section).join("");
+  };
+  addEventListener("message", (e) => {
+    if (!e.data?.frame) return;
+    for (const f of document.querySelectorAll(`iframe[data-frame="${e.data.frame}"]`)) f.style.height = Math.min(Math.max(e.data.height + 4, 60), 900) + "px";
+  });
+  addEventListener("hashchange", () => { state.current = location.hash.slice(1); if (state.mode === "one") render(); else document.querySelector(`#${CSS.escape(state.current)}`)?.scrollIntoView(); list.querySelectorAll("a").forEach(a => a.toggleAttribute("aria-current", a.hash === location.hash)); });
+  document.getElementById("mode-one").onclick = () => { state.mode = "one"; document.getElementById("mode-one").ariaPressed = "true"; document.getElementById("mode-all").ariaPressed = "false"; render(); };
+  document.getElementById("mode-all").onclick = () => { state.mode = "all"; document.getElementById("mode-all").ariaPressed = "true"; document.getElementById("mode-one").ariaPressed = "false"; render(); };
+  document.getElementById("theme").onclick = (e) => { state.theme = state.theme === "dark" ? "light" : "dark"; document.documentElement.dataset.theme = state.theme; e.target.textContent = (state.theme === "dark" ? "◐ dark" : "◑ light"); render(); };
+  sysCtl.addEventListener("click", (e) => { const b = e.target.closest("[data-sys]"); if (!b) return; const id = b.dataset.sys; state.systems.has(id) ? (state.systems.size > 1 && state.systems.delete(id)) : state.systems.add(id); render(); });
+  render();
+</script>
+</body>
+</html>

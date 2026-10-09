@@ -1,0 +1,39 @@
+/*
+  design-engine — capabilities: view transitions
+  -----------------------------------------------------------------------------
+  Same-document view transitions. An element with [data-transition] gets a
+  view-transition-name so it can be animated during a document state change.
+  The @view-transition cross-document rule lives in experimental/ (volatile,
+  not Baseline). Verified syntax (MDN):
+    view-transition-name: --name;
+    @view-transition { navigation: auto; }
+*/
+
+@layer de.capabilities {
+  @supports (view-transition-name: --x) {
+    /* opt a region into a named transition */
+    :where([data-engine]) :where([data-transition]) {
+      view-transition-name: var(--de-vt-name, --de-region);
+    }
+
+    /* a hero image that morphs across a navigation */
+    :where([data-engine]) :where([data-transition="hero"]) {
+      view-transition-name: --de-hero;
+    }
+
+    /* default cross-fade for the swapped snapshots */
+    ::view-transition-group(--de-hero) {
+      animation-duration: var(--de-dur-slow);
+      animation-timing-function: var(--de-ease);
+    }
+    ::view-transition-old(--de-hero) {
+      animation: de-vt-out var(--de-dur-slow) var(--de-ease) both;
+    }
+    ::view-transition-new(--de-hero) {
+      animation: de-vt-in var(--de-dur-slow) var(--de-ease) both;
+    }
+
+    @keyframes de-vt-out { to { opacity: 0; } }
+    @keyframes de-vt-in  { from { opacity: 0; } to { opacity: 1; } }
+  }
+}

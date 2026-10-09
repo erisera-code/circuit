@@ -1,0 +1,26 @@
+/*
+  design-engine — tokens: semantic (layout)
+  -----------------------------------------------------------------------------
+  Layout + typography semantic tokens: the names base/structure consume,
+  mapped onto primitives. The type facet remaps --de-font-* and the text
+  scale; the shape facet remaps radii. Spacing and radii primitives are NOT
+  re-declared here (see primitives.space.css).
+*/
+
+@layer de.tokens {
+  :where([data-engine]:not([data-engine] [data-engine])) {
+    /* type */
+    --de-font-body:    var(--de-font-system);
+    --de-font-display: var(--de-font-system);
+    --de-font-code:    var(--de-font-mono);
+
+    /* grid */
+    --de-grid-min: 16rem;
+    --de-grid-gap: var(--de-space-4);
+
+    /* app-shell + split defaults */
+    --de-shell-aside: 16rem;
+    --de-split-main: 1fr;
+    --de-split-side: 20rem;
+  }
+}

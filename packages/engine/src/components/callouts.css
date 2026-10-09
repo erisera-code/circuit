@@ -1,0 +1,41 @@
+/*
+  design-engine — components: callouts
+  -----------------------------------------------------------------------------
+  Callouts/admonitions are inferred from <aside> and role="note" / "status"
+  / "alert". Deliberately NOT the rounded, tinted box with a coloured side
+  bar: that pattern is the most recognisable machine-generated tell on the
+  web. Instead a callout is set like a printed sidenote — rules above and
+  below in the line colour, the body slightly smaller, and the tone carried
+  only by the rule colour and a leading label the author writes in markup
+  (e.g. <strong>Note.</strong>). Nothing here is rounded or filled.
+*/
+
+@layer de.components {
+  :where([data-engine]) :where(aside:not(article > header aside), [role="note"], [role="status"], [role="alert"]) {
+    padding-block: max(var(--de-space-3), var(--de-inset));
+    border-block: 1px solid var(--de-color-line);
+    font-size: var(--de-text-sm);
+    row-gap: var(--de-space-2);
+    max-inline-size: var(--de-measure);
+  }
+
+  /* role-based tone: only the rules change colour */
+  :where([data-engine]) :where([role="note"])   { border-color: var(--de-color-warn); }
+  :where([data-engine]) :where([role="status"]) { border-color: var(--de-color-ok); }
+  :where([data-engine]) :where([role="alert"])  { border-color: var(--de-color-danger); }
+
+  /* a titled callout: first child heading becomes a compact label */
+  :where([data-engine]) :where(aside, [role="note"], [role="status"], [role="alert"]) > :where(:is(h1, h2, h3, h4, h5, h6):first-child) {
+    font-size: var(--de-text-sm);
+    font-family: var(--de-font-body);
+    padding: 0;
+  }
+
+  /* a top-level <aside> next to main is a secondary column, not a callout */
+  :where([data-engine]) > :where(aside),
+  :where([data-engine]) :where(main > aside) {
+    border-block: none;
+    padding-block: 0;
+    font-size: inherit;
+  }
+}

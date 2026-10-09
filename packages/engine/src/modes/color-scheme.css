@@ -1,0 +1,26 @@
+/*
+  design-engine — modes: color-scheme
+  -----------------------------------------------------------------------------
+  Explicit light/dark control via data-theme, on the anchor OR any nested
+  region. Because every color token is a `light-dark()` pair, forcing a side
+  is a single declaration — `color-scheme` — and it nests: a dark section
+  inside a light page resolves its own tokens to the dark side. Native chrome
+  (scrollbars, form controls, the canvas) follows for free.
+*/
+
+@layer de.modes {
+  :where([data-engine][data-theme="light"], [data-engine] [data-theme="light"]) {
+    color-scheme: light;
+  }
+
+  :where([data-engine][data-theme="dark"], [data-engine] [data-theme="dark"]) {
+    color-scheme: dark;
+  }
+
+  /* "auto" (or no attribute) follows the OS — that is the anchor's default
+     `color-scheme: light dark` from foundation/accessibility.css. A nested
+     region may re-enter auto explicitly. */
+  :where([data-engine] [data-theme="auto"]) {
+    color-scheme: light dark;
+  }
+}

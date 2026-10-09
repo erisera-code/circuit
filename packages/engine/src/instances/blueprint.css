@@ -1,0 +1,338 @@
+/*
+  design-engine — instance: blueprint
+  -----------------------------------------------------------------------------
+  A drafting document on graph paper: monoline, annotated, precise. Deep
+  blueprint-blue with a fine cyan grid, drafting-number headings, title blocks.
+  Signature: an engineering schematic.
+
+  Dark-first; the light side of every pair is the "reverse blueprint": pale
+  blue paper, deep-blue ink, bronze (darkened amber) annotations.
+  Facets: palette / type / shape / layout / fx — see docs/authoring-an-instance.md.
+*/
+
+/* ===== palette ===== */
+@layer de.instances.palette {
+  :where([data-engine], [data-engine] *):where([data-instance="blueprint"]:not([data-palette]), [data-palette="blueprint"]) {
+    --de-color-bg:        light-dark(oklch(93% 0.03 230),        oklch(24% 0.05 230));
+    --de-color-surface:   light-dark(oklch(97% 0.015 230 / 0.7), oklch(28% 0.05 230 / 0.6));
+    --de-color-surface-2: light-dark(oklch(88% 0.035 230),       oklch(32% 0.05 230));
+    --de-color-fg:        light-dark(oklch(24% 0.09 230),        oklch(86% 0.07 200));
+    --de-color-muted:     light-dark(oklch(40% 0.07 230),        oklch(74% 0.05 200));
+    --de-color-faint:     light-dark(oklch(46% 0.06 230),        oklch(64% 0.05 200));
+    --de-color-line:      light-dark(oklch(30% 0.1 230 / 0.5),   oklch(70% 0.08 200 / 0.5));
+    /* control boundaries: an ink line, not a grid line */
+    --de-color-edge:      light-dark(oklch(40% 0.09 230),        oklch(72% 0.07 200));
+    /* amber annotations at night, bronze by day */
+    --de-color-accent:    light-dark(oklch(42% 0.12 75),         oklch(80% 0.13 75));
+    --de-color-accent-2:  light-dark(oklch(36% 0.1 230),         oklch(80% 0.1 200));
+    --de-color-accent-fg: light-dark(oklch(96% 0.02 230),        oklch(24% 0.05 230));
+    /* selected rows / rail: a thin amber wash — thin enough that muted ink still reads on it */
+    --de-color-accent-soft: light-dark(oklch(62% 0.07 75 / 0.18), oklch(80% 0.13 75 / 0.12));
+    --de-overlay-bg:      light-dark(oklch(93% 0.03 230 / 0.8),  oklch(16% 0.05 230 / 0.7));
+  }
+  /* blueprint is dark-first: prefer dark unless the author forces a theme */
+  :where([data-engine], [data-engine] *):where([data-instance="blueprint"]:not([data-palette]), [data-palette="blueprint"]):where(:not([data-theme])) {
+    color-scheme: dark;
+  }
+}
+
+/* ===== type ===== */
+@layer de.instances.type {
+  :where([data-engine], [data-engine] *):where([data-instance="blueprint"]:not([data-type]), [data-type="blueprint"]) {
+    --de-font-body: var(--de-font-mono);
+    --de-font-display: var(--de-font-mono);
+    --de-font-code: var(--de-font-mono);
+    --de-text-base: 1rem;
+    --de-leading: 1.55;
+    --de-measure: 74ch;
+  }
+
+  @scope (:where([data-engine], [data-engine] *):where([data-instance="blueprint"]:not([data-type]), [data-type="blueprint"])) to ([data-instance], [data-type]) {
+    /* masthead: title-block lettering */
+    :where(:scope) > :where(header) > :where(h1) {
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-size: clamp(1.4rem, 4vw, 2.2rem);
+    }
+    :where(:scope) > :where(header) :where(small) {
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      font-size: var(--de-text-xs);
+    }
+    :where(section) > :where(h2) {
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    :where(li) > :where(article) :where(h3, h4) {
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    :where(blockquote) :where(cite) {
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-size: var(--de-text-xs);
+    }
+    :where(th) {
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: var(--de-text-xs);
+    }
+    :where(button) {
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+  }
+}
+
+/* ===== shape ===== */
+@layer de.instances.shape {
+  :where([data-engine], [data-engine] *):where([data-instance="blueprint"]:not([data-shape]), [data-shape="blueprint"]) {
+    --de-radius-sm: 0;
+    --de-radius-md: 0;
+    --de-radius-lg: 0;
+    --de-shadow-opacity: 0.2;
+    --de-shadow-1: 0 0 0 1px var(--de-color-line);
+    --de-shadow-2: 0 0 0 1px var(--de-color-accent-2);
+
+    /* cards: bare double-line frames, content sets its own padding */
+    --de-card-bg: transparent;
+    --de-card-border: 1px solid var(--de-color-fg);
+    --de-card-radius: 0;
+    --de-card-pad: 0;
+    --de-card-shadow: none;
+
+    /* buttons & inputs: monoline, sharp */
+    --de-button-bg: transparent;
+    --de-button-fg: var(--de-color-fg);
+    --de-button-border: 1px solid var(--de-color-fg);
+    --de-button-radius: 0;
+    --de-input-fg: var(--de-color-fg);
+    --de-input-border: 1px solid var(--de-color-fg);
+    --de-input-radius: 0;
+  }
+
+  @scope (:where([data-engine], [data-engine] *):where([data-instance="blueprint"]:not([data-shape]), [data-shape="blueprint"])) to ([data-instance], [data-shape]) {
+    /* masthead: monoline title block */
+    :where(:scope) > :where(header) { border: 1px solid var(--de-color-fg); }
+
+    /* section headings: ruled */
+    :where(section) > :where(h2) { border-block-end: 1px solid var(--de-color-fg); }
+
+    /* materials cards: double-line title-block outline, no lift on hover */
+    :where(li) > :where(article) {
+      border: 1px solid var(--de-color-fg);
+      outline: 3px solid var(--de-color-fg);
+      outline-offset: -5px;
+      border-radius: 0;
+      box-shadow: none;
+    }
+
+    /* blockquote: a monoline frame; the QUOTE tag and cite carry the accent (fx) */
+    :where(blockquote) { border: 1px solid var(--de-color-fg); }
+
+    /* callouts: drafting notes — a monoline ink frame, no side rail; the tone
+       lives in the uppercase tag and its leader rule (drawn in fx) */
+    :where(section > aside, aside[role="note"], aside[role="status"], aside[role="alert"]) {
+      --de-inset: var(--de-space-3);
+      border: 1px solid var(--de-color-fg);
+    }
+    /* banners: rules above and below in the tone; the stamp tag is boxed in fx */
+    :where([data-banner]) { border-block: 1px solid var(--de-color-accent); }
+    :where([data-banner][role="status"], [data-banner][data-tone="ok"]) { border-color: var(--de-color-ok); }
+    :where([data-banner][data-tone="warn"]) { border-color: var(--de-color-warn); }
+    :where([data-banner][role="alert"], [data-banner][data-tone="danger"]) { border-color: var(--de-color-danger); }
+
+    /* code: framed */
+    :where(pre) { border: 1px solid var(--de-color-fg); }
+
+    /* table: drafting grid */
+    :where(table) { border-collapse: collapse; border: 1px solid var(--de-color-fg); }
+    :where(th, td) { border: 1px solid var(--de-color-line); }
+
+    /* inputs: hairline focus ring */
+    :where(input, select, textarea):where(:focus-visible) {
+      outline: 1px solid var(--de-color-accent);
+      outline-offset: 1px;
+    }
+  }
+}
+
+/* ===== layout ===== */
+@layer de.instances.layout {
+  @scope (:where([data-engine], [data-engine] *):where([data-instance="blueprint"]:not([data-layout]), [data-layout="blueprint"])) to ([data-instance], [data-layout]) {
+    /* masthead */
+    :where(:scope) > :where(header) {
+      padding: var(--de-space-4) var(--de-space-5);
+      padding-block-end: var(--de-space-5);
+    }
+
+    /* section headings: number + heading + leader on one baseline row */
+    :where(section) > :where(h2) {
+      display: flex;
+      align-items: baseline;
+      gap: var(--de-space-3);
+      padding-block-end: var(--de-space-2);
+      padding-block: var(--de-space-5) var(--de-space-3);
+    }
+
+    /* materials list: spec sheets */
+    :where(ul:has(> li > article)) {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+      gap: var(--de-space-4);
+      list-style: none;
+      padding: 0;
+      padding-block: var(--de-space-4);
+    }
+    :where(ul:has(> li > article)) > :where(li) { display: block; }
+    :where(li) > :where(article) {
+      padding: 0;
+      container-type: normal;
+    }
+    :where(li) > :where(article) :where(h3, h4) { padding: var(--de-space-3) var(--de-space-3) 0; }
+    :where(li) > :where(article) :where(p) { padding: var(--de-space-2) var(--de-space-3) var(--de-space-3); }
+
+    :where(blockquote) { padding: var(--de-space-3) var(--de-space-4); }
+    :where(th, td) { padding: var(--de-space-2) var(--de-space-3); }
+
+    /* drafting notes: the tag row sits tight above the body; banners are one row */
+    :where(section > aside, aside[role="note"], aside[role="status"], aside[role="alert"]) { row-gap: var(--de-space-2); }
+    :where([data-banner]) { padding: var(--de-space-2) var(--de-space-3); }
+
+    /* a framed table: edge cells carry the panel inset (the cell padding
+       shorthand above would otherwise clobber the core's edge rules) */
+    :where(th:first-child, td:first-child) { padding-inline-start: max(var(--de-space-3), var(--de-inset)); }
+    :where(th:last-child, td:last-child) { padding-inline-end: max(var(--de-space-3), var(--de-inset)); }
+    :where(table > :first-child > tr:first-child > :is(th, td)) { padding-block-start: calc(var(--de-space-2) + max(var(--de-space-1), var(--de-inset))); }
+    :where(table > :last-child > tr:last-child > :is(th, td)) { padding-block-end: calc(var(--de-space-2) + max(var(--de-space-1), var(--de-inset))); }
+
+  }
+}
+
+/* ===== fx ===== */
+@layer de.instances.fx {
+  @scope (:where([data-engine], [data-engine] *):where([data-instance="blueprint"]:not([data-fx]), [data-fx="blueprint"])) to ([data-instance], [data-fx]) {
+    /* graph-paper grid */
+    :where(:scope) {
+      /* panels: a shade darker than the night sheet, a shade whiter than the day sheet */
+      --de-blueprint-panel:        light-dark(oklch(97% 0.015 230 / 0.6), oklch(20% 0.04 230 / 0.5));
+      --de-blueprint-panel-strong: light-dark(oklch(98% 0.01 230 / 0.75), oklch(20% 0.04 230 / 0.6));
+
+      background-color: var(--de-color-bg);
+      background-image:
+        linear-gradient(var(--de-color-line) 1px, transparent 1px),
+        linear-gradient(90deg, var(--de-color-line) 1px, transparent 1px),
+        linear-gradient(var(--de-color-line) 1px, transparent 1px),
+        linear-gradient(90deg, var(--de-color-line) 1px, transparent 1px);
+      background-size: 20px 20px, 20px 20px, 100px 100px, 100px 100px;
+    }
+
+    /* masthead: sheet stamp in the title block's corner */
+    :where(:scope) > :where(header) { position: relative; }
+    :where(:scope) > :where(header)::after {
+      content: "SHEET 01 / REV A";
+      position: absolute;
+      inset-block-end: 0.4em;
+      inset-inline-end: 0.8em;
+      font-size: var(--de-text-xs);
+      letter-spacing: 0.12em;
+      color: var(--de-color-accent);
+    }
+    :where(:scope) > :where(header) > :where(h1) { color: var(--de-color-fg); }
+    :where(:scope) > :where(header) :where(small) { color: var(--de-color-accent); }
+
+    /* section headings: drafting number + ruled leader */
+    :where(section) > :where(h2)::before {
+      content: attr(id);
+      color: var(--de-color-accent);
+      font-size: var(--de-text-xs);
+      letter-spacing: 0.1em;
+    }
+    :where(section:not([id])) > :where(h2)::before { content: "§"; }
+    :where(section) > :where(h2)::after {
+      content: "";
+      flex: 1;
+      block-size: 1px;
+      background: linear-gradient(90deg, var(--de-color-fg), transparent);
+    }
+
+    /* materials cards: "FIG. 01" spec-sheet labels */
+    :where(ul:has(> li > article)) { counter-reset: de-fig; }
+    :where(li) > :where(article) { transform: none; }
+    :where(li) > :where(article)::before {
+      content: "FIG. " counter(de-fig, decimal-leading-zero);
+      counter-increment: de-fig;
+      display: block;
+      border-block-end: 1px solid var(--de-color-fg);
+      padding: var(--de-space-1) var(--de-space-3);
+      font-size: var(--de-text-xs);
+      letter-spacing: 0.1em;
+      color: var(--de-color-accent);
+      background: var(--de-blueprint-panel);
+    }
+
+    /* panel tints */
+    :where(blockquote) { background: var(--de-blueprint-panel); }
+    :where(blockquote) :where(cite) { color: var(--de-color-accent); }
+    /* the quote is a drafting note too: a QUOTE tag with its leader rule, in the accent */
+    :where(blockquote)::before {
+      content: "QUOTE";
+      display: block;
+      font-size: var(--de-text-xs);
+      letter-spacing: 0.12em;
+      color: var(--de-color-accent);
+      background: linear-gradient(var(--de-color-accent), var(--de-color-accent)) no-repeat right center / calc(100% - 6.6ch) 1px;
+    }
+    /* code panels — but a terminal stays the dark console the core draws, in both schemes */
+    :where(pre:not([data-terminal], :has(> samp))) { background: var(--de-blueprint-panel-strong); color: var(--de-color-accent-2); }
+    :where(thead) { background: var(--de-blueprint-panel-strong); }
+    :where(th) { color: var(--de-color-accent); }
+    :where(input, select, textarea) { background: var(--de-blueprint-panel); }
+
+    /* drafting notes: an uppercase tag with a leader rule running to the frame's edge */
+    :where(section > aside, aside[role="note"], aside[role="status"], aside[role="alert"]) {
+      --de-blueprint-tag: "NOTE";
+      --de-blueprint-tag-w: 5.5ch;   /* the tag's set width incl. tracking, plus a 1ch gap before the leader */
+      --de-blueprint-tone: var(--de-color-accent);
+      background: var(--de-blueprint-panel);
+    }
+    :where(aside[role="status"]) { --de-blueprint-tag: "STATUS"; --de-blueprint-tag-w: 7.7ch; --de-blueprint-tone: var(--de-color-ok); }
+    :where(aside[role="alert"])  { --de-blueprint-tag: "ALERT";  --de-blueprint-tag-w: 6.6ch; --de-blueprint-tone: var(--de-color-danger); }
+    :where(section > aside, aside[role="note"], aside[role="status"], aside[role="alert"])::before {
+      content: var(--de-blueprint-tag);
+      display: block;
+      font-size: var(--de-text-xs);
+      letter-spacing: 0.12em;
+      color: var(--de-blueprint-tone);
+      background: linear-gradient(var(--de-blueprint-tone), var(--de-blueprint-tone)) no-repeat right center / calc(100% - var(--de-blueprint-tag-w)) 1px;
+    }
+
+    /* banners: the same note, stamped — the tag is boxed at the head of the row */
+    :where([data-banner]) { --de-blueprint-tag: "NOTICE"; --de-blueprint-tone: var(--de-color-accent); background: var(--de-blueprint-panel); }
+    :where([data-banner][role="status"], [data-banner][data-tone="ok"]) { --de-blueprint-tag: "OK"; --de-blueprint-tone: var(--de-color-ok); }
+    :where([data-banner][data-tone="warn"]) { --de-blueprint-tag: "WARN"; --de-blueprint-tone: var(--de-color-warn); }
+    :where([data-banner][role="alert"], [data-banner][data-tone="danger"]) { --de-blueprint-tag: "ALERT"; --de-blueprint-tone: var(--de-color-danger); }
+    :where([data-banner])::before {
+      content: var(--de-blueprint-tag);
+      font-size: var(--de-text-xs);
+      letter-spacing: 0.12em;
+      line-height: 1.6;
+      padding-inline: var(--de-space-1);
+      color: var(--de-blueprint-tone);
+      border: 1px solid var(--de-blueprint-tone);
+    }
+
+    /* buttons: monoline, primary filled with the accent */
+    :where(form) > :where(p:last-child) > :where(button:last-child),
+    :where(form) > :where(button:last-child) {
+      background: var(--de-color-accent);
+      color: var(--de-color-accent-fg);
+      border-color: var(--de-color-accent);
+    }
+  }
+}
+/* signature: an engineering blueprint — graph-paper grid, drafting-number headings, double-line title blocks, monoline everything. */

@@ -1,0 +1,45 @@
+/*
+  design-engine — components: statistic
+  -----------------------------------------------------------------------------
+  A big number and its label, inferred from [data-stat] wrapping a <data>
+  value and a caption:
+    <div data-stat>
+      <data value="1204">1,204</data>
+      <span>Active users</span>
+      <small data-trend="up">+4.2%</small>
+    </div>
+  data-trend on the optional trailing element is up | down | flat — colour
+  plus a glyph, never colour alone.
+*/
+
+@layer de.components {
+  :where([data-engine]) :where([data-stat]) {
+    display: grid;
+    gap: var(--de-space-1);
+  }
+  :where([data-engine]) :where([data-stat] > data) {
+    font-family: var(--de-font-display);
+    font-size: clamp(1.5rem, 1.1rem + 1.5vw, 2.25rem);
+    font-weight: var(--de-weight-strong);
+    line-height: 1.1;
+    color: var(--de-color-fg);
+    font-variant-numeric: tabular-nums;
+  }
+  :where([data-engine]) :where([data-stat] > span) {
+    font-size: var(--de-text-sm);
+    color: var(--de-color-muted);
+  }
+  :where([data-engine]) :where([data-stat] > [data-trend]) {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3em;
+    font-size: var(--de-text-xs);
+    font-variant-numeric: tabular-nums;
+  }
+  :where([data-engine]) :where([data-stat] > [data-trend="up"])   { color: var(--de-color-ok); }
+  :where([data-engine]) :where([data-stat] > [data-trend="down"]) { color: var(--de-color-danger); }
+  :where([data-engine]) :where([data-stat] > [data-trend="flat"]) { color: var(--de-color-muted); }
+  :where([data-engine]) :where([data-stat] > [data-trend="up"])::before   { content: "↑ "; }
+  :where([data-engine]) :where([data-stat] > [data-trend="down"])::before { content: "↓ "; }
+  :where([data-engine]) :where([data-stat] > [data-trend="flat"])::before { content: "→ "; }
+}

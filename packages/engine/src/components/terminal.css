@@ -1,0 +1,114 @@
+/*
+  design-engine — components: terminal block & code figures
+  -----------------------------------------------------------------------------
+  Terminal:   <pre data-terminal data-title="~/repo — zsh"><kbd>$ npm test</kbd>
+              <samp>938 passed</samp></pre>
+              A <pre> that contains <samp> (program output) is a terminal.
+              <kbd> lines are what was typed and get the prompt colour; <samp>
+              lines are output. data-title labels the window strip.
+  Code figure: <figure><figcaption>src/index.css <button>Copy</button></figcaption>
+               <pre><code>…</code></pre></figure>
+               A figure whose child is a <pre> gets a caption bar above the
+               code and a copy control at its end.
+  Syntax:      <code><b data-sx="kw">const</b> …</code> — data-sx tones, all
+               fixed colours (never rotate with the accent), light-dark pairs.
+*/
+
+@layer de.tokens {
+  :where([data-engine]) {
+    --de-sx-kw:    light-dark(oklch(52% 0.2 350),  oklch(78% 0.16 350));
+    --de-sx-str:   light-dark(oklch(50% 0.14 150), oklch(78% 0.15 150));
+    --de-sx-fn:    light-dark(oklch(48% 0.16 250), oklch(76% 0.14 230));
+    --de-sx-cm:    light-dark(oklch(48% 0.02 250), oklch(73% 0.02 250));
+    --de-sx-num:   light-dark(oklch(50% 0.18 300), oklch(78% 0.14 300));
+    --de-sx-tag:   light-dark(oklch(52% 0.15 55),  oklch(80% 0.13 70));
+    --de-sx-attr:  light-dark(oklch(48% 0.12 200), oklch(78% 0.11 200));
+    --de-sx-punct: var(--de-color-muted);
+    --de-sx-type:  light-dark(oklch(50% 0.16 290), oklch(78% 0.12 290));
+    --de-sx-bool:  light-dark(oklch(50% 0.18 25),  oklch(76% 0.15 25));
+  }
+}
+
+@layer de.components {
+  /* ---- terminal ---- */
+  :where([data-engine]) :where(pre:has(> samp), pre[data-terminal]) {
+    /* a terminal is dark in both schemes: private tokens, not the page's fg/bg */
+    --de-terminal-bg: var(--de-gray-8);
+    --de-terminal-ink: var(--de-gray-1);
+    background: var(--de-terminal-bg);
+    color: var(--de-terminal-ink);
+    padding: var(--de-space-3) var(--de-space-4);
+    padding-block-start: calc(var(--de-space-3) + 1.6em);
+    position: relative;
+    display: grid;
+    gap: 0.15em;
+    line-height: 1.6;
+  }
+  :where([data-engine]) :where(pre:has(> samp), pre[data-terminal])::before {
+    content: attr(data-title);
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline: 0;
+    padding: 0.3em var(--de-space-4);
+    font-size: var(--de-text-xs);
+    letter-spacing: 0.04em;
+    color: color-mix(in oklab, var(--de-terminal-ink) 60%, transparent);
+    border-block-end: 1px solid color-mix(in oklab, var(--de-terminal-ink) 20%, transparent);
+  }
+  :where([data-engine]) :where(pre:has(> samp), pre[data-terminal]) > :where(kbd) {
+    display: block;
+    background: none;
+    border: 0;
+    padding: 0;
+    font-size: inherit;
+    color: var(--de-accent-3);
+  }
+  :where([data-engine]) :where(pre:has(> samp), pre[data-terminal]) > :where(samp) {
+    display: block;
+    background: none;
+    padding: 0;
+    font-size: inherit;
+    color: color-mix(in oklab, var(--de-terminal-ink) 78%, transparent);
+  }
+
+  /* ---- code figure ---- */
+  :where([data-engine]) :where(figure:has(> pre)) {
+    gap: 0;
+    border: 1px solid var(--de-color-line);
+    border-radius: var(--de-code-radius);
+    overflow: hidden;
+  }
+  :where([data-engine]) :where(figure:has(> pre)) > :where(figcaption) {
+    display: flex;
+    align-items: center;
+    gap: var(--de-space-3);
+    padding: var(--de-space-2) var(--de-space-3);
+    font-family: var(--de-font-code);
+    font-size: var(--de-text-xs);
+    color: var(--de-color-muted);
+    background: var(--de-color-surface);
+    border-block-end: 1px solid var(--de-color-line);
+    text-align: start;
+  }
+  :where([data-engine]) :where(figure:has(> pre)) > :where(figcaption) > :where(button) {
+    margin-inline-start: auto;
+    padding: 0 0.5em;
+    min-inline-size: 0;
+    min-block-size: 0;
+    font-size: var(--de-text-xs);
+    line-height: 1.6;
+  }
+  :where([data-engine]) :where(figure:has(> pre)) > :where(pre) { border-radius: 0; }
+
+  /* ---- syntax ---- */
+  :where([data-engine]) :where([data-sx="kw"])    { color: var(--de-sx-kw); font-weight: inherit; }
+  :where([data-engine]) :where([data-sx="str"])   { color: var(--de-sx-str); }
+  :where([data-engine]) :where([data-sx="fn"])    { color: var(--de-sx-fn); }
+  :where([data-engine]) :where([data-sx="cm"])    { color: var(--de-sx-cm); font-style: italic; }
+  :where([data-engine]) :where([data-sx="num"])   { color: var(--de-sx-num); }
+  :where([data-engine]) :where([data-sx="tag"])   { color: var(--de-sx-tag); }
+  :where([data-engine]) :where([data-sx="attr"])  { color: var(--de-sx-attr); }
+  :where([data-engine]) :where([data-sx="punct"]) { color: var(--de-sx-punct); }
+  :where([data-engine]) :where([data-sx="type"])  { color: var(--de-sx-type); }
+  :where([data-engine]) :where([data-sx="bool"])  { color: var(--de-sx-bool); font-weight: var(--de-weight-strong); }
+}

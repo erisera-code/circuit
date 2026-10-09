@@ -1,0 +1,64 @@
+/*
+  design-engine — capabilities: entry/exit transitions
+  -----------------------------------------------------------------------------
+  Animations for elements that appear/disappear (dialog[open], [popover],
+  [data-tooltip]). Uses @starting-style + transition-behavior: allow-discrete
+  so `display` and `overlay` can transition. Verified syntax (MDN):
+
+    transition: opacity 200ms ease-out, display 200ms allow-discrete;
+    @starting-style { opacity: 0; }
+*/
+
+@layer de.capabilities {
+  @supports (transition-behavior: allow-discrete) {
+    :where([data-engine]) :where(dialog, [popover], [data-popover], [role="tooltip"], [data-tooltip]) {
+      opacity: 1;
+      transform: none;
+      transition:
+        opacity var(--de-dur) var(--de-ease-out),
+        transform var(--de-dur) var(--de-ease-out),
+        overlay var(--de-dur) var(--de-ease-out) allow-discrete,
+        display var(--de-dur) var(--de-ease-out) allow-discrete;
+    }
+
+    /* entering state */
+    :where([data-engine]) :where(dialog, [popover], [data-popover], [role="tooltip"], [data-tooltip]) {
+      @starting-style {
+        opacity: 0;
+        transform: translateY(var(--de-travel)) scale(0.98);
+      }
+    }
+
+    /* exiting state: the [open]/:popover-open removal transitions to here.
+       display: none is restated here (components/dialogs.css already sets
+       it as the non-transitioning fallback) so it's part of THIS rule's
+       `transition: … display … allow-discrete` — that's what defers the
+       actual display:none until the opacity/transform fade finishes,
+       instead of the dialog vanishing the instant [open] is removed. */
+    :where([data-engine]) :where(dialog:not([open]), [popover]:not(:popover-open), [data-popover]:not(:popover-open)) {
+      display: none;
+      opacity: 0;
+      transform: translateY(var(--de-travel)) scale(0.98);
+    }
+
+    /* sheets/drawers slide in from their own edge, not the generic centred pop */
+    :where([data-engine]) :where(dialog[data-sheet="end"]) {
+      @starting-style { transform: translateX(100%); }
+    }
+    :where([data-engine]) :where(dialog[data-sheet="start"]) {
+      @starting-style { transform: translateX(-100%); }
+    }
+    :where([data-engine]) :where(dialog[data-sheet="top"]) {
+      @starting-style { transform: translateY(-100%); }
+    }
+    :where([data-engine]) :where(dialog[data-sheet="bottom"]) {
+      @starting-style { transform: translateY(100%); }
+    }
+
+    /* and slide back out the same edge on close, instead of the generic exit */
+    :where([data-engine]) :where(dialog[data-sheet="end"]:not([open]))    { transform: translateX(100%); }
+    :where([data-engine]) :where(dialog[data-sheet="start"]:not([open]))  { transform: translateX(-100%); }
+    :where([data-engine]) :where(dialog[data-sheet="top"]:not([open]))    { transform: translateY(-100%); }
+    :where([data-engine]) :where(dialog[data-sheet="bottom"]:not([open])) { transform: translateY(100%); }
+  }
+}

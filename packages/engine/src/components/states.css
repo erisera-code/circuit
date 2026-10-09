@@ -1,0 +1,173 @@
+/*
+  design-engine — components: states & small identities
+  -----------------------------------------------------------------------------
+  Empty state   <p data-empty>No changes yet. <a href="#">Create one</a></p>
+  Spinner       <span aria-busy="true">Landing…</span>   any element that is
+                busy gets a leading spinner glyph; <progress> without a value
+                is the indeterminate bar.
+  Avatar        <span data-avatar>JH</span>  or  <img data-avatar alt="John">
+  Swatch        <span data-swatch style="--c: oklch(70% .15 30)">accent</span>
+                (or data-color="…" with typed attr())
+  Ramp          <span data-step="3">rare</span>   six fixed categorical steps,
+                --de-cat-1…6, never rotate with the accent
+  Pattern       <section data-pattern="grid|dots">   a background texture
+  Scroll area   <div data-scroll style="--de-scroll-max: 12rem">…</div>
+  Scrim         <div data-scrim>…</div>   an overlay plane (inside a stage,
+                absolute; on its own, fixed)
+  Theme toggle  <button data-theme-toggle aria-pressed="false">◐</button>
+*/
+
+@layer de.tokens {
+  :where([data-engine]) {
+    /* light sides sit at L ≈ 45% so every step reads as text on paper (≥ 4.5:1) */
+    --de-cat-1: light-dark(oklch(46% 0.15 250), oklch(75% 0.12 250));
+    --de-cat-2: light-dark(oklch(45% 0.12 190), oklch(76% 0.11 190));
+    --de-cat-3: light-dark(oklch(47% 0.17 300), oklch(76% 0.13 300));
+    --de-cat-4: light-dark(oklch(48% 0.18 350), oklch(78% 0.14 350));
+    --de-cat-5: light-dark(oklch(46% 0.13 55),  oklch(80% 0.13 60)); /* hue 55, clear of the warn amber at 70–80 */
+    --de-cat-6: light-dark(oklch(44% 0.13 130), oklch(80% 0.14 130));
+  }
+}
+
+@layer de.components {
+  /* ---- empty state ---- */
+  :where([data-engine]) :where([data-empty]) {
+    display: grid;
+    gap: var(--de-space-2);
+    justify-items: start;
+    padding: var(--de-space-4);
+    border: 1px dashed var(--de-color-line);
+    color: var(--de-color-muted);
+    max-inline-size: var(--de-measure);
+  }
+  :where([data-engine]) :where([data-empty]) > :where(strong) { color: var(--de-color-fg); }
+
+  /* ---- spinner ---- */
+  :where([data-engine]) :where([aria-busy="true"])::before {
+    content: "";
+    display: inline-block;
+    inline-size: 0.8em;
+    block-size: 0.8em;
+    margin-inline-end: 0.4em;
+    vertical-align: -0.1em;
+    border: 2px solid var(--de-color-line);
+    border-block-start-color: var(--de-color-accent);
+    border-radius: 50%;
+    animation: de-spin calc(var(--de-dur-slow) * 2.2) linear infinite;
+    --de-animation-reduced: none;
+  }
+  :where([data-engine]) :where(progress:not([value])) {
+    background: repeating-linear-gradient(90deg, var(--de-color-accent) 0 1rem, var(--de-color-surface-2) 1rem 2rem);
+  }
+  /* forced-colors strips background-image by default, which would leave the
+     indeterminate bar with no visible "busy" cue at all — fall back to a
+     solid system-color border so the shape still reads */
+  @media (forced-colors: active) {
+    :where([data-engine]) :where(progress:not([value])) {
+      background: none;
+      border: 1px solid ButtonText;
+    }
+  }
+  @keyframes de-spin { to { transform: rotate(360deg); } }
+
+  /* ---- avatar ---- */
+  :where([data-engine]) :where([data-avatar]) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: var(--de-avatar-size, 2rem);
+    block-size: var(--de-avatar-size, 2rem);
+    border-radius: 50%;
+    background: var(--de-color-surface-2);
+    color: var(--de-color-fg);
+    border: 1px solid var(--de-color-line);
+    font-size: calc(var(--de-avatar-size, 2rem) * 0.4);
+    font-weight: var(--de-weight-strong);
+    letter-spacing: 0.02em;
+    object-fit: cover;
+    overflow: hidden;
+    vertical-align: middle;
+    flex: none;
+  }
+  :where([data-engine]) :where([data-avatar="sm"]) { --de-avatar-size: 1.5rem; }
+  :where([data-engine]) :where([data-avatar="lg"]) { --de-avatar-size: 3rem; }
+  :where([data-engine]) :where([data-avatar="square"]) { border-radius: var(--de-radius-sm); }
+
+  /* ---- swatch ---- */
+  :where([data-engine]) :where([data-swatch]) {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--de-space-2);
+    font-size: var(--de-text-sm);
+    color: var(--de-color-muted);
+    font-variant-numeric: tabular-nums;
+  }
+  :where([data-engine]) :where([data-swatch])::before {
+    content: "";
+    inline-size: var(--de-swatch-size, 1.25em);
+    block-size: var(--de-swatch-size, 1.25em);
+    border: 1px solid var(--de-color-line);
+    border-radius: var(--de-radius-sm);
+    background: var(--c, var(--de-color-surface-2));
+  }
+  @supports (color: attr(x type(<color>))) {
+    :where([data-engine]) :where([data-swatch][data-color]) { --c: attr(data-color type(<color>), transparent); }
+  }
+
+  /* ---- categorical ramp ---- */
+  :where([data-engine]) :where([data-step="1"]) { color: var(--de-cat-1); }
+  :where([data-engine]) :where([data-step="2"]) { color: var(--de-cat-2); }
+  :where([data-engine]) :where([data-step="3"]) { color: var(--de-cat-3); }
+  :where([data-engine]) :where([data-step="4"]) { color: var(--de-cat-4); }
+  :where([data-engine]) :where([data-step="5"]) { color: var(--de-cat-5); }
+  :where([data-engine]) :where([data-step="6"]) { color: var(--de-cat-6); }
+  :where([data-engine]) :where([data-step][data-swatch])::before { background: currentColor; border-color: transparent; }
+
+  /* ---- background pattern ---- */
+  :where([data-engine]) :where([data-pattern]) {
+    --de-pattern-ink: color-mix(in oklab, var(--de-color-fg) 8%, transparent);
+    background-image:
+      linear-gradient(var(--de-pattern-ink) 1px, transparent 1px),
+      linear-gradient(90deg, var(--de-pattern-ink) 1px, transparent 1px);
+    background-size: var(--de-pattern-size, 24px) var(--de-pattern-size, 24px);
+  }
+  :where([data-engine]) :where([data-pattern="dots"]) {
+    background-image: radial-gradient(var(--de-pattern-ink) 1px, transparent 1.5px);
+    background-size: var(--de-pattern-size, 16px) var(--de-pattern-size, 16px);
+  }
+
+  /* ---- scroll area ---- */
+  :where([data-engine]) :where([data-scroll]) {
+    max-block-size: var(--de-scroll-max, 16rem);
+    overflow: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: var(--de-color-faint) transparent;
+    border: 1px solid var(--de-color-line);
+    padding: var(--de-space-2) var(--de-space-3);
+  }
+  :where([data-engine]) :where([data-scroll="x"]) { max-block-size: none; overflow: auto hidden; white-space: nowrap; }
+
+  /* ---- scrim ---- */
+  :where([data-engine]) :where([data-scrim]) {
+    position: fixed;
+    inset: 0;
+    z-index: var(--de-z-overlay);
+    display: grid;
+    place-items: center;
+    padding: var(--de-space-4);
+    background: var(--de-overlay-bg);
+    backdrop-filter: blur(var(--de-blur));
+  }
+  :where([data-engine]) :where([data-stage] [data-scrim]) { position: absolute; }
+
+  /* ---- theme toggle ---- */
+  :where([data-engine]) :where(button[data-theme-toggle]) {
+    inline-size: 2.25em;
+    padding: 0;
+    justify-content: center;
+    font-family: var(--de-font-code);
+  }
+  :where([data-engine]) :where(button[data-theme-toggle]:empty)::before { content: "◐"; }
+  :where([data-engine]) :where(button[data-theme-toggle][aria-pressed="true"]:empty)::before { content: "◑"; }
+}

@@ -1,0 +1,31 @@
+/*
+  design-engine — components: progress & meters
+  -----------------------------------------------------------------------------
+  Native <progress> and <meter>: a thin flat track, square ends, accent fill.
+*/
+
+@layer de.components {
+  :where([data-engine]) :where(progress, meter) {
+    display: inline-block;
+    inline-size: 12rem;
+    max-inline-size: 100%;
+    block-size: var(--de-space-2);
+    border: none;
+    border-radius: 0;
+    background: var(--de-color-surface-2);
+    vertical-align: middle;
+    overflow: hidden;
+  }
+
+  :where([data-engine]) :where(progress)::-webkit-progress-bar { background: transparent; }
+  :where([data-engine]) :where(progress)::-webkit-progress-value {
+    background: var(--de-color-accent);
+    transition: inline-size var(--de-dur-slow) var(--de-ease);
+  }
+  :where([data-engine]) :where(progress)::-moz-progress-bar { background: var(--de-color-accent); }
+  :where([data-engine]) :where(progress:not([value]))::-webkit-progress-value { background: var(--de-color-accent-soft); }
+
+  :where([data-engine]) :where(meter)::-webkit-meter-bar { background: transparent; }
+  :where([data-engine]) :where(meter)::-webkit-meter-optimum-value { background: var(--de-color-ok); }
+  :where([data-engine]) :where(meter)::-webkit-meter-suboptimum-value { background: var(--de-color-warn); }
+}

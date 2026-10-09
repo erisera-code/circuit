@@ -1,0 +1,58 @@
+/*
+  design-engine — components: timeline
+  -----------------------------------------------------------------------------
+  A vertical sequence of events, inferred from ol[data-timeline] > li, each
+  item optionally leading with a <time>:
+    <ol data-timeline>
+      <li><time datetime="2026-09-01">Sep 1</time><p>Repo created.</p></li>
+      <li data-status="current"><time datetime="2026-09-09">Sep 9</time><p>Today.</p></li>
+    </ol>
+  A dot marks each item, a neutral line connects them — both live in a fixed
+  gutter, never a coloured rail on the item's own content box.
+*/
+
+@layer de.components {
+  :where([data-engine]) :where(ol[data-timeline]) {
+    position: relative;
+    list-style: none;
+    padding: 0;
+    padding-inline-start: 1.5rem;
+    display: grid;
+    row-gap: var(--de-space-4);
+  }
+  :where([data-engine]) :where(ol[data-timeline])::before {
+    content: "";
+    position: absolute;
+    inset-inline-start: 0.3125rem;
+    inset-block: 0.4375rem;
+    inline-size: 1px;
+    background: var(--de-color-line);
+  }
+  :where([data-engine]) :where(ol[data-timeline] > li) {
+    position: relative;
+    display: grid;
+    gap: var(--de-space-1);
+    min-inline-size: 0;
+  }
+  :where([data-engine]) :where(ol[data-timeline] > li)::before {
+    content: "";
+    position: absolute;
+    inset-inline-start: -1.5rem;
+    inset-block-start: 0.3125rem;
+    inline-size: 0.625rem;
+    block-size: 0.625rem;
+    border-radius: 50%;
+    background: var(--de-color-surface);
+    border: 1px solid var(--de-color-edge);
+  }
+  :where([data-engine]) :where(ol[data-timeline] > li[data-status="current"])::before {
+    background: var(--de-color-accent);
+    border-color: var(--de-color-accent);
+  }
+  :where([data-engine]) :where(ol[data-timeline] > li > time) {
+    font-size: var(--de-text-xs);
+    color: var(--de-color-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+}

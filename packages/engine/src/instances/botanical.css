@@ -1,0 +1,318 @@
+/*
+  design-engine — instance: botanical
+  -----------------------------------------------------------------------------
+  An organic, leafy document: flowing shapes, warm garden greens and cream,
+  soft rounded corners, decorative leaf glyphs, generous breathing room.
+  Signature: a cultivated garden, the anti-tech design.
+
+  Facets: palette / type / shape / layout / fx — see docs/authoring-an-instance.md.
+*/
+
+/* ===== palette ===== */
+@layer de.instances.palette {
+  :where([data-engine], [data-engine] *):where([data-instance="botanical"]:not([data-palette]), [data-palette="botanical"]) {
+    /* garden greens + cream */
+    --de-color-bg:        light-dark(oklch(96% 0.02 130),  oklch(20% 0.02 150));
+    --de-color-surface:   light-dark(oklch(99% 0.012 130), oklch(24% 0.02 150));
+    --de-color-surface-2: light-dark(oklch(93% 0.02 130),  oklch(28% 0.025 150));
+    --de-color-fg:        light-dark(oklch(28% 0.03 150),  oklch(88% 0.02 130));
+    --de-color-muted:     light-dark(oklch(44% 0.03 150),  oklch(75% 0.02 140));
+    --de-color-faint:     light-dark(oklch(58% 0.03 140),  oklch(58% 0.02 140));
+    --de-color-line:      light-dark(oklch(80% 0.03 130),  oklch(34% 0.02 150));
+    /* a stem: the stroke around a field, darker than the hairline so it reads at 3:1 */
+    --de-color-edge:      light-dark(oklch(56% 0.05 145),  oklch(60% 0.04 145));
+    /* the greens as TEXT sit at 45% on cream and 76% on soil; the leafy tints
+       (blockquote, callout, thead) are derived from them as fills */
+    --de-color-accent:    light-dark(oklch(45% 0.12 150),  oklch(76% 0.12 150));
+    --de-color-accent-2:  light-dark(oklch(50% 0.1 80),    oklch(72% 0.1 80));
+    --de-color-accent-fg: light-dark(oklch(98% 0.01 130),  oklch(20% 0.02 150));
+    /* the scrim: garden shade, deep enough on the dark side for cream ink */
+    --de-overlay-bg:      light-dark(oklch(28% 0.03 150 / 0.35), oklch(8% 0.02 150 / 0.65));
+  }
+}
+
+/* ===== type ===== */
+@layer de.instances.type {
+  :where([data-engine], [data-engine] *):where([data-instance="botanical"]:not([data-type]), [data-type="botanical"]) {
+    --de-font-body: var(--de-font-serif);
+    --de-font-display: var(--de-font-serif);
+    --de-font-code: var(--de-font-mono);
+    --de-text-base: 1.1rem;
+    --de-leading: 1.7;
+    --de-measure: 62ch;
+  }
+
+  @scope (:where([data-engine], [data-engine] *):where([data-instance="botanical"]:not([data-type]), [data-type="botanical"])) to ([data-instance], [data-type]) {
+    :where(:scope) > :where(header) > :where(h1) {
+      font-weight: 700;
+      letter-spacing: -0.015em;
+      font-size: clamp(2rem, 5vw, 3rem);
+      line-height: 1.1;
+    }
+    :where(:scope) > :where(header) :where(small) {
+      font-style: italic;
+      font-size: var(--de-text-sm);
+    }
+    :where(section) > :where(h2) {
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+    :where(li) > :where(article) :where(h3) {
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+    :where(blockquote) { font-style: italic; }
+    :where(blockquote) :where(cite) { font-style: normal; }
+    :where(button) { font-weight: 700; }
+  }
+}
+
+/* ===== shape ===== */
+@layer de.instances.shape {
+  :where([data-engine], [data-engine] *):where([data-instance="botanical"]:not([data-shape]), [data-shape="botanical"]) {
+    --de-radius-sm: 0.5rem;
+    --de-radius-md: 1rem;
+    --de-radius-lg: 1rem;
+    --de-shadow-opacity: 0.1;
+
+    /* pots: soft rounded cards — capped at the same 1rem/16px ceiling glass
+       uses, so no instance reads as a bubbly pastel card */
+    --de-card-border: 1px solid var(--de-color-line);
+    --de-card-radius: var(--de-radius-lg);
+    --de-card-shadow: var(--de-shadow-1);
+
+    /* buttons: outlined pills */
+    --de-button-bg: var(--de-color-surface);
+    --de-button-fg: var(--de-color-accent);
+    --de-button-border: 1px solid var(--de-color-accent);
+    --de-button-radius: var(--de-radius-full);
+
+    /* inputs: soft rounded, a stem-coloured stroke */
+    --de-input-bg: var(--de-color-surface);
+    --de-input-fg: var(--de-color-fg);
+    --de-input-border: 1px solid var(--de-color-edge);
+    --de-input-radius: var(--de-radius-sm);
+  }
+
+  @scope (:where([data-engine], [data-engine] *):where([data-instance="botanical"]:not([data-shape]), [data-shape="botanical"])) to ([data-instance], [data-shape]) {
+    :where(:scope) > :where(header) { border-block-end: none; }
+
+    /* blockquote: an epigraph — rules above and below in the line colour, no
+       fill, no side bar; the ornament carries the accent */
+    :where(blockquote) {
+      border: none;
+      border-block: 1px solid var(--de-color-line);
+      border-radius: 0;
+    }
+
+    /* code: a soft mossy tile */
+    :where(pre) {
+      border: 1px solid var(--de-color-line);
+      border-radius: var(--de-radius-md);
+    }
+
+    /* table: soft rounded */
+    :where(table) {
+      border-collapse: separate;
+      border-spacing: 0;
+      border: 1px solid var(--de-color-line);
+      border-radius: var(--de-radius-md);
+      overflow: hidden;
+    }
+    :where(tbody) :where(tr) + :where(tr) :where(td) { border-block-start: 1px solid var(--de-color-line); }
+
+    :where(input, select, textarea):where(:focus-visible) {
+      outline: 2px solid var(--de-color-accent);
+      outline-offset: 2px;
+    }
+
+    /* callout: a ruled sidenote in the line colour, headed by an ornament */
+    :where(aside:not(main > aside, article > header aside), [role="note"]),
+    :where([role="status"], [role="alert"]):where(:not([data-toast], [data-banner], small, data, article[role="dialog"] > header > *)) {
+      --de-inset: var(--de-space-3);
+      border-block: 1px solid var(--de-color-line);
+      border-radius: 0;
+    }
+
+    /* banner: a strip ruled above and below in the tone, a double hairline like a garden ledger */
+    :where([data-banner]) {
+      --de-inset: var(--de-space-3);
+      border-radius: 0;
+      border-block-width: 3px;
+      border-block-style: double;
+    }
+  }
+}
+
+/* ===== layout ===== */
+@layer de.instances.layout {
+  @scope (:where([data-engine], [data-engine] *):where([data-instance="botanical"]:not([data-layout]), [data-layout="botanical"])) to ([data-instance], [data-layout]) {
+    /* masthead: generous */
+    :where(:scope) > :where(header) {
+      padding-block-end: var(--de-space-5);
+      padding-block-end: var(--de-space-5);
+    }
+
+    /* section headings: glyph + heading + rule on one row */
+    :where(section) > :where(h2) {
+      display: flex;
+      align-items: center;
+      gap: var(--de-space-2);
+      padding-block: var(--de-space-6) var(--de-space-3);
+    }
+
+    /* materials list: a trellis of soft rounded pots */
+    :where(ul:has(> li > article)) {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+      gap: var(--de-space-4);
+      list-style: none;
+      padding: 0;
+      padding-block: var(--de-space-5);
+    }
+    :where(ul:has(> li > article)) > :where(li) { display: block; }
+    :where(li) > :where(article) {
+      padding: var(--de-space-4);
+      container-type: normal;
+    }
+
+    :where(blockquote) { padding: var(--de-space-4) var(--de-space-5); }
+    :where(th, td) { padding: var(--de-space-2) var(--de-space-3); }
+
+    /* banner: the core pads a banner block-only; a tinted strip is inset on every side */
+    :where([data-banner]) { padding-inline: var(--de-inset); }
+
+    /* a framed table: edge cells carry the panel inset (the cell padding
+       shorthand above would otherwise clobber the core's edge rules) */
+    :where(th:first-child, td:first-child) { padding-inline-start: max(var(--de-space-3), var(--de-inset)); }
+    :where(th:last-child, td:last-child) { padding-inline-end: max(var(--de-space-3), var(--de-inset)); }
+    :where(table > :first-child > tr:first-child > :is(th, td)) { padding-block-start: calc(var(--de-space-2) + max(var(--de-space-1), var(--de-inset))); }
+    :where(table > :last-child > tr:last-child > :is(th, td)) { padding-block-end: calc(var(--de-space-2) + max(var(--de-space-1), var(--de-inset))); }
+
+  }
+}
+
+/* ===== fx ===== */
+@layer de.instances.fx {
+  @scope (:where([data-engine], [data-engine] *):where([data-instance="botanical"]:not([data-fx]), [data-fx="botanical"])) to ([data-instance], [data-fx]) {
+    /* soft organic texture */
+    :where(:scope) {
+      background-image: radial-gradient(oklch(50% 0.12 150 / 0.04) 1px, transparent 1px);
+      background-size: 18px 18px;
+    }
+
+    /* masthead: a soft gradient rule under it, a leaf glyph before the title */
+    :where(:scope) > :where(header) { position: relative; }
+    :where(:scope) > :where(header)::after {
+      content: "";
+      position: absolute;
+      inset-block-end: 0;
+      inset-inline: 0;
+      block-size: 2px;
+      background: linear-gradient(90deg, transparent, var(--de-color-accent), transparent);
+    }
+    :where(:scope) > :where(header) > :where(h1)::before {
+      content: "❦ ";
+      color: var(--de-color-accent);
+      font-size: 0.8em;
+    }
+    :where(:scope) > :where(header) :where(small) { color: var(--de-color-accent); }
+
+    /* section headings: a leaf bullet + a fading rule */
+    :where(section) > :where(h2)::before {
+      content: "❧";
+      color: var(--de-color-accent);
+      font-size: 0.9em;
+    }
+    :where(section) > :where(h2)::after {
+      content: "";
+      flex: 1;
+      block-size: 1px;
+      background: linear-gradient(90deg, var(--de-color-line), transparent);
+    }
+
+    /* pots: lift on hover */
+    :where(li) > :where(article) {
+      transform: none;
+      transition: transform var(--de-transition), box-shadow var(--de-transition);
+    }
+    :where(li) > :where(article):where(:hover) {
+      transform: translateY(-3px);
+      box-shadow: var(--de-shadow-2);
+    }
+    :where(li) > :where(article) :where(h3)::before {
+      content: "⁘ ";
+      color: var(--de-color-accent);
+      font-size: 0.8em;
+    }
+
+    /* the leafy tint: used by the table header only — quotes, callouts and banners carry no fill */
+    :where(:scope) {
+      --de-botanical-leaf: oklch(from var(--de-color-accent) calc(l + 0.25) calc(c * 0.5) h / 0.18);
+      --de-botanical-soil: oklch(22% 0.025 150);
+      --de-botanical-cream: oklch(92% 0.02 130);
+    }
+
+    /* blockquote: an opening ornament in the accent, no fill */
+    :where(blockquote) :where(p)::before { content: "❝ "; color: var(--de-color-accent); }
+    :where(blockquote) :where(cite) { color: var(--de-color-accent); }
+
+    /* callout: an ornament heads it; the tone lives in the ornament and the rules, never a fill */
+    :where(aside:not(main > aside, article > header aside), [role="note"]),
+    :where([role="status"], [role="alert"]):where(:not([data-toast], [data-banner], small, data, article[role="dialog"] > header > *)) {
+      background: transparent;
+      color: var(--de-color-fg);
+    }
+    :where(aside:not(main > aside, article > header aside), [role="note"])::before,
+    :where([role="status"], [role="alert"]):where(:not([data-toast], [data-banner], small, data, article[role="dialog"] > header > *))::before {
+      content: "❧";
+      color: var(--de-color-accent);
+      font-size: 1.1em;
+      line-height: 1;
+    }
+    :where([role="status"]):where(:not([data-toast], [data-banner], data, article[role="dialog"] > header > *)) { border-color: var(--de-color-ok); }
+    :where([role="status"]):where(:not([data-toast], [data-banner], data, article[role="dialog"] > header > *))::before { color: var(--de-color-ok); }
+    :where([role="alert"]):where(:not([data-toast], [data-banner], small)) { border-color: var(--de-color-danger); }
+    :where([role="alert"]):where(:not([data-toast], [data-banner], small))::before { color: var(--de-color-danger); }
+
+    /* banner: rules above and below in the tone, a leaf before the message, no fill */
+    :where([data-banner]) { background: transparent; color: var(--de-color-fg); }
+    :where([data-banner]) > :where(p:first-child)::before { content: "❧ "; color: var(--de-color-accent); }
+    :where([data-banner][role="status"], [data-banner][data-tone="ok"]) { border-color: var(--de-color-ok); }
+    :where([data-banner][role="status"], [data-banner][data-tone="ok"]) > :where(p:first-child)::before { color: var(--de-color-ok); }
+    :where([data-banner][data-tone="warn"]) { border-color: var(--de-color-warn); }
+    :where([data-banner][data-tone="warn"]) > :where(p:first-child)::before { color: var(--de-color-warn); }
+    :where([data-banner][role="alert"], [data-banner][data-tone="danger"]) { border-color: var(--de-color-danger); }
+    :where([data-banner][role="alert"], [data-banner][data-tone="danger"]) > :where(p:first-child)::before { color: var(--de-color-danger); }
+
+    /* placeholders in the muted green, not the browser's grey */
+    :where(input, textarea)::placeholder { color: var(--de-color-muted); opacity: 1; }
+
+    /* code: mossy tile — the terminal is not a tile, it is a bed of dark soil */
+    :where(pre):where(:not(:has(> samp), [data-terminal])) {
+      background: var(--de-color-surface-2);
+      color: var(--de-color-fg);
+    }
+    :where(pre:has(> samp), pre[data-terminal]) {
+      --de-terminal-bg: var(--de-botanical-soil);
+      --de-terminal-ink: var(--de-botanical-cream);
+    }
+    :where(pre:has(> samp), pre[data-terminal]) > :where(kbd) { color: oklch(80% 0.12 150); }
+
+    /* table: tinted head */
+    :where(thead) { background: oklch(from var(--de-color-accent) calc(l + 0.2) calc(c * 0.4) h / 0.2); }
+
+    /* buttons: outline fills on hover */
+    :where(button) { transition: background var(--de-transition), color var(--de-transition); }
+    :where(button):where(:hover) {
+      background: var(--de-color-accent);
+      color: var(--de-color-accent-fg);
+    }
+    :where(form) > :where(p:last-child) > :where(button:last-child),
+    :where(form) > :where(button:last-child) {
+      background: var(--de-color-accent);
+      color: var(--de-color-accent-fg);
+    }
+  }
+}
+/* signature: a cultivated garden — leafy glyphs, soft rounded pots, garden greens, generous breathing room. */

@@ -1,0 +1,30 @@
+/*
+  design-engine — tokens: primitives (space)
+  -----------------------------------------------------------------------------
+  A 4px-based spacing scale. Every step derives from --de-space-unit, so the
+  density mode reflows the whole engine by remapping ONE token. (This is the
+  only place --de-space-* is defined: an earlier version re-declared literal
+  rem values in semantic.layout.css, which silently disabled density.)
+*/
+
+@layer de.tokens {
+  :where([data-engine]:not([data-engine] [data-engine])) {
+    --de-space-unit: 0.25rem;
+    --de-space-1: calc(var(--de-space-unit) * 1);
+    --de-space-2: calc(var(--de-space-unit) * 2);
+    --de-space-3: calc(var(--de-space-unit) * 4);
+    --de-space-4: calc(var(--de-space-unit) * 6);
+    --de-space-5: calc(var(--de-space-unit) * 10);
+    --de-space-6: calc(var(--de-space-unit) * 16);
+
+    /* radii (shape facet overrides these) */
+    --de-radius-sm: 0.25rem;
+    --de-radius-md: 0.5rem;
+    --de-radius-lg: 1rem;
+    --de-radius-full: 9999px;
+
+    /* reading measure + content padding */
+    --de-measure: 70ch;
+    --de-content-pad: clamp(1rem, 4vw, 3rem);
+  }
+}

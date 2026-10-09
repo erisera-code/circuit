@@ -1,0 +1,42 @@
+/*
+  design-engine — base: tables
+  -----------------------------------------------------------------------------
+  Plain <table> becomes a readable data table: hairline rules, a heavier rule
+  under the header, no zebra tint, no surface fill. A caption reads as a
+  title above the table.
+*/
+
+@layer de.base {
+  :where([data-engine]) :where(table) {
+    inline-size: 100%;
+    font-size: var(--de-text-sm);
+    max-inline-size: 100%;
+  }
+
+  :where([data-engine]) :where(caption) {
+    text-align: start;
+    font-weight: var(--de-weight-strong);
+    padding-block-end: var(--de-space-2);
+    color: var(--de-color-muted);
+  }
+
+  :where([data-engine]) :where(th, td) {
+    text-align: start;
+    padding: var(--de-space-2) var(--de-space-3);
+    border-block-end: 1px solid var(--de-color-line);
+    vertical-align: top;
+  }
+  /* edge cells read --de-inset (structure/surfaces.css): 0 on a bare table, the
+     panel inset when a design frames the table */
+
+  :where([data-engine]) :where(thead th) {
+    font-weight: var(--de-weight-strong);
+    border-block-end: 2px solid var(--de-color-fg);
+  }
+
+  :where([data-engine]) :where(tfoot td) {
+    font-weight: var(--de-weight-strong);
+    border-block-start: 2px solid var(--de-color-fg);
+    border-block-end: none;
+  }
+}

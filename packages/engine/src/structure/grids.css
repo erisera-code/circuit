@@ -1,0 +1,40 @@
+/*
+  design-engine — structure: grids
+  -----------------------------------------------------------------------------
+  An explicit [data-grid] container becomes an auto-fill responsive grid. An
+  explicit column count comes from [data-cols="n"]: the enumerated selectors
+  below are the universal fallback; capabilities/knobs.css reads ANY integer
+  through typed attr() where supported. Subgrid aligns children to parent
+  tracks where supported.
+*/
+
+@layer de.structure {
+  :where([data-engine]) :where([data-grid]) {
+    display: grid;
+    gap: var(--de-grid-gap);
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--de-grid-min)), 1fr));
+    max-inline-size: none;
+  }
+
+  /* explicit column counts (fallback set; knobs.css generalizes) */
+  :where([data-engine]) :where([data-cols="2"]) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  :where([data-engine]) :where([data-cols="3"]) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  :where([data-engine]) :where([data-cols="4"]) { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+  /* responsive: collapse explicit columns on narrow viewports */
+  @media (max-width: 60rem) {
+    :where([data-engine]) :where([data-cols="4"]) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 48rem) {
+    :where([data-engine]) :where([data-cols]) { grid-template-columns: minmax(0, 1fr); }
+  }
+
+  /* subgrid: children align to the parent's tracks (progressive) */
+  @supports (grid-template-columns: subgrid) {
+    :where([data-engine]) :where([data-subgrid]) {
+      display: grid;
+      grid-template-columns: subgrid;
+      grid-column: span var(--de-grid-span, 3);
+    }
+  }
+}

@@ -1,0 +1,105 @@
+/*
+  design-engine — core entry (no instances)
+  -----------------------------------------------------------------------------
+  Everything except src/instances/. Use this when you ship your own instance
+  file(s) or only need the neutral default look:
+
+    <link rel="stylesheet" href="core.css">
+    <link rel="stylesheet" href="instances/editorial.css">
+
+  Instance files declare their own facet sublayers, so they can be loaded
+  after core in any order. See docs/architecture.md.
+*/
+
+@import "./layers.css";
+
+/* ---- foundation ---- */
+@import "./foundation/reset.css";
+@import "./foundation/scope.css";
+@import "./foundation/properties.css";
+@import "./foundation/functions.css";
+@import "./foundation/supports.css";
+@import "./foundation/accessibility.css";
+@import "./foundation/print.css";
+
+/* ---- tokens ---- */
+@import "./tokens/primitives.color.css";
+@import "./tokens/primitives.space.css";
+@import "./tokens/primitives.type.css";
+@import "./tokens/primitives.motion.css";
+@import "./tokens/semantic.color.css";
+@import "./tokens/semantic.layout.css";
+@import "./tokens/semantic.state.css";
+@import "./tokens/component.css";
+
+/* ---- modes ---- */
+@import "./modes/color-scheme.css";
+@import "./modes/density.css";
+@import "./modes/contrast.css";
+@import "./modes/motion.css";
+@import "./modes/responsive.css";
+
+/* ---- base ---- */
+@import "./base/document.css";
+@import "./base/typography.css";
+@import "./base/lists.css";
+@import "./base/code.css";
+@import "./base/media.css";
+@import "./base/tables.css";
+@import "./base/forms.css";
+
+/* ---- structure ---- */
+@import "./structure/flow.css";
+@import "./structure/sections.css";
+@import "./structure/articles.css";
+@import "./structure/nav.css";
+@import "./structure/grids.css";
+@import "./structure/cards.css";
+@import "./structure/split.css";
+@import "./structure/sidebar.css";
+@import "./structure/primitives.css";
+@import "./structure/surfaces.css";
+@import "./structure/regions.css";
+
+/* ---- components ---- */
+@import "./components/buttons.css";
+@import "./components/callouts.css";
+@import "./components/details.css";
+@import "./components/badges.css";
+@import "./components/progress.css";
+@import "./components/breadcrumbs.css";
+@import "./components/tabs.css";
+@import "./components/dialogs.css";
+@import "./components/popovers.css";
+@import "./components/menus.css";
+@import "./components/tooltips.css";
+@import "./components/chips.css";
+@import "./components/notices.css";
+@import "./components/palette.css";
+@import "./components/terminal.css";
+@import "./components/states.css";
+@import "./components/slider.css";
+@import "./components/skeleton.css";
+@import "./components/segmented.css";
+@import "./components/stat.css";
+@import "./components/rating.css";
+@import "./components/timeline.css";
+@import "./components/stepper.css";
+@import "./components/carousel.css";
+@import "./components/combobox.css";
+@import "./components/panels.css";
+
+/* ---- capabilities (progressive, @supports-guarded) ---- */
+@import "./capabilities/entry-transitions.css";
+@import "./capabilities/auto-size.css";
+@import "./capabilities/scroll-motion.css";
+@import "./capabilities/scroll-snap.css";
+@import "./capabilities/view-transitions.css";
+@import "./capabilities/anchor-positioning.css";
+@import "./capabilities/highlights.css";
+@import "./capabilities/counters-markers.css";
+@import "./capabilities/style-queries.css";
+@import "./capabilities/knobs.css";
+
+/* ---- utilities (opt-in helpers + opt-out escape hatch) ---- */
+@import "./utilities/optional.css";

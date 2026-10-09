@@ -1,0 +1,51 @@
+/*
+  design-engine — structure: navigation
+  -----------------------------------------------------------------------------
+  <nav> containing a <ul> becomes a horizontal nav bar. <nav> inside <header>
+  is treated as primary site nav; a <nav> in <footer> is a flat link list.
+  The list bullets are stripped only because of the nav context — placement
+  binding, not a utility class.
+*/
+
+@layer de.structure {
+  :where([data-engine]) :where(nav ul) {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--de-space-2) var(--de-space-4);
+    align-items: center;
+    max-inline-size: none;
+  }
+
+  :where([data-engine]) :where(nav a) {
+    text-decoration: none;
+    color: var(--de-color-muted);
+    transition: color var(--de-transition);
+  }
+
+  :where([data-engine]) :where(nav a:hover) {
+    color: var(--de-color-fg);
+  }
+
+  /* a nav of bare links (no list) is an inline run */
+  :where([data-engine]) :where(nav:not(:has(ul, ol))) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--de-space-2) var(--de-space-4);
+  }
+
+  :where([data-engine]) :where(header nav ul) {
+    gap: var(--de-space-3);
+  }
+
+  /* footer nav = subdued inline links */
+  :where([data-engine]) :where(footer nav ul) {
+    gap: var(--de-space-2) var(--de-space-3);
+  }
+
+  :where([data-engine]) :where(footer nav a) {
+    color: var(--de-color-muted);
+  }
+}

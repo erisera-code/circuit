@@ -1,0 +1,24 @@
+/*
+  design-engine — foundation: scope
+  -----------------------------------------------------------------------------
+  The opt-in anchor. [data-engine] scopes every engine rule. The anchor is a
+  named query container so descendants can run size queries against it
+  (`@container de (max-width: 48rem)`). Style queries need no container-type:
+  every element is a style container, so `@container style(--de-x: y)` works
+  against the nearest ancestor that sets --de-x.
+
+  The mode attributes (data-theme / data-density / data-contrast / data-motion)
+  and the facet attributes (data-instance / data-palette / data-type /
+  data-shape / data-layout / data-fx) are consumed in src/modes/ and
+  src/instances/. All of them may appear on the anchor OR on any nested
+  region: tokens inherit, so the nearest region wins.
+
+  Opting a nested subtree back OUT ([data-engine-off]) lives in
+  src/utilities/optional.css — it has to sit in the LAST layer to win.
+*/
+
+@layer de.properties {
+  :where([data-engine]) {
+    container-name: de;
+  }
+}

@@ -1,0 +1,36 @@
+/*
+  design-engine — structure: layout primitives (custom elements)
+  -----------------------------------------------------------------------------
+  Escape hatches for layout intent that has no semantic element: hyphenated
+  custom element names used purely as styling hooks (no JS, no registration).
+  Valid HTML; block-level by engine rule. Prefer semantic structure first —
+  these exist for the 20% case. The class twins (.stack / .cluster / …) live
+  in utilities/optional.css.
+*/
+
+@layer de.structure {
+  :where([data-engine]) :where(de-stack) {
+    display: grid;
+    gap: var(--de-stack-gap, var(--de-space-3));
+  }
+
+  :where([data-engine]) :where(de-cluster) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--de-cluster-gap, var(--de-space-2));
+    align-items: center;
+  }
+
+  :where([data-engine]) :where(de-grid) {
+    display: grid;
+    gap: var(--de-grid-gap);
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--de-grid-min)), 1fr));
+  }
+
+  /* break out of the reading measure into the gutter */
+  :where([data-engine]) :where(de-bleed) {
+    display: block;
+    inline-size: calc(100% + var(--de-content-pad) * 2);
+    margin-inline: calc(var(--de-content-pad) * -1);
+  }
+}

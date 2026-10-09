@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>frame</title>
+<style id="frame-fixes">
+  /* the frame must scroll and size to content, whatever the vendor sheet says */
+  html, body { height: auto !important; overflow: visible !important; }
+  body { margin: 0; padding: 12px; }
+  .frame-missing { font: 12px/1.5 ui-monospace, monospace; color: #888; border: 1px dashed #8884; padding: 8px; }
+  .frame-missing b { color: #c55; }
+</style>
+</head>
+<body>
+<script type="module">
+  const q = new URLSearchParams(location.search);
+  const system = q.get("system"), id = q.get("c"), theme = q.get("theme") || "dark", instance = q.get("instance") || "default";
+  const SHEETS = {
+    circuit: ["vendor/circuit.css"],
+    jjhub: ["vendor/jjhub.css"],
+    noitroidvania: ["vendor/noitroidvania.css"],
+    snake: ["vendor/snake.css"],
+    "design-engine": ["../../src/index.css"],
+  };
+  // per-system theme hooks
+  const root = document.documentElement;
+  if (system === "circuit") root.classList.add(theme === "light" ? "light" : "dark");
+  if (system === "jjhub" && theme === "light") root.dataset.theme = "light";
+  if (system === "design-engine") root.style.colorScheme = theme;
+  for (const href of SHEETS[system] ?? []) {
+    const l = document.createElement("link"); l.rel = "stylesheet"; l.href = href; document.head.prepend(l);
+  }
+  document.head.appendChild(document.getElementById("frame-fixes")); // keep fixes last
+  const m = (await import(`./snippets/${system}.mjs`)).default;
+  const entry = m[id];
+  const wrap = document.createElement("div");
+  if (m.root?.class) wrap.className = m.root.class;
+  if (m.root?.attrs) for (const [, k, v] of m.root.attrs.matchAll(/([\w-]+)(?:="([^"]*)")?/g)) wrap.setAttribute(k, v ?? "");
+  if (system === "design-engine") { wrap.dataset.theme = theme; wrap.dataset.instance = instance; }
+  if (!entry || (!entry.html && entry.missing)) {
+    wrap.innerHTML = `<div class="frame-missing"><b>missing</b> — ${entry?.missing ?? "no entry"}</div>`;
+  } else {
+    wrap.innerHTML = entry.html + (entry.partial || entry.note ? `<div class="frame-missing">${entry.partial ? "<b>partial</b> — " : ""}${entry.note ?? ""}</div>` : "");
+  }
+  document.body.appendChild(wrap);
+  // open static overlays that need a call
+  for (const p of document.querySelectorAll("[popover]")) { try { p.showPopover(); } catch {} }
+  // report height to the parent so the pane fits
+  const report = () => parent.postMessage({ frame: `${system}:${id}`, height: document.documentElement.scrollHeight }, "*");
+  new ResizeObserver(report).observe(document.body);
+  addEventListener("load", report);
+</script>
+</body>
+</html>

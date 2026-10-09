@@ -1,0 +1,65 @@
+/*
+  design-engine — foundation: print
+  -----------------------------------------------------------------------------
+  Paged-media styles. Hide interactive chrome, expand the reading column,
+  force colors to print, and break pages sensibly. Scoped so only the engine
+  subtree is affected when printing a region. No `!important`: this sits in
+  the base layer and a host print stylesheet may override any of it.
+*/
+
+@layer de.base {
+  @media print {
+    :where([data-engine]) {
+      background: white;
+      color: black;
+      color-scheme: light;
+      max-inline-size: 100%;
+      padding: 0;
+    }
+
+    /* expand the reading column to the full page */
+    :where([data-engine]) :where(main, [data-engine]) {
+      max-inline-size: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* hide purely interactive/floating chrome — none of it makes sense on paper */
+    :where([data-engine]) :where(nav, [role="banner"], [data-no-print], [data-toast], [data-toasts], [role="menu"], [role="tooltip"], [role="listbox"] menu) {
+      display: none;
+    }
+
+    /* an open <dialog> or popover would otherwise print as a full-bleed
+       overlay on top of the page; render it as ordinary flowed content
+       instead (still hidden if it isn't open/showing) */
+    :where([data-engine]) :where(dialog:not([open])),
+    :where([data-engine]) :where([popover]:not(:popover-open)) {
+      display: none;
+    }
+    :where([data-engine]) :where(dialog[open]) {
+      position: static;
+      inset: auto;
+      max-block-size: none;
+      overflow: visible;
+      box-shadow: none;
+    }
+    :where([data-engine]) :where(dialog[open])::backdrop {
+      display: none;
+    }
+
+    /* keep colors where it matters */
+    :where([data-engine]) :where(a, blockquote, code, th) {
+      print-color-adjust: exact;
+      -webkit-print-color-adjust: exact;
+    }
+
+    /* avoid breaking inside these */
+    :where([data-engine]) :where(h1, h2, h3, figure, blockquote, tr, img) {
+      break-inside: avoid;
+    }
+
+    :where([data-engine]) :where(h1, h2, h3) {
+      break-after: avoid;
+    }
+  }
+}

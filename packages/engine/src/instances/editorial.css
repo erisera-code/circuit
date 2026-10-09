@@ -1,0 +1,276 @@
+/*
+  design-engine — instance: editorial
+  -----------------------------------------------------------------------------
+  A print publication: serif display + body, warm paper, multi-column flow with
+  spanning headings/figures, drop caps, small-caps eyebrows, and a pull quote.
+  Signature: a serious magazine spread, not "serif + warm".
+
+  Facets: palette / type / shape / layout / fx — see docs/authoring-an-instance.md.
+*/
+
+/* ===== palette ===== */
+@layer de.instances.palette {
+  :where([data-engine], [data-engine] *):where([data-instance="editorial"]:not([data-palette]), [data-palette="editorial"]) {
+    /* paper-white and ink, a cold slate accent: not the cream/terracotta default */
+    --de-color-bg:        light-dark(oklch(98.5% 0.003 100), oklch(18% 0.008 260));
+    --de-color-surface:   light-dark(oklch(97% 0.004 100),   oklch(22% 0.008 260));
+    --de-color-surface-2: light-dark(oklch(94% 0.005 100),   oklch(26% 0.008 260));
+    --de-color-fg:        light-dark(oklch(20% 0.015 260),   oklch(90% 0.006 100));
+    /* the byline grey: 42% on paper, 74% on the night side so it still reads
+       on a selected row's tint */
+    --de-color-muted:     light-dark(oklch(42% 0.015 260),   oklch(74% 0.008 260));
+    --de-color-faint:     light-dark(oklch(60% 0.012 260),   oklch(56% 0.01 260));
+    --de-color-line:      light-dark(oklch(82% 0.008 260),   oklch(32% 0.01 260));
+    --de-color-accent:    light-dark(oklch(40% 0.09 215),    oklch(74% 0.09 215));
+    --de-color-accent-2:  light-dark(oklch(32% 0.09 215),    oklch(80% 0.08 215));
+    --de-color-accent-fg: light-dark(oklch(98.5% 0.003 100), oklch(18% 0.008 260));
+    /* the scrim: ink over the page, deep on the night side so paper-white text reads */
+    --de-overlay-bg:      light-dark(oklch(20% 0.015 260 / 0.35), oklch(6% 0.01 260 / 0.65));
+  }
+}
+
+@layer de.instances.type {
+  :where([data-engine], [data-engine] *):where([data-instance="editorial"]:not([data-type]), [data-type="editorial"]) {
+    --de-font-body: var(--de-font-serif);
+    --de-font-display: var(--de-font-serif);
+    --de-font-code: var(--de-font-mono);
+    --de-text-base: 1.125rem;
+    --de-leading: 1.72;
+    --de-measure: 64ch;
+  }
+
+  @scope (:where([data-engine], [data-engine] *):where([data-instance="editorial"]:not([data-type]), [data-type="editorial"])) to ([data-instance], [data-type]) {
+    /* masthead: oversized, tight display h1 */
+    :where(:scope) > :where(header) > :where(h1) {
+      font-weight: 800;
+      letter-spacing: -0.022em;
+      line-height: 1.02;
+    }
+    /* kicker: small-caps eyebrow above the title */
+    :where(:scope) > :where(header) :where(small) {
+      text-transform: uppercase;
+      letter-spacing: 0.22em;
+      font-size: var(--de-text-xs);
+      font-weight: 700;
+    }
+
+    /* section headings: tight display */
+    :where(section) > :where(h2) {
+      font-weight: 800;
+      letter-spacing: -0.012em;
+    }
+
+    /* drop cap on the first paragraph of the main article body */
+    :where(article:not(li > article)) > :where(p:first-of-type)::first-letter {
+      font-size: 3.4em;
+      font-weight: 800;
+      line-height: 0.78;
+      float: inline-start;
+      padding-inline-end: 0.12em;
+      padding-block-start: 0.08em;
+      color: var(--de-color-accent);
+    }
+
+    /* pull quote: oversized serif */
+    :where(blockquote) { text-align: start; }
+    :where(blockquote) > :where(p) {
+      font-size: clamp(1.4rem, 2.4vw, 1.9rem);
+      font-weight: 700;
+      line-height: 1.25;
+      letter-spacing: -0.01em;
+      text-indent: 0;
+    }
+    :where(blockquote) :where(cite) {
+      font-style: normal;
+      font-size: var(--de-text-sm);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    /* materials headings */
+    :where(li) > :where(article) :where(h3) {
+      font-size: var(--de-text-lg);
+      font-weight: 800;
+      letter-spacing: -0.01em;
+    }
+
+    :where(figcaption) { font-size: var(--de-text-sm); }
+
+    /* sidenote: set in small caps, a touch of tracking; code inside keeps its case */
+    :where(aside:not(main > aside, article > header aside), [role="note"]),
+    :where([role="status"], [role="alert"]):where(:not([data-toast], [data-banner], small, data, article[role="dialog"] > header > *)) {
+      font-variant-caps: small-caps;
+      letter-spacing: 0.03em;
+    }
+    :where(aside:not(main > aside, article > header aside), [role="note"]) :where(code, kbd, samp),
+    :where([role="status"], [role="alert"]):where(:not([data-toast], [data-banner], small, data, article[role="dialog"] > header > *)) :where(code, kbd, samp) {
+      font-variant-caps: normal;
+      letter-spacing: 0;
+    }
+  }
+}
+
+/* ===== shape ===== */
+@layer de.instances.shape {
+  :where([data-engine], [data-engine] *):where([data-instance="editorial"]:not([data-shape]), [data-shape="editorial"]) {
+    --de-radius-sm: 0;
+    --de-radius-md: 2px;
+    --de-radius-lg: 4px;
+    --de-shadow-opacity: 0.05;
+    --de-card-border: none;
+    --de-card-radius: 0;
+    --de-card-shadow: none;
+  }
+
+  @scope (:where([data-engine], [data-engine] *):where([data-instance="editorial"]:not([data-shape]), [data-shape="editorial"])) to ([data-instance], [data-shape]) {
+    /* masthead sits on a hairline */
+    :where(header) { border-block-end: 1px solid var(--de-color-line); }
+
+    /* pull quote: no box */
+    :where(blockquote) { border: none; }
+
+    /* materials: hairline column rules between items and a hairline over each
+       item — a ruled sidebar row, no card chrome */
+    :where(ul:has(> li > article)) > :where(li) + :where(li) {
+      border-inline-start: 1px solid var(--de-color-line);
+    }
+    :where(li) > :where(article) {
+      border: none;
+      border-block-start: 1px solid var(--de-color-line);
+      border-radius: 0;
+      box-shadow: none;
+    }
+
+    /* figure caption gets a rule above it */
+    :where(figcaption) { border-block-start: 1px solid var(--de-color-line); }
+
+    /* sidenote: a 2px ink rule above, the tone hairline below stays */
+    :where(aside:not(main > aside, article > header aside), [role="note"]),
+    :where([role="status"], [role="alert"]):where(:not([data-toast], [data-banner], small, data, article[role="dialog"] > header > *)) {
+      border-block-start: 2px solid var(--de-color-fg);
+    }
+
+    /* banner: the masthead's double rule above and below, in ink */
+    :where([data-banner]) { border-block: 4px double var(--de-color-fg); }
+
+    /* table: ruled, publication-style */
+    :where(table) { border-collapse: collapse; }
+    :where(thead) { border-block-end: 2px solid var(--de-color-fg); }
+    :where(tbody) :where(tr) + :where(tr) { border-block-start: 1px solid var(--de-color-line); }
+  }
+}
+
+/* ===== layout ===== */
+@layer de.instances.layout {
+  @scope (:where([data-engine], [data-engine] *):where([data-instance="editorial"]:not([data-layout]), [data-layout="editorial"])) to ([data-instance], [data-layout]) {
+    /* masthead */
+    :where(:scope) > :where(header) {
+      padding-block-end: var(--de-space-4);
+    }
+
+    /* multi-column body on wide screens. The core sets prose containers to
+       `display: grid` (gap-based rhythm); multicol needs block flow, so each
+       section becomes a block column container and spaces its children with
+       padding instead. Headings, figures, quotes, code and tables span. */
+    @media (min-width: 60rem) {
+      :where(article:not(li > article)) > :where(section) {
+        display: block;
+        column-width: 26ch;
+        column-gap: clamp(1.5rem, 3vw, 2.5rem);
+        column-rule: 1px solid var(--de-color-line);
+      }
+      :where(article:not(li > article)) > :where(section) > :where(* + *) {
+        padding-block-start: var(--de-flow);
+      }
+      :where(article:not(li > article)) > :where(section) > :where(h2, figure, blockquote, pre, table, ul, aside, details, form, dl) {
+        column-span: all;
+      }
+      :where(article:not(li > article)) > :where(section) > :where(h2) {
+        padding-block-start: calc(var(--de-flow) * 2);
+      }
+      :where(article:not(li > article)) > :where(section) > :where(h2:first-child) {
+        padding-block-start: 0;
+      }
+    }
+
+    /* pull quote: spanning, unpadded, wide-set */
+    :where(blockquote) {
+      padding: var(--de-space-4) 0;
+      row-gap: var(--de-space-3);
+    }
+
+    /* materials list: a 3-up row with hairline column rules (not the card grid) */
+    :where(ul:has(> li > article)) {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0;
+      list-style: none;
+      padding: var(--de-space-3) 0;
+    }
+    :where(ul:has(> li > article)) > :where(li) { display: block; padding: 0; }
+    :where(li) > :where(article) {
+      padding: var(--de-space-3) var(--de-space-4);
+      container-type: normal;
+    }
+    :where(li:first-child) > :where(article) { padding-inline-start: 0; }
+    :where(li:last-child) > :where(article) { padding-inline-end: 0; }
+
+    /* figure caption spacing */
+    :where(figcaption) {
+      padding-block-start: var(--de-space-2);
+    }
+
+    /* table */
+    :where(table) { column-span: all; }
+    :where(th, td) { padding: var(--de-space-2) var(--de-space-3); }
+  }
+}
+
+/* ===== fx ===== */
+@layer de.instances.fx {
+  @scope (:where([data-engine], [data-engine] *):where([data-instance="editorial"]:not([data-fx]), [data-fx="editorial"])) to ([data-instance], [data-fx]) {
+    /* masthead: a double rule beneath, the classic magazine device; kicker in ink */
+    :where(:scope) > :where(header) {
+      border-block-end: 4px double var(--de-color-fg);
+    }
+    :where(:scope) > :where(header) :where(small) { color: var(--de-color-muted); }
+
+    /* section headings: a short hairline above, nothing announced */
+    :where(section) > :where(h2)::before {
+      content: "";
+      display: block;
+      inline-size: 3rem;
+      block-size: 1px;
+      background: var(--de-color-fg);
+      padding-block-end: var(--de-space-3);
+    }
+
+    /* pull quote: opening glyph, muted attribution */
+    :where(blockquote) > :where(p)::before {
+      content: "\201C";
+      color: var(--de-color-accent);
+      font-size: 1.6em;
+      line-height: 0;
+      vertical-align: -0.15em;
+      padding-inline-end: 0.05em;
+    }
+    :where(blockquote) :where(cite) { color: var(--de-color-muted); }
+
+    /* materials: flat on the paper, no lift */
+    :where(li) > :where(article) {
+      background: none;
+      transform: none;
+    }
+
+    :where(figcaption) { color: var(--de-color-muted); }
+
+    /* placeholders in the byline grey, not the browser's */
+    :where(input, textarea)::placeholder { color: var(--de-color-muted); opacity: 1; }
+
+    /* sidenote and banner: ink, nothing tinted */
+    :where(aside:not(main > aside, article > header aside), [role="note"]),
+    :where([role="status"], [role="alert"]):where(:not([data-toast], [data-banner], small, data, article[role="dialog"] > header > *)),
+    :where([data-banner]) { background: transparent; color: var(--de-color-fg); }
+  }
+}
+/* signature: a magazine spread — multi-column flow, drop caps, small-caps eyebrows, pull quote. */

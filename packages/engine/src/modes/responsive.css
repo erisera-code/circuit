@@ -1,0 +1,41 @@
+/*
+  design-engine — modes: responsive
+  -----------------------------------------------------------------------------
+  Capability-based responsive flags keyed off pointer/hover/viewport, not
+  hard breakpoints. Exposed as tokens for style queries
+  (`@container style(--de-is-touch: 1)`), plus a few direct effects.
+*/
+
+@layer de.modes {
+  :where([data-engine]) {
+    --de-is-touch: 0;
+    --de-is-fine-pointer: 1;
+    --de-viewport: wide;
+  }
+
+  @media (pointer: coarse) {
+    :where([data-engine]) {
+      --de-is-touch: 1;
+      --de-is-fine-pointer: 0;
+    }
+  }
+  @media (hover: none) {
+    :where([data-engine]) { --de-is-touch: 1; }
+  }
+
+  @media (max-width: 40rem) {
+    :where([data-engine]) { --de-viewport: narrow; }
+  }
+  @media (min-width: 40rem) and (max-width: 64rem) {
+    :where([data-engine]) { --de-viewport: medium; }
+  }
+
+  /* on touch, enforce the WCAG 2.5.8 target size via min sizes (content may
+     grow the target, never shrink it) */
+  @media (pointer: coarse) {
+    :where([data-engine]) :where(button, a, [role="button"], input[type="checkbox"], input[type="radio"]) {
+      min-block-size: 2.5rem;
+      min-inline-size: 2.5rem;
+    }
+  }
+}

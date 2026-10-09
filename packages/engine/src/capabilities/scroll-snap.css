@@ -1,0 +1,36 @@
+/*
+  design-engine — capabilities: scroll snap
+  -----------------------------------------------------------------------------
+  Scroll-snap containers inferred from [data-snap]. Horizontal carousels via
+  [data-snap="x"]. Always pairs snap-type with scroll-padding to honor
+  sticky headers and focus offset.
+*/
+
+@layer de.capabilities {
+  :where([data-engine]) :where([data-snap]) {
+    scroll-snap-type: y proximity;
+    scroll-padding-block: var(--de-space-6);
+  }
+
+  :where([data-engine]) :where([data-snap="x"]) {
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--de-space-4);
+  }
+
+  :where([data-engine]) :where([data-snap] > :where(section, article, figure, [data-snap-item])) {
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
+
+  /* a horizontal carousel layout for [data-snap="x"] */
+  :where([data-engine]) :where([data-snap="x"]) {
+    display: flex;
+    gap: var(--de-space-4);
+    overflow-x: auto;
+    scroll-behavior: smooth;
+  }
+  :where([data-engine]) :where([data-snap="x"] > *) {
+    flex: 0 0 min(80%, 24rem);
+    scroll-snap-align: start;
+  }
+}

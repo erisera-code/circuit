@@ -1,0 +1,33 @@
+/*
+  design-engine — full entry (core + every bundled instance)
+  -----------------------------------------------------------------------------
+  Opt-in: the engine only styles subtrees carrying the scope anchor:
+    <main data-engine>   <body data-engine>
+  Pick a design (preset) and modes:
+    <body data-engine data-instance="glass" data-theme="dark" data-density="compact">
+  Or mix facets from different designs:
+    <body data-engine data-palette="synthwave" data-type="editorial" data-layout="brutal">
+
+  No build step required — these @import statements are valid CSS that resolve
+  in any modern browser. `build.mjs` only bundles + minifies for distribution.
+  Experimental modules are a SEPARATE entry (src/experimental/index.css).
+*/
+
+@import "./core.css";
+
+/* ---- instances (design presets, each split into facets) ---- */
+@import "./instances/default.css";
+@import "./instances/editorial.css";
+@import "./instances/brutal.css";
+@import "./instances/glass.css";
+@import "./instances/terminal.css";
+@import "./instances/zine.css";
+@import "./instances/synthwave.css";
+@import "./instances/blueprint.css";
+@import "./instances/botanical.css";
+
+/* ---- house styles of the sibling systems, as instances ---- */
+@import "./instances/circuit.css";
+@import "./instances/jjhub.css";
+@import "./instances/noitroidvania.css";
+@import "./instances/snake.css";

@@ -1,0 +1,30 @@
+/*
+  design-engine — modes: density
+  -----------------------------------------------------------------------------
+  data-density="compact|cozy|comfortable" retunes the spacing base unit and
+  type leading, on the anchor or any nested region. Because every space token
+  derives from --de-space-unit, the whole subtree re-flows from one attribute.
+*/
+
+@layer de.modes {
+  :where([data-engine][data-density="compact"], [data-engine] [data-density="compact"]) {
+    --de-space-unit: 0.2rem;
+    --de-content-pad: clamp(0.75rem, 3vw, 2rem);
+    --de-leading: 1.45;
+    --de-grid-min: 14rem;
+    --de-card-pad: var(--de-space-3);
+  }
+
+  :where([data-engine][data-density="cozy"], [data-engine] [data-density="cozy"]) {
+    --de-space-unit: 0.25rem;
+    --de-leading: 1.6;
+  }
+
+  :where([data-engine][data-density="comfortable"], [data-engine] [data-density="comfortable"]) {
+    --de-space-unit: 0.3125rem;
+    --de-content-pad: clamp(1.25rem, 5vw, 4rem);
+    --de-leading: 1.75;
+    --de-grid-min: 18rem;
+    --de-card-pad: var(--de-space-5);
+  }
+}

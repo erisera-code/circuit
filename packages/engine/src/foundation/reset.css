@@ -1,0 +1,94 @@
+/*
+  design-engine — foundation: reset (true defaults)
+  -----------------------------------------------------------------------------
+  Scoped to [data-engine] so the host document is untouched. This layer holds
+  only what fixes browser defaults that cause bugs; typography and spacing
+  decisions live in de.base. Principles:
+
+  - border-box everywhere; margins are ZERO everywhere. The engine spaces
+    content with `gap` and `padding`, never with element margins, so nothing
+    collapses, nothing double-spaces, and any margin an author writes is the
+    only margin in play. (`auto` is the one exception, for centering.)
+  - form controls inherit font and color; media is block-level and bounded;
+    focus is visible only for keyboard users; anchors targeted by a URL
+    fragment scroll clear of sticky headers.
+  - the scope anchor itself carries no chrome: no padding, no border, no
+    background image, so `<html data-engine>` and `<body data-engine>` start
+    from the same blank canvas.
+  - reduced motion collapses every duration token (the animation swap lives
+    in modes/motion.css) — no `!important` anywhere in the engine.
+*/
+
+@layer de.reset {
+  :where([data-engine], [data-engine] *) {
+    box-sizing: border-box;
+  }
+
+  :where([data-engine], [data-engine] *):where(:not(fieldset, legend)) {
+    margin: 0;
+  }
+
+  :where([data-engine]) {
+    padding: 0;
+    border: 0;
+    background-image: none;
+    -webkit-text-size-adjust: none;
+    text-size-adjust: none;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    font-kerning: normal;
+    hanging-punctuation: first last;
+    interpolate-size: allow-keywords;
+  }
+
+  :where([data-engine]) :where(img, picture, video, canvas, svg, iframe, object, embed) {
+    display: block;
+    max-inline-size: 100%;
+    block-size: auto;
+  }
+  :where([data-engine]) :where(img) { font-style: italic; } /* alt text reads as a caption */
+  :where([data-engine]) :where(iframe) { border: 0; }
+  :where([data-engine]) :where(svg:not([fill])) { fill: currentColor; }
+
+  :where([data-engine]) :where(button, input, select, textarea, optgroup) {
+    font: inherit;
+    color: inherit;
+    letter-spacing: inherit;
+  }
+  :where([data-engine]) :where(button, [role="button"], summary, label:has(> input)) { cursor: pointer; }
+  :where([data-engine]) :where(button:disabled, input:disabled, select:disabled, textarea:disabled) { cursor: not-allowed; }
+  :where([data-engine]) :where(textarea:not([rows])) { min-block-size: 6lh; }
+
+  :where([data-engine]) :where(address, cite, dfn, var) { font-style: normal; }
+  :where([data-engine]) :where(sub, sup) { line-height: 0; }
+  :where([data-engine]) :where(table) { border-collapse: collapse; border-spacing: 0; }
+  :where([data-engine]) :where([hidden]:not([hidden="until-found"])) { display: none; }
+
+  /* keyboard focus is always visible; mouse focus never draws a ring */
+  :where([data-engine]) :where(:focus-visible) {
+    outline: 2px solid var(--de-color-accent);
+    outline-offset: 2px;
+  }
+  :where([data-engine]) :where(:focus:not(:focus-visible)) { outline: none; }
+
+  /* fragment targets and focused things clear sticky chrome */
+  :where([data-engine]) :where(:target, [id]:focus-visible) { scroll-margin-block-start: var(--de-space-6); }
+
+  /* reduced motion: collapse every duration token */
+  @media (prefers-reduced-motion: reduce) {
+    :where([data-engine]) {
+      --de-dur-instant: 0s;
+      --de-dur-fast: 0s;
+      --de-dur: 0s;
+      --de-dur-slow: 0s;
+      scroll-behavior: auto;
+    }
+  }
+
+  /* forced colors (Windows high-contrast) — preserve semantic meaning */
+  @media (forced-colors: active) {
+    :where([data-engine]) :where(:focus-visible) {
+      outline: CanvasText solid 2px;
+    }
+  }
+}

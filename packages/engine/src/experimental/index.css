@@ -1,0 +1,11 @@
+/*
+  design-engine — experimental entry (opt-in, separate stylesheet)
+  -----------------------------------------------------------------------------
+  Volatile syntax that may still change. Load AFTER core / index:
+    <link rel="stylesheet" href="engine.min.css">
+    <link rel="stylesheet" href="experimental.min.css">
+  Everything here is @supports-guarded and lives in the de.experimental layer.
+*/
+
+@import "./advanced-anchor.css";
+@import "./conditionals.css";

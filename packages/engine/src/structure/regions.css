@@ -1,0 +1,183 @@
+/*
+  design-engine — structure: rows, pager, board, nested shell
+  -----------------------------------------------------------------------------
+  List rows  <ul role="listbox"><li role="option" aria-selected="true">…</li>
+             <li role="option" data-cursor>…</li><li role="option" aria-disabled="true">…</li></ul>
+             ARIA carries the state: selected, the keyboard cursor, disabled.
+             A row's trailing <menu> or <p> of buttons is its action slot.
+  Pager      <nav aria-label="pagination"><a rel="prev" href>…</a><a rel="next" href>…</a></nav>
+  Board      <section data-board><section><h3>Ready</h3><ul><li><article>…</article></li></ul></section>…</section>
+             columns are sections; each column's list is a card stack.
+  Shell      [data-engine] [data-shell] — a nested app-shell region (header,
+             nav/aside rail, main, footer statusbar) with an optional
+             [data-resize] handle between rail and main.
+*/
+
+@layer de.structure {
+  /* ---- rows ---- */
+  :where([data-engine]) :where(ul[role="listbox"], ol[role="listbox"]) {
+    list-style: none;
+    padding: var(--de-space-1) 0;
+    border: 1px solid var(--de-color-line);
+    max-inline-size: var(--de-measure);
+  }
+  :where([data-engine]) :where([role="listbox"] > li[role="option"]) {
+    display: flex;
+    align-items: center;
+    gap: var(--de-space-2);
+    padding: var(--de-space-1) var(--de-space-3);
+    border-block-end: 1px solid var(--de-color-line);
+    cursor: pointer;
+    max-inline-size: none;
+  }
+  :where([data-engine]) :where([role="listbox"] > li[role="option"]:last-child) { border-block-end: 0; }
+  :where([data-engine]) :where([role="listbox"] > li[role="option"]:hover) { background: var(--de-state-hover-overlay); }
+  :where([data-engine]) :where([role="listbox"] > li[role="option"][aria-selected="true"]) {
+    background: var(--de-color-accent-soft);
+    color: var(--de-color-fg);
+  }
+  /* the keyboard cursor is an all-round inset ring, never a side rail */
+  :where([data-engine]) :where([role="listbox"] > li[role="option"][data-cursor]) {
+    box-shadow: inset 0 0 0 1px var(--de-color-accent);
+  }
+  :where([data-engine]) :where([role="listbox"] > li[role="option"][aria-disabled="true"]) { opacity: 0.45; cursor: default; }
+  :where([data-engine]) :where([role="listbox"] > li[role="option"]) > :where(small) { color: var(--de-color-muted); margin-inline-start: auto; }
+  :where([data-engine]) :where([role="listbox"] > li[role="option"][aria-selected="true"]) > :where(small) { color: var(--de-color-fg); }
+  :where([data-engine]) :where([role="listbox"] > li[role="option"]) > :where(menu, p:has(> button)) {
+    display: flex;
+    gap: var(--de-space-1);
+    margin-inline-start: auto;
+    padding: 0;
+    list-style: none;
+  }
+  :where([data-engine]) :where([role="listbox"] > li[role="option"]) :where(button) {
+    padding: 0 0.5em;
+    min-inline-size: 0;
+    min-block-size: 0;
+    font-size: var(--de-text-xs);
+    line-height: 1.8;
+  }
+
+  /* ---- pager ---- */
+  :where([data-engine]) :where(nav[aria-label="pagination"]) {
+    display: flex;
+    gap: var(--de-space-3);
+    justify-content: space-between;
+    align-items: stretch;
+  }
+  :where([data-engine]) :where(nav[aria-label="pagination"]) > :where(a[rel="prev"], a[rel="next"]) {
+    flex: 1 1 0;
+    display: grid;
+    gap: var(--de-space-1);
+    padding: var(--de-space-3) var(--de-space-4);
+    border: 1px solid var(--de-color-line);
+    border-radius: var(--de-radius-sm);
+    color: var(--de-color-fg);
+    text-decoration: none;
+  }
+  :where([data-engine]) :where(nav[aria-label="pagination"]) > :where(a[rel="next"]) { text-align: end; }
+  :where([data-engine]) :where(nav[aria-label="pagination"]) > :where(a:hover) { border-color: var(--de-color-accent); color: var(--de-color-accent); }
+  :where([data-engine]) :where(nav[aria-label="pagination"]) :where(small) { color: var(--de-color-muted); text-transform: uppercase; letter-spacing: 0.06em; font-size: var(--de-text-xs); }
+  :where([data-engine]) :where(nav[aria-label="pagination"]) > :where(span) { align-self: center; color: var(--de-color-muted); font-size: var(--de-text-sm); }
+
+  /* ---- board ---- */
+  :where([data-engine]) :where([data-board]) {
+    display: grid;
+    /* a board is usually a <section>, which the flow layer gives one explicit
+       1fr track; clear it or the first column collapses when columns overflow */
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(14rem, 1fr);
+    gap: var(--de-space-3);
+    overflow-x: auto;
+    padding: 0;
+    max-inline-size: none;
+  }
+  :where([data-engine]) :where([data-board]) > :where(section) {
+    display: grid;
+    align-content: start;
+    row-gap: var(--de-space-2);
+    padding: var(--de-space-3);
+    min-inline-size: 0;
+    background: var(--de-color-surface);
+    border: 1px solid var(--de-color-line);
+    border-radius: var(--de-radius-sm);
+  }
+  :where([data-engine]) :where([data-board]) > :where(section) > :where(h3, h4) {
+    font-size: var(--de-text-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--de-color-muted);
+    padding: var(--de-space-1) var(--de-space-2) 0;
+    display: flex;
+    justify-content: space-between;
+  }
+  :where([data-engine]) :where([data-board]) > :where(section) > :where(ul) {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--de-space-2);
+  }
+  /* a card's padding must never widen its column */
+  :where([data-engine]) :where([data-board]) :where(li, li > article) { min-inline-size: 0; }
+  :where([data-engine]) :where([data-board]) :where(h3, h4) { overflow-wrap: anywhere; }
+
+  /* ---- nested shell ---- */
+  :where([data-engine] [data-shell]) {
+    display: grid;
+    grid-template-columns: var(--de-shell-aside) auto 1fr;
+    grid-template-rows: auto 1fr auto;
+    grid-template-areas: "top top top" "rail resize main" "status status status";
+    min-block-size: var(--de-shell-min, 20rem);
+    border: 1px solid var(--de-color-line);
+    background: var(--de-color-bg);
+    row-gap: 0;
+    padding: 0;
+  }
+  :where([data-engine] [data-shell]) > :where(header) {
+    grid-area: top;
+    display: flex;
+    align-items: center;
+    gap: var(--de-space-3);
+    padding: var(--de-space-2) var(--de-space-3);
+    border-block-end: 1px solid var(--de-color-line);
+    background: var(--de-color-surface);
+    inline-size: auto;
+  }
+  :where([data-engine] [data-shell]) > :where(nav, aside) {
+    grid-area: rail;
+    padding: var(--de-space-2);
+    border-inline-end: 1px solid var(--de-color-line);
+    background: var(--de-color-surface);
+    overflow: auto;
+    inline-size: auto;
+  }
+  :where([data-engine] [data-shell]) > :where(nav) :where(ul) { flex-direction: column; align-items: stretch; gap: 0; }
+  :where([data-engine] [data-shell]) > :where(nav) :where(a) { display: block; padding: var(--de-space-1) var(--de-space-2); border-radius: var(--de-radius-sm); }
+  :where([data-engine] [data-shell]) > :where(nav) :where(a[aria-current]) { background: var(--de-color-accent-soft); color: var(--de-color-fg); }
+  :where([data-engine] [data-shell]) > :where([data-resize]) {
+    grid-area: resize;
+    inline-size: 5px;
+    cursor: col-resize;
+    background: transparent;
+  }
+  :where([data-engine] [data-shell]) > :where([data-resize]:hover) { background: var(--de-color-accent); }
+  :where([data-engine] [data-shell]) > :where(main) {
+    grid-area: main;
+    padding: var(--de-space-3) var(--de-space-4);
+    overflow: auto;
+    inline-size: auto;
+    max-inline-size: none;
+    margin: 0;
+  }
+  :where([data-engine] [data-shell]) > :where(footer) {
+    grid-area: status;
+    display: flex;
+    gap: var(--de-space-3);
+    align-items: center;
+    padding: var(--de-space-1) var(--de-space-3);
+    border-block-start: 1px solid var(--de-color-line);
+    background: var(--de-color-surface);
+    font-size: var(--de-text-xs);
+    color: var(--de-color-muted);
+    inline-size: auto;
+  }
+}

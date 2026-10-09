@@ -1,0 +1,48 @@
+/*
+  design-engine — components: chips
+  -----------------------------------------------------------------------------
+  A chip is a small bordered noun that may carry a count and a remove control:
+    <span data-chip>reviewer <data value="3">3</data> <button aria-label="Remove">×</button></span>
+  Bound by the data-chip intent attribute; the count is a <data> child and the
+  remove control is the last <button>. Square-cornered hairline, no fill.
+*/
+
+@layer de.components {
+  :where([data-engine]) :where([data-chip]) {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--de-space-1);
+    padding-inline: var(--de-space-2);
+    font-size: var(--de-text-sm);
+    line-height: 1.7;
+    color: var(--de-color-fg);
+    border: 1px solid var(--de-color-edge);
+    border-radius: var(--de-radius-sm);
+    max-inline-size: none;
+    white-space: nowrap;
+  }
+  :where([data-engine]) :where([data-chip]) > :where(data) {
+    padding: 0;
+    border: 0;
+    color: var(--de-color-muted);
+    font-variant-numeric: tabular-nums;
+  }
+  :where([data-engine]) :where([data-chip]) > :where(button) {
+    padding: 0 0.2em;
+    min-inline-size: 0;
+    min-block-size: 0;
+    border: 0;
+    background: transparent;
+    color: var(--de-color-muted);
+    font-size: 1em;
+    line-height: 1;
+  }
+  :where([data-engine]) :where([data-chip]) > :where(button:hover) {
+    color: var(--de-color-danger);
+    background: transparent;
+  }
+  :where([data-engine]) :where([data-chip][data-tone="info"])   { color: var(--de-color-accent-2); border-color: currentColor; }
+  :where([data-engine]) :where([data-chip][data-tone="ok"])     { color: var(--de-color-ok); border-color: currentColor; }
+  :where([data-engine]) :where([data-chip][data-tone="warn"])   { color: var(--de-color-warn); border-color: currentColor; }
+  :where([data-engine]) :where([data-chip][data-tone="danger"]) { color: var(--de-color-danger); border-color: currentColor; }
+}

@@ -1,0 +1,30 @@
+/*
+  design-engine — capabilities: text selection & custom highlights
+  -----------------------------------------------------------------------------
+  Style ::selection and the CSS Custom Highlight API (highlight a live range
+  from JS via HighlightRegistry). The author registers a highlight name;
+  here we provide a couple of themed defaults.
+*/
+
+@layer de.capabilities {
+  :where([data-engine]) ::selection {
+    background: var(--de-color-accent-soft);
+    color: var(--de-color-fg);
+  }
+
+  :where([data-engine]) ::highlight(de-mark) {
+    background: color-mix(in oklab, var(--de-color-warn) 35%, transparent);
+    color: inherit;
+  }
+  :where([data-engine]) ::highlight(de-search) {
+    background: var(--de-color-accent-soft);
+  }
+
+  /* spelling/grammar errors stay subtle but themed */
+  :where([data-engine]) ::spelling-error {
+    text-decoration: underline wavy var(--de-color-danger);
+  }
+  :where([data-engine]) ::grammar-error {
+    text-decoration: underline wavy var(--de-color-muted);
+  }
+}

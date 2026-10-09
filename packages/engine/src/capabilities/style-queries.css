@@ -1,0 +1,44 @@
+/*
+  design-engine — capabilities: container style queries
+  -----------------------------------------------------------------------------
+  Variant styles keyed off a custom property on the nearest ancestor, with no
+  JS and no class swap. Baseline Newly Available (Chrome 111, Safari 18,
+  Firefox 151). A style query cannot match the element that SETS the
+  property, only its descendants; no container-type is needed.
+
+  Two engine tokens are designed to be queried this way:
+    --de-variant  : featured | muted    (set by a host or an instance region)
+    --de-viewport : narrow | medium | wide   (set in modes/responsive.css)
+  plus every --de-has-* capability flag (foundation/supports.css).
+
+  Verbatim syntax:  @container style(--token: value) { … }
+*/
+
+@layer de.capabilities {
+  @container style(--de-variant: featured) {
+    :where([data-engine]) :where(li > article, [data-grid] > article) {
+      border-color: var(--de-color-accent);
+      box-shadow: var(--de-shadow-2);
+    }
+    :where([data-engine]) :where(form > button:last-child, form > *:last-child > button:last-child) {
+      box-shadow: 0 0 0 3px var(--de-state-focus-ring-soft);
+    }
+  }
+
+  @container style(--de-variant: muted) {
+    :where([data-engine]) :where(h1, h2, h3) {
+      color: var(--de-color-muted);
+    }
+    :where([data-engine]) :where(li > article, [data-grid] > article) {
+      box-shadow: none;
+    }
+  }
+
+  /* narrow-viewport flag consumed by a component instead of a media query */
+  @container style(--de-viewport: narrow) {
+    :where([data-engine]) :where(article > header) {
+      flex-direction: column;
+      align-items: start;
+    }
+  }
+}

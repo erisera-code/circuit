@@ -1,0 +1,846 @@
+/*
+  design-engine — instance: circuit
+  -----------------------------------------------------------------------------
+  The erisera OSS docs system (@erisera-code/circuit), translated onto the
+  engine's classless markup. One hue-driven accent (--de-hue, default 25 —
+  matey orange) over a hue-stable cool-slate neutral scale; fixed semantic,
+  syntax and categorical colours that never rotate with the accent. IBM Plex
+  Sans body, JetBrains Mono for every label, eyebrow, key cap and code
+  surface. Soft 6/8/12px radii, hairline panels with a whisper of shadow in
+  light and a 1px line instead of fog in dark, a dark code surface in both
+  schemes, tinted glyph-led callouts, and the signature faint 24px grid
+  behind the page. Selected with data-instance="circuit".
+
+  Light-first: color-scheme follows the OS; data-theme flips the pairs.
+
+  Facets: palette / type / shape / layout / fx — see docs/authoring-an-instance.md.
+*/
+
+/* ===== palette ===== */
+@layer de.instances.palette {
+  :where([data-engine], [data-engine] *):where([data-instance="circuit"]:not([data-palette]), [data-palette="circuit"]) {
+    /* the one thing that changes per tool: the accent hue (hsl, as circuit
+       drives it); --de-chroma feeds the engine's derived oklch ramp only */
+    --de-hue: 25;
+    --de-chroma: 0.19;
+
+    /* cool-slate neutral scale → semantic surfaces (n-0/n-800, panel, inset, ink, ink-2, ink-3, line) */
+    --de-color-bg:        light-dark(#f8fafc, #0f172a);
+    --de-color-surface:   light-dark(#ffffff, #16203a);
+    --de-color-surface-2: light-dark(#f1f5f9, #1e293b);
+    --de-color-fg:        light-dark(#1e293b, #e2e8f0);
+    --de-color-muted:     light-dark(#5a687c, #94a3b8);
+    --de-color-faint:     light-dark(#5a687c, #94a3b8); /* one secondary ink: the third grey was indistinguishable from muted */
+    --de-color-line:      light-dark(#d4dae2, #334155);
+    /* control edges (inputs, buttons, chips) sit a step darker than the
+       decorative hairline so they clear 3:1 on the page and the inset */
+    --de-color-edge:      light-dark(#7e8c9e, #6b7b93);
+
+    /* accent, accent-hover, accent-soft — hue-driven. The light accent is
+       the text-and-fill orange: L 35% clears 4.5:1 on white, on the page
+       and on its own soft tint (circuit's 46% is a large-text-only 3.4:1;
+       the rules and cursor marks keep that brighter orange — see --de-circuit-rail). */
+    --de-color-accent:      light-dark(hsl(var(--de-hue) 95% 35%), hsl(var(--de-hue) 92% 58%));
+    --de-color-accent-2:    light-dark(hsl(var(--de-hue) 95% 29%), hsl(var(--de-hue) 92% 66%));
+    --de-color-accent-soft: light-dark(hsl(var(--de-hue) 95% 53% / 0.09), hsl(var(--de-hue) 92% 58% / 0.13));
+    /* white on the deep light accent; slate ink on the bright dark accent */
+    --de-color-accent-fg:   light-dark(#ffffff, #0f172a);
+
+    /* semantic states (fixed — never rotate with the hue). Light sides sit
+       at ~L 48% so the tone reads as text on white and on its 8% tint. */
+    --de-color-ok:     light-dark(#097a4b, #3ecf8e);
+    --de-color-warn:   light-dark(#9d5205, #e0a84a);
+    --de-color-danger: light-dark(#bd3228, #f0665a);
+
+    /* overlay scrim */
+    --de-overlay-bg: light-dark(rgba(15, 23, 42, 0.45), rgba(2, 6, 23, 0.65));
+
+    /* focus: 2px accent ring; the soft field ring is the accent tint */
+    --de-state-focus-ring:      var(--de-color-accent);
+    --de-state-focus-ring-soft: var(--de-color-accent-soft);
+    --de-state-hover-overlay:   var(--de-color-surface-2);
+
+    /* syntax palette (fixed). The code surface is circuit's dark slate in
+       both schemes, so the syntax inks are the dark-surface set on both
+       sides — the light set (#d6337d, #1d6fbf, #9333d6) reads under 4:1 on it. */
+    --de-sx-kw:    #f472b6;
+    --de-sx-str:   #34d399;
+    --de-sx-fn:    #38bdf8;
+    --de-sx-cm:    #7e8aa0;
+    --de-sx-num:   #c084fc;
+    --de-sx-tag:   #f0b35c;
+    --de-sx-attr:  #4fd1d1;
+    --de-sx-punct: #7e8aa0;
+    --de-sx-type:  #a78bfa;
+    --de-sx-bool:  #f16b5c;
+
+    /* categorical ramp (fixed, distinct from every state colour) */
+    --de-cat-1: light-dark(#1d4ed8, #60a5fa);
+    --de-cat-2: light-dark(#115e59, #2dd4bf);
+    --de-cat-3: light-dark(#6d28d9, #a78bfa);
+    --de-cat-4: light-dark(#be185d, #f472b6);
+    --de-cat-5: light-dark(#a16207, #fbbf24);
+    --de-cat-6: light-dark(#4d7c0f, #a3e635);
+  }
+}
+
+/* ===== type ===== */
+@layer de.instances.type {
+  :where([data-engine], [data-engine] *):where([data-instance="circuit"]:not([data-type]), [data-type="circuit"]) {
+    --de-font-body:    "IBM Plex Sans Variable", "IBM Plex Sans", var(--de-font-system);
+    --de-font-display: "JetBrains Mono Variable", "JetBrains Mono", "SF Mono", var(--de-font-mono);
+    --de-font-code:    "JetBrains Mono Variable", "JetBrains Mono", "SF Mono", var(--de-font-mono);
+    --de-text-base: 0.9375rem;
+    --de-leading: 1.6;
+    --de-measure: 68ch;
+    --de-weight-strong: 600;
+    --de-weight-display: 650;
+  }
+
+  @scope (:where([data-engine], [data-engine] *):where([data-instance="circuit"]:not([data-type]), [data-type="circuit"])) to ([data-instance], [data-type]) {
+    /* prose headings are the sans; the mono display face is for labels */
+    :where(h1, h2, h3) {
+      font-family: var(--de-font-body);
+      letter-spacing: -0.015em;
+      color: var(--de-color-fg);
+    }
+    :where(h1) {
+      font-size: clamp(1.9rem, 1.2rem + 2.5vw, 2.6rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    :where(h2) { font-size: clamp(1.35rem, 1rem + 1.2vw, 1.7rem); font-weight: 650; }
+    :where(h3) { font-size: 1.125rem; font-weight: 650; }
+
+    /* the version tag in the masthead: a mono accent chip */
+    :where(:scope) > :where(header) :where(small) {
+      font-family: var(--de-font-display);
+      font-size: var(--de-text-xs);
+      letter-spacing: 0.02em;
+    }
+    :where(:scope) > :where(header) > :where(p:not(:has(small))) {
+      font-size: 1.0625rem;
+      color: var(--de-color-muted);
+    }
+    :where(:scope) > :where(header) :where(nav) :where(a) { font-size: var(--de-text-sm); }
+
+    /* sidebar headings (.c-side h5): mono caps eyebrow */
+    :where(aside) > :where(nav) > :where(h2) {
+      font-family: var(--de-font-display);
+      font-size: var(--de-text-xs);
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--de-color-faint);
+    }
+
+    /* mono labels everywhere circuit sets them in JetBrains Mono */
+    :where(th) {
+      font-family: var(--de-font-display);
+      font-size: var(--de-text-xs);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--de-color-faint);
+      white-space: nowrap;
+    }
+    :where(td) { font-size: var(--de-text-sm); }
+    :where(caption) { font-family: var(--de-font-display); font-size: var(--de-text-xs); letter-spacing: 0.02em; }
+    :where(legend) {
+      font-family: var(--de-font-display);
+      font-size: var(--de-text-xs);
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--de-color-faint);
+    }
+    :where(label) {
+      font-family: var(--de-font-display);
+      font-size: var(--de-text-xs);
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      color: var(--de-color-muted);
+    }
+    :where(label:has(> input[type="checkbox"], > input[type="radio"])) {
+      font-family: var(--de-font-body);
+      font-size: var(--de-text-sm);
+      font-weight: 400;
+      letter-spacing: 0;
+      color: var(--de-color-fg);
+    }
+    :where(label) > :where(small) { font-family: var(--de-font-display); font-size: var(--de-text-xs); font-weight: 400; letter-spacing: 0; }
+    :where(dt) { font-family: var(--de-font-display); font-size: var(--de-text-xs); font-weight: 500; color: var(--de-color-faint); }
+    :where(dd) { font-size: var(--de-text-sm); color: var(--de-color-fg); }
+    :where(figcaption) { font-size: var(--de-text-xs); }
+
+    /* controls: 600 13px sans; icon buttons and key caps mono */
+    :where(button:not([data-variant="link"], [data-chip] > button, [data-toast] > button, figcaption > button, [role="option"] button)) {
+      font-family: var(--de-font-body);
+      font-size: var(--de-text-sm);
+      font-weight: 600;
+    }
+    :where(button[data-icon]) { font-family: var(--de-font-display); font-weight: 400; }
+    :where(input:not([type="checkbox"], [type="radio"]), select, textarea) { font-family: var(--de-font-body); font-size: var(--de-text-sm); }
+    :where(kbd) { font-family: var(--de-font-display); font-size: 0.7rem; line-height: 1.5; text-align: center; white-space: nowrap; }
+
+    /* signals: badges and counts mono, chips sans 500 */
+    :where(data) { font-family: var(--de-font-display); font-size: var(--de-text-xs); font-weight: 600; letter-spacing: 0; }
+    :where([data-chip]) { font-family: var(--de-font-body); font-size: var(--de-text-xs); font-weight: 500; }
+    :where([data-chip]) > :where(data) { font-size: 0.7rem; }
+    :where([data-swatch]) { font-family: var(--de-font-display); font-size: var(--de-text-xs); }
+    :where([data-step]:not([data-swatch])) { font-family: var(--de-font-display); font-size: var(--de-text-xs); font-weight: 600; }
+    :where([data-avatar]) { font-family: var(--de-font-display); text-transform: uppercase; }
+    :where([aria-busy="true"]) { font-size: var(--de-text-sm); color: var(--de-color-muted); }
+
+    /* cards: 600 13.5px head, muted body */
+    :where(li) > :where(article) > :where(h3, h4) { font-family: var(--de-font-body); font-size: var(--de-text-sm); font-weight: 600; letter-spacing: 0; }
+    :where(li) > :where(article) > :where(p) { font-size: var(--de-text-sm); color: var(--de-color-muted); }
+
+    /* rows, menus, pager, empty, notices */
+    :where([role="option"]) { font-size: var(--de-text-sm); }
+    :where([role="option"]) > :where(small) { font-family: var(--de-font-display); font-size: 0.7rem; color: var(--de-color-faint); }
+    :where([role="menuitem"]) { font-family: var(--de-font-body); font-size: var(--de-text-sm); font-weight: 400; }
+    :where(nav[aria-label="pagination"]) > :where(a) { font-size: var(--de-text-sm); font-weight: 600; }
+    :where(nav[aria-label="pagination"]) :where(small) { font-family: var(--de-font-display); font-size: 0.7rem; letter-spacing: 0.08em; font-weight: 400; }
+    :where([data-empty]) { font-size: var(--de-text-sm); color: var(--de-color-faint); }
+    :where([data-empty]) > :where(strong) { font-weight: 600; }
+    :where([data-banner], [data-toast]) { font-size: var(--de-text-sm); }
+    :where([role="tooltip"]) { font-family: var(--de-font-display); font-size: var(--de-text-xs); line-height: 1.4; }
+
+    /* board column heads, shell logo + status bar, dialog title: display mono */
+    :where([data-board]) > :where(section) > :where(h3, h4) {
+      font-family: var(--de-font-display);
+      font-size: var(--de-text-xs);
+      font-weight: 600;
+      letter-spacing: 0.08em;
+    }
+    :where([data-shell]) > :where(header) > :where(strong) { font-family: var(--de-font-display); font-size: 1rem; font-weight: 700; }
+    :where([data-shell]) > :where(header) :where(nav) :where(a) { font-size: var(--de-text-sm); }
+    :where([data-shell]) > :where(nav) :where(a) { font-size: var(--de-text-sm); }
+    :where([data-shell]) > :where(main) > :where(h4) { font-family: var(--de-font-body); font-size: var(--de-text-sm); font-weight: 600; }
+    :where([data-shell]) > :where(footer) { font-family: var(--de-font-display); font-size: 0.7rem; color: var(--de-color-faint); white-space: nowrap; }
+    :where(dialog) > :where(article) > :where(header) :where(h3) { font-family: var(--de-font-display); font-size: var(--de-text-base); font-weight: 650; letter-spacing: 0; }
+    :where(dialog[data-palette]) :where(input[type="search"]) { font-size: 1rem; }
+    :where(dialog[data-palette]) > :where(footer) { font-family: var(--de-font-display); font-size: 0.7rem; }
+
+    /* details summary, blockquote, page footer */
+    :where(summary) { font-size: var(--de-text-sm); font-weight: 600; }
+    :where(details) > :where(p) { font-size: var(--de-text-sm); color: var(--de-color-muted); }
+    :where(blockquote) :where(p) { font-size: 1em; color: var(--de-color-muted); }
+    :where(blockquote) :where(cite) { font-family: var(--de-font-display); font-size: var(--de-text-xs); font-style: normal; }
+    :where(:scope) > :where(footer) { font-family: var(--de-font-display); font-size: var(--de-text-xs); color: var(--de-color-faint); }
+    :where(:scope) > :where(footer) :where(small) { font-size: inherit; }
+  }
+}
+
+/* ===== shape ===== */
+@layer de.instances.shape {
+  :where([data-engine], [data-engine] *):where([data-instance="circuit"]:not([data-shape]), [data-shape="circuit"]) {
+    /* --r-sm 6px / --r 8px / --r-lg 12px / --r-full */
+    --de-radius-sm: 0.375rem;
+    --de-radius-md: 0.5rem;
+    --de-radius-lg: 0.75rem;
+    --de-radius-full: 999px;
+    --de-border-w: 1px;
+
+    /* elevation: whisper shadows in light, a 1px line instead of fog in dark */
+    --de-shadow-opacity: 0.05;
+    --de-shadow-1: 0 1px 2px light-dark(rgba(15, 23, 42, 0.05), transparent);
+    --de-shadow-2:
+      0 0 0 1px light-dark(transparent, var(--de-color-line)),
+      0 14px 32px -8px light-dark(rgba(15, 23, 42, 0.16), rgba(0, 0, 0, 0.5));
+
+    /* .c-card */
+    --de-card-bg: var(--de-color-surface);
+    --de-card-border: 1px solid var(--de-color-line);
+    --de-card-radius: var(--de-radius-lg);
+    --de-card-shadow: var(--de-shadow-1);
+    --de-card-pad: var(--de-space-4);
+
+    /* .c-btn.secondary is the base button: inset surface, hairline, r-sm */
+    --de-button-bg: var(--de-color-surface-2);
+    --de-button-fg: var(--de-color-fg);
+    --de-button-border: var(--de-border-edge);
+    --de-button-radius: var(--de-radius-sm);
+    --de-button-pad: var(--de-space-2) var(--de-space-3);
+    --de-button-primary-bg: var(--de-color-accent);
+    --de-button-primary-fg: var(--de-color-accent-fg);
+
+    /* .c-field: panel surface, hairline, r-sm */
+    --de-input-bg: var(--de-color-surface);
+    --de-input-fg: var(--de-color-fg);
+    --de-input-border: var(--de-border-edge);
+    --de-input-radius: var(--de-radius-sm);
+    --de-input-pad: var(--de-space-2) var(--de-space-3);
+
+    /* inline code: inset chip; the block surfaces are restyled below */
+    --de-code-bg: var(--de-color-surface-2);
+    --de-code-radius: var(--de-radius-sm);
+  }
+
+  @scope (:where([data-engine], [data-engine] *):where([data-instance="circuit"]:not([data-shape]), [data-shape="circuit"])) to ([data-instance], [data-shape]) {
+    /* the rule-and-mark orange: circuit's bright hsl 46% accent, kept for
+       the 2px top rules and the cursor / current-item marks (never text) */
+    :where(:scope) { --de-circuit-rail: light-dark(hsl(var(--de-hue) 95% 46%), hsl(var(--de-hue) 92% 58%)); }
+
+    /* .c-header: hairline rules above and below the masthead — neutral,
+       not the accent rail (a coloured single-side edge reads as an AI
+       "generated container" tell; the rail stays for marks/switches) */
+    :where(:scope) > :where(header) {
+      border-block-start: 1px solid var(--de-color-line);
+      border-block-end: 1px solid var(--de-color-line);
+    }
+    /* the version tag: plain small-caps text, no chip */
+
+    /* .c-side links: r-sm pills with a 2px leading rail */
+    :where(:scope) > :where(header) :where(nav) :where(a),
+    :where([data-shell]) > :where(nav) :where(a) {
+      border-radius: var(--de-radius-sm);
+      border-inline-start: 2px solid transparent;
+    }
+
+    /* .c-callout: hairline box, --r radius, the tone carried by the .ic
+       glyph (fx) — no side rail. Only the aside callouts — toasts / banners /
+       field notes carry the same roles. */
+    :where(section > aside, aside[role="note"], aside[role="status"], aside[role="alert"]) {
+      --de-inset: var(--de-space-3);
+      border: 1px solid var(--de-color-line);
+    }
+
+    /* .c-banner: the same hairline-and-glyph family, one row */
+    :where([data-banner]) {
+      border: 1px solid var(--de-color-line);
+    }
+    :where([data-banner][role="status"], [data-banner][data-tone="ok"], [data-banner][data-tone="warn"], [data-banner][role="alert"], [data-banner][data-tone="danger"]) { border-color: var(--de-color-line); }
+
+    /* .c-toast: r-lg, shadow-lg; the core's full 1px tone border and glyph
+       (circuit-react's .ds-toast--success { border-color: var(--ds-success) }) */
+    :where([data-toast]) {
+      border-radius: var(--de-radius-lg);
+      box-shadow: var(--de-shadow-2);
+    }
+
+    /* .c-codebox / .c-termbox: hairline, r-lg, clipped */
+    :where(pre) { border: 1px solid var(--de-color-line); border-radius: var(--de-radius-lg); }
+    :where(figure:has(> pre)) { border-radius: var(--de-radius-lg); }
+    :where(figure:has(> pre)) > :where(pre) { border: 0; border-radius: 0; }
+    :where(figure:has(> pre)) > :where(figcaption) > :where(button) {
+      background: transparent;
+      border: 1px solid var(--de-color-line);
+      border-radius: 0.25rem;
+    }
+    :where(pre:has(> samp), pre[data-terminal]) { overflow: hidden; }
+
+    /* .c-btn: focus ring, pressed inset, ghost / danger / link geometry */
+    :where(button):where(:focus-visible),
+    :where(input[type="checkbox"], input[type="radio"]):where(:focus-visible) {
+      outline: 2px solid var(--de-color-accent);
+      outline-offset: 2px;
+    }
+    :where(button[data-variant="ghost"], button[data-variant="link"]) { border-color: transparent; background: transparent; }
+    :where(button[data-variant="danger"]) { border-color: transparent; }
+    :where(button):where(:active) { transform: none; box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2); }
+    :where(button:disabled) { opacity: 0.4; }
+    :where(button[data-variant="link"]) { text-decoration-color: color-mix(in oklab, var(--de-color-accent) 35%, transparent); }
+
+    /* .c-field: accent border + 3px soft ring on focus; error ring in red */
+    :where(input:not([type="checkbox"], [type="radio"]), select, textarea):where(:focus-visible) {
+      border-color: var(--de-color-accent);
+      box-shadow: 0 0 0 3px var(--de-color-accent-soft);
+    }
+    :where(input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="true"]) {
+      border-color: var(--de-color-danger);
+      box-shadow: 0 0 0 3px color-mix(in oklab, var(--de-color-danger) 9%, transparent);
+    }
+    /* .c-switch: borderless pill */
+    :where(input[type="checkbox"][role="switch"]) { border-color: transparent; }
+
+    /* .c-badge / .c-chip: full-radius pills, soft tone fills, no hard outline */
+    :where(data:not([data-chip] > data)) { border: 0; border-radius: var(--de-radius-full); }
+    :where(data[data-dot]) { border: 0; border-radius: 0; }
+    :where([data-chip]) { border-radius: var(--de-radius-full); border: var(--de-border-edge); }
+    :where([data-chip][data-tone]) { border-color: color-mix(in oklab, currentColor 35%, transparent); }
+    :where([data-chip]) > :where(button) { border-radius: 50%; }
+
+    /* .c-avatar: accent-soft disc with an accent-border ring */
+    :where([data-avatar]) { border: 1px solid color-mix(in oklab, var(--de-circuit-rail) 35%, transparent); }
+    :where([data-avatar="square"]) { border-radius: var(--de-radius-sm); }
+
+    /* .c-meter: full-radius track with an inset hairline, rounded fill */
+    :where(progress, meter) { border-radius: var(--de-radius-full); box-shadow: inset 0 0 0 1px var(--de-color-line); }
+    :where(progress)::-webkit-progress-value { border-radius: var(--de-radius-full); }
+    :where(progress)::-moz-progress-bar { border-radius: var(--de-radius-full); }
+    :where(meter)::-webkit-meter-optimum-value { border-radius: var(--de-radius-full); }
+    :where(meter)::-webkit-meter-suboptimum-value { border-radius: var(--de-radius-full); }
+    :where(meter)::-moz-meter-bar { border-radius: var(--de-radius-full); }
+
+    /* .c-key: inset cap with a 2px bottom edge */
+    :where(kbd:not(pre > kbd)) { border: 1px solid var(--de-color-line); border-block-end-width: 2px; border-radius: 0.25rem; }
+
+    /* .c-table (+ .c-tablewrap): a framed r-lg panel, header on the inset */
+    :where(table) {
+      border: 1px solid var(--de-color-line);
+      border-radius: var(--de-radius-lg);
+      border-collapse: separate;
+      border-spacing: 0;
+    }
+    :where(thead) :where(th) { border-block-end: 1px solid var(--de-color-line); }
+    :where(thead) :where(th:first-child) { border-start-start-radius: calc(var(--de-radius-lg) - 1px); }
+    :where(thead) :where(th:last-child)  { border-start-end-radius: calc(var(--de-radius-lg) - 1px); }
+    :where(tbody) :where(tr:last-child) :where(td) { border-block-end: 0; }
+
+    /* .c-kv: hairlines between definition rows */
+    :where(dt, dd) { border-block-end: 1px solid var(--de-color-line); }
+    :where(dt:nth-last-of-type(1), dd:last-of-type) { border-block-end: 0; }
+
+    /* .c-list.bordered + .c-row: framed panel, r-sm rows; the 2px slot is the keyboard cursor's rail (fx) */
+    :where(ul[role="listbox"]:not(dialog > ul), ol[role="listbox"]) { border: 1px solid var(--de-color-line); border-radius: var(--de-radius-lg); }
+    :where([role="listbox"]) > :where(li[role="option"]) {
+      border-block-end: 0;
+      border-inline-start: 2px solid transparent;
+      border-radius: var(--de-radius-sm);
+      box-shadow: none;
+    }
+    :where([role="listbox"]) > :where(li[role="option"][data-cursor]) { box-shadow: inset 0 0 0 1px var(--de-circuit-rail); }
+
+    /* .c-menu items */
+    :where([role="menu"]:not([popover])) { border: 1px solid var(--de-color-line); border-radius: var(--de-radius-lg); box-shadow: var(--de-shadow-2); }
+    :where([role="menu"]) :where(hr) { border-block-start: 1px solid var(--de-color-line); }
+
+    /* .c-pager cards */
+    :where(nav[aria-label="pagination"]) > :where(a) { border-radius: var(--de-radius-lg); }
+
+    /* .c-empty: dashed r-lg frame */
+    :where([data-empty]) { border: 1px dashed var(--de-color-line); border-radius: var(--de-radius-lg); }
+
+    /* .c-accordion: framed disclosure */
+    :where(details) { border: 1px solid var(--de-color-line); border-radius: var(--de-radius-lg); }
+    :where(details + details) { border-block-start: 1px solid var(--de-color-line); }
+    :where(details[open]) > :where(summary) { border-block-end: 1px solid var(--de-color-line); }
+
+    /* .c-shell: r-lg frame, hairline-topped header (neutral, matches the masthead) */
+    :where([data-shell]) { border-radius: var(--de-radius-lg); overflow: hidden; }
+    :where([data-shell]) > :where(header) { border-block-start: 1px solid var(--de-color-line); }
+
+    /* .c-board columns, .c-ramp labels, .c-tooltip, dialog head */
+    :where([data-board]) > :where(section) { border-radius: var(--de-radius-lg); }
+    :where([data-step]:not([data-swatch])) { border-radius: var(--de-radius-sm); border: 1px solid currentColor; }
+    :where([role="tooltip"]) { border: 0; border-radius: var(--de-radius-sm); box-shadow: var(--de-shadow-2); }
+    :where(dialog) > :where(article) > :where(header) { border-block-end: 1px solid var(--de-color-line); }
+    :where(dialog[data-palette]) :where(li[role="option"]) { border-inline-start: 2px solid transparent; }
+
+    /* blockquote: an indented quote on a neutral hairline; the opening quote glyph (fx) carries the accent */
+    :where(blockquote) { border-inline-start: 1px solid var(--de-color-line); }
+
+    /* figure media: r-lg, hairline */
+    :where(figure:not(:has(> pre))) :where(img) { border-radius: var(--de-radius-lg); border: 1px solid var(--de-color-line); }
+  }
+}
+
+/* ===== layout ===== */
+@layer de.instances.layout {
+  @scope (:where([data-engine], [data-engine] *):where([data-instance="circuit"]:not([data-layout]), [data-layout="circuit"])) to ([data-instance], [data-layout]) {
+    /* masthead: room under the accent rule; version tag as a chip; nav as a rail */
+    :where(:scope) > :where(header) {
+      padding-block: var(--de-space-4);
+      row-gap: var(--de-space-3);
+    }
+    :where(:scope) > :where(header) :where(small) {
+      display: inline-block;
+      padding: 0.125rem 0.45rem;
+      line-height: 1.5;
+    }
+    :where(:scope) > :where(header) :where(nav) { gap: 0.0625rem var(--de-space-1); }
+    :where(:scope) > :where(header) :where(nav) :where(a),
+    :where([data-shell]) > :where(nav) :where(a) {
+      display: inline-block;
+      padding: 0.3125rem 0.625rem;
+    }
+
+    /* the materials list: .c-card grid with a ruled head and a body slot */
+    :where(ul:has(> li > article)) {
+      grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
+      gap: var(--de-space-3);
+    }
+    :where(li) > :where(article) {
+      padding: 0;
+      row-gap: 0;
+      align-content: start;
+    }
+    :where(li) > :where(article) > :where(h3, h4) { padding: var(--de-space-3) var(--de-space-3); }
+    :where(li) > :where(article) > :where(p) { padding: var(--de-space-3) var(--de-space-3); }
+    :where(li) > :where(article) > :where(p) + :where(p) { padding-block-start: 0; }
+    :where([data-board]) :where(li) > :where(article) > :where(h4) { padding: var(--de-space-2) var(--de-space-3); }
+    :where([data-board]) :where(li) > :where(article) > :where(p) { padding: var(--de-space-2) var(--de-space-3); }
+
+    /* callouts + banners: 11/13px-ish inset, single row for the banner */
+    :where(section > aside, aside[role="note"], aside[role="status"], aside[role="alert"]) { row-gap: var(--de-space-1); }
+    :where([data-banner]) { padding: var(--de-space-2) var(--de-space-3); }
+
+    /* .c-codebox: caption strip + generous code inset */
+    :where(figure:has(> pre)) > :where(figcaption) { padding: var(--de-space-2) var(--de-space-3); gap: var(--de-space-2); }
+    :where(figure:has(> pre)) > :where(figcaption) > :where(button) { padding: 0.1875rem 0.5625rem; line-height: 1.4; }
+    :where(pre) { padding: var(--de-space-3) var(--de-space-4); line-height: 1.65; }
+    /* .c-termbox: a 2.1rem window strip with the lights, then 12.5px/1.7 output */
+    :where(pre:has(> samp), pre[data-terminal]) {
+      padding-block-start: calc(var(--de-space-3) + 2.1rem);
+      line-height: 1.7;
+      font-size: 0.8rem;
+    }
+    :where(pre:has(> samp), pre[data-terminal])::before {
+      block-size: 2.1rem;
+      box-sizing: border-box;
+      padding-block: 0;
+      padding-inline: calc(var(--de-space-4) + 2.75rem) var(--de-space-4);
+      line-height: 2.1rem;
+    }
+
+    /* buttons: 32px icon squares, ghost is narrower, groups touch */
+    :where(button[data-icon]) { inline-size: 2rem; block-size: 2rem; }
+    :where(button[data-variant="ghost"]:not([data-icon])) { padding-inline: 0.625rem; }
+    :where(button[data-variant="link"]) { padding: 0; }
+
+    /* fields: hint under the control */
+    :where(label:has(> input:not([type="checkbox"], [type="radio"]), > select, > textarea)) { gap: 0.375rem; }
+    :where(textarea) { min-block-size: 5.5rem; line-height: 1.55; }
+
+    /* signals */
+    :where(data:not([data-chip] > data)) { padding: 0.1875rem 0.5625rem; line-height: 1.3; }
+    :where(data[data-dot]) { padding: 0; }
+    :where([data-chip]) { padding: 0.125rem 0.625rem; gap: 0.375rem; line-height: 1.6; }
+    :where([data-chip]:has(> button)) { padding-inline-end: 0.3125rem; }
+    :where([data-chip]) > :where(button) { inline-size: 1rem; block-size: 1rem; padding: 0; }
+    :where([data-avatar]) { --de-avatar-size: 1.75rem; }
+    :where([data-avatar="sm"]) { --de-avatar-size: 1.375rem; }
+    :where([data-avatar="lg"]) { --de-avatar-size: 2.5rem; }
+    :where(progress, meter) { block-size: 0.375rem; }
+    :where([data-step]:not([data-swatch])) { display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.1875rem 0.5625rem; line-height: 1.3; }
+    :where(kbd:not(pre > kbd)) { display: inline-block; min-inline-size: 1.125rem; padding: 0.0625rem 0.375rem; }
+
+    /* notices */
+    :where([data-toast]) { padding: 0.6875rem 0.75rem; }
+    :where([data-empty]) { justify-items: center; text-align: center; padding: var(--de-space-5) var(--de-space-4); gap: 0.375rem; }
+
+    /* overlays: menu + palette rows */
+    :where([role="menu"]) { padding: var(--de-space-1); gap: 0.0625rem; }
+    :where([role="menuitem"]) { padding: 0.4375rem 0.625rem; }
+    :where(dialog) > :where(article) > :where(header) { padding-block-end: var(--de-space-3); }
+    :where(dialog[data-palette]) :where(li[role="option"]) { padding: 0.5625rem 0.625rem; }
+
+    /* data: .c-table cells, .c-list rows, .c-kv grid, .c-pager, .c-board */
+    :where(th) { padding: var(--de-space-2) var(--de-space-3); }
+    :where(td) { padding: 0.5625rem var(--de-space-3); vertical-align: middle; }
+    :where(th:first-child, td:first-child) { padding-inline-start: var(--de-space-3); }
+    :where(th:last-child, td:last-child) { padding-inline-end: var(--de-space-3); }
+    :where(caption) { padding-block-end: var(--de-space-2); }
+    :where(ul[role="listbox"]:not(dialog > ul), ol[role="listbox"]) { padding: var(--de-space-1); display: grid; gap: 0.0625rem; }
+    :where([role="listbox"]) > :where(li[role="option"]) { padding: 0.375rem 0.625rem; gap: 0.625rem; }
+    :where(dl) { grid-template-columns: max-content minmax(0, 1fr); gap: 0 var(--de-space-3); align-items: start; }
+    :where(dt) { padding-block: 0.375rem; white-space: nowrap; }
+    :where(dt:not(:first-child)) { padding-block-start: 0.375rem; }
+    :where(dd) { padding: 0.375rem 0; }
+    :where(nav[aria-label="pagination"]) { gap: 0.875rem; }
+    :where(nav[aria-label="pagination"]) > :where(a) { padding: 0.8125rem var(--de-space-3); gap: var(--de-space-1); }
+    :where([data-board]) { grid-auto-columns: minmax(15rem, 17.5rem); gap: 0.75rem; align-items: start; padding-block-end: var(--de-space-2); }
+    :where([data-board]) > :where(section) { padding: 0.625rem; row-gap: var(--de-space-2); min-block-size: 7.5rem; }
+    :where([data-board]) > :where(section) > :where(h3, h4) { padding: 0.125rem 0.25rem 0.375rem; }
+
+    /* .c-shell: 60px header, 240px rail, 26px status bar */
+    :where([data-shell]) { --de-shell-aside: 15rem; }
+    :where([data-shell]) > :where(header) { min-block-size: 3.75rem; padding: 0 1.75rem; gap: 1.375rem; }
+    :where([data-shell]) > :where(header) :where(nav) { gap: 1.125rem; }
+    :where([data-shell]) > :where(header) > :where(button) { margin-inline-start: auto; }
+    :where([data-shell]) > :where(nav, aside) { padding: 1.25rem 0.875rem; }
+    :where([data-shell]) > :where(nav) :where(ul) { gap: 0.0625rem; }
+    :where([data-shell]) > :where(main) { padding: var(--de-space-4) 1.75rem; }
+    :where([data-shell]) > :where(footer) { min-block-size: 1.625rem; padding: 0 0.75rem; gap: 0.875rem; }
+    :where([data-shell]) > :where(footer) > :where(:last-child) { margin-inline-start: auto; }
+
+    /* .c-accordion: padded summary + body, chevron at the end */
+    :where(details) > :where(summary) { padding: 0.6875rem 0.875rem; align-items: center; }
+    :where(details) > :where(summary)::before { order: 1; margin-inline-start: auto; }
+    :where(details) > :where(:not(summary)) { padding: 0.75rem 0.875rem 0.875rem; }
+
+    /* .c-callout: the .ic glyph column, then the body */
+    :where(section > aside, aside[role="note"], aside[role="status"], aside[role="alert"]) {
+      grid-template-columns: max-content minmax(0, 1fr);
+      column-gap: var(--de-space-2);
+    }
+    :where(section > aside, aside[role="note"], aside[role="status"], aside[role="alert"]) > :where(*) { grid-column: 2; }
+
+    /* blockquote: the opening-quote column, then the quote; tooltip */
+    :where(blockquote) {
+      padding-block: var(--de-space-1);
+      grid-template-columns: max-content minmax(0, 1fr);
+      column-gap: var(--de-space-2);
+    }
+    :where(blockquote) > :where(*) { grid-column: 2; }
+    :where([role="tooltip"]) { padding: var(--de-space-2) var(--de-space-3); }
+
+    /* a framed table: edge cells carry the panel inset (the cell padding
+       shorthand above would otherwise clobber the core's edge rules) */
+    :where(th:first-child, td:first-child) { padding-inline-start: max(var(--de-space-3), var(--de-inset)); }
+    :where(th:last-child, td:last-child) { padding-inline-end: max(var(--de-space-3), var(--de-inset)); }
+    :where(table > :first-child > tr:first-child > :is(th, td)) { padding-block-start: calc(var(--de-space-2) + max(var(--de-space-1), var(--de-inset))); }
+    :where(table > :last-child > tr:last-child > :is(th, td)) { padding-block-end: calc(var(--de-space-2) + max(var(--de-space-1), var(--de-inset))); }
+
+  }
+}
+
+/* ===== fx ===== */
+@layer de.instances.fx {
+  @scope (:where([data-engine], [data-engine] *):where([data-instance="circuit"]:not([data-fx]), [data-fx="circuit"])) to ([data-instance], [data-fx]) {
+    /* the signature: a faint 24px grid behind the page (.circuit-grid) */
+    :where(:scope) {
+      --de-circuit-grid-ink:   light-dark(rgba(148, 163, 184, 0.07), rgba(148, 163, 184, 0.05));
+      --de-circuit-code-bg:    light-dark(#0f172a, #0b1120);
+      --de-circuit-code-ink:   light-dark(#e2e8f0, #dbe3ef);
+      --de-circuit-code-muted: light-dark(#8b93a1, #7e8aa0);
+      --de-circuit-code-line:  color-mix(in oklab, var(--de-circuit-code-ink) 16%, transparent);
+      --de-circuit-info:       light-dark(#1a64ad, #5fa8e8);
+      --de-circuit-rail:       light-dark(hsl(var(--de-hue) 95% 46%), hsl(var(--de-hue) 92% 58%));
+      /* the stage scrim: a heavier wash than the dialog backdrop so light
+         ink reads on it in both schemes */
+      --de-circuit-scrim:      light-dark(rgba(15, 23, 42, 0.72), rgba(2, 6, 23, 0.78));
+      --de-circuit-scrim-ink:  #f1f5f9;
+      --de-circuit-dot-red:    #f0665a;
+      --de-circuit-dot-amber:  #e0a84a;
+      --de-circuit-dot-green:  #3ecf8e;
+      --de-circuit-shadow-md:
+        0 0 0 1px light-dark(transparent, var(--de-color-line)),
+        0 4px 10px -2px light-dark(rgba(15, 23, 42, 0.1), transparent);
+
+      background-color: var(--de-color-bg);
+      background-image:
+        linear-gradient(var(--de-circuit-grid-ink) 1px, transparent 1px),
+        linear-gradient(90deg, var(--de-circuit-grid-ink) 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+
+    /* masthead: version chip, sidebar-style nav pills */
+    :where(:scope) > :where(header) :where(small) { color: var(--de-color-accent); }
+    :where(:scope) > :where(header) :where(nav) :where(a),
+    :where([data-shell]) > :where(nav) :where(a) {
+      color: var(--de-color-muted);
+      transition: color var(--de-dur-fast) var(--de-ease), background var(--de-dur-fast) var(--de-ease);
+    }
+    :where(:scope) > :where(header) :where(nav) :where(a):where(:hover),
+    :where([data-shell]) > :where(nav) :where(a):where(:hover) { color: var(--de-color-fg); }
+    :where(:scope) > :where(header) :where(nav) :where(a[aria-current]),
+    :where([data-shell]) > :where(nav) :where(a[aria-current]) {
+      color: var(--de-color-accent);
+      background: var(--de-color-accent-soft);
+      border-inline-start-color: transparent;
+    }
+    :where(aside) > :where(nav) :where(a):where(:hover) { color: var(--de-color-accent); }
+
+    /* .c-callout / .c-banner: no fill — tone carried by the glyph and the
+       edge colour set in the tone rules below, matching every other instance */
+    :where([data-banner][role="status"], [data-banner][data-tone="ok"]) { border-color: var(--de-color-ok); }
+    :where([data-banner][data-tone="warn"]) { border-color: var(--de-color-warn); }
+    :where([data-banner][role="alert"], [data-banner][data-tone="danger"]) { border-color: var(--de-color-danger); }
+    :where(aside[role="status"]) { border-color: var(--de-color-ok); }
+    :where(aside[role="alert"]) { border-color: var(--de-color-danger); }
+    :where(aside[data-tone="warn"]) { border-color: var(--de-color-warn); }
+    /* .c-callout .ic / .c-banner: the mono tone glyph ⓘ ✓ ⚠ ✕ before the body */
+    :where(section > aside, aside[role="note"], aside[role="status"], aside[role="alert"])::before {
+      content: "ⓘ";
+      grid-column: 1;
+      grid-row: 1;
+      font-family: var(--de-font-display);
+      font-weight: 600;
+      color: var(--de-color-accent);
+    }
+    :where(aside[role="status"])::before { content: "✓"; color: var(--de-color-ok); }
+    :where(aside[role="alert"])::before  { content: "✕"; color: var(--de-color-danger); }
+    :where(aside[data-tone="warn"])::before { content: "⚠"; color: var(--de-color-warn); }
+    :where([data-banner])::before {
+      content: "ⓘ";
+      flex: none;
+      font-family: var(--de-font-display);
+      font-weight: 600;
+      color: var(--de-color-accent);
+    }
+    :where([data-banner][role="status"], [data-banner][data-tone="ok"])::before { content: "✓"; color: var(--de-color-ok); }
+    :where([data-banner][data-tone="warn"])::before { content: "⚠"; color: var(--de-color-warn); }
+    :where([data-banner][role="alert"], [data-banner][data-tone="danger"])::before { content: "✕"; color: var(--de-color-danger); }
+
+    /* blockquote: the opening quote in the accent, mono */
+    :where(blockquote)::before {
+      content: "\201C";
+      grid-column: 1;
+      grid-row: 1;
+      font-family: var(--de-font-display);
+      font-size: var(--de-text-lg);
+      line-height: 1;
+      color: var(--de-color-accent);
+    }
+
+    /* .c-codebox: dark code surface in both schemes, caption strip on it */
+    :where(pre) { background: var(--de-circuit-code-bg); color: var(--de-circuit-code-ink); }
+    :where(figure:has(> pre)) > :where(figcaption) {
+      background: var(--de-circuit-code-bg);
+      color: var(--de-circuit-code-muted);
+      border-block-end-color: var(--de-circuit-code-line);
+    }
+    :where(figure:has(> pre)) > :where(figcaption) > :where(button) {
+      color: var(--de-circuit-code-muted);
+      border-color: var(--de-circuit-code-line);
+      transition: color var(--de-dur-fast) var(--de-ease), border-color var(--de-dur-fast) var(--de-ease);
+    }
+    :where(figure:has(> pre)) > :where(figcaption) > :where(button):where(:hover) { color: var(--de-color-accent); border-color: var(--de-color-accent); background: transparent; }
+
+    /* .c-termbox: window strip with three lights, accent prompt, dim output */
+    :where(pre:has(> samp), pre[data-terminal]) { background: var(--de-circuit-code-bg); color: var(--de-circuit-code-ink); }
+    :where(pre:has(> samp), pre[data-terminal])::before {
+      color: var(--de-circuit-code-muted);
+      border-block-end: 1px solid var(--de-circuit-code-line);
+      background-image:
+        radial-gradient(circle, var(--de-circuit-dot-red) 0 46%, transparent 52%),
+        radial-gradient(circle, var(--de-circuit-dot-amber) 0 46%, transparent 52%),
+        radial-gradient(circle, var(--de-circuit-dot-green) 0 46%, transparent 52%);
+      background-size: 0.5625rem 0.5625rem;
+      background-repeat: no-repeat;
+      background-position:
+        var(--de-space-4) 50%,
+        calc(var(--de-space-4) + 0.9375rem) 50%,
+        calc(var(--de-space-4) + 1.875rem) 50%;
+    }
+    :where(pre:has(> samp), pre[data-terminal]) > :where(kbd) { color: var(--de-circuit-rail); } /* bright orange on the dark console in both schemes */
+    :where(pre:has(> samp), pre[data-terminal]) > :where(samp) { color: var(--de-circuit-code-muted); }
+
+    /* .c-btn: secondary lights up accent, ghost is accent text, danger dims on hover */
+    :where(button) { transition: background var(--de-dur-fast) var(--de-ease), border-color var(--de-dur-fast) var(--de-ease), color var(--de-dur-fast) var(--de-ease), box-shadow var(--de-dur-fast) var(--de-ease); }
+    :where(button:not([data-variant], form > *:last-child button, form > button:last-child, menu button, [data-chip] > button, [data-toast] > button)):where(:hover) {
+      background: var(--de-color-surface-2);
+      border-color: var(--de-color-accent);
+      color: var(--de-color-accent);
+    }
+    :where(button[data-variant="ghost"]) { color: var(--de-color-accent); }
+    :where(button[data-variant="ghost"]):where(:hover) { background: var(--de-color-accent-soft); }
+    :where(button[data-variant="danger"]):where(:hover) { background: var(--de-color-danger); filter: brightness(0.92); }
+    :where(button[data-variant="link"]):where(:hover) { color: var(--de-color-accent-2); }
+    :where(button[data-theme-toggle][aria-pressed="true"]) { color: var(--de-color-accent); background: var(--de-color-accent-soft); }
+    :where([data-chip]) > :where(button):where(:hover),
+    :where([data-toast]) > :where(button):where(:hover) { color: var(--de-color-danger); background: color-mix(in oklab, var(--de-color-danger) 8%, transparent); }
+
+    /* .c-field placeholder: the dim ink (the core's ::placeholder rule is
+       wrapped in :where() and so never applies) */
+    :where(input, textarea)::placeholder { color: var(--de-color-faint); }
+
+    /* .c-switch: slate track, panel-coloured knob, rail orange when on */
+    :where(input[type="checkbox"][role="switch"]) { background: var(--de-color-faint); }
+    :where(input[type="checkbox"][role="switch"])::before { background: var(--de-color-surface); box-shadow: var(--de-shadow-1); }
+    :where(input[type="checkbox"][role="switch"]:checked) { background: var(--de-circuit-rail); }
+    :where(input[type="checkbox"][role="switch"]:checked)::before { background: var(--de-color-surface); }
+
+    /* .c-badge: neutral is muted ink on the inset; toned pills get a
+       currentColor ring (no fill); info reads circuit's fixed blue */
+    :where(data:not([data-chip] > data, [data-tone])) { color: var(--de-color-muted); background: var(--de-color-surface-2); box-shadow: inset 0 0 0 1px var(--de-color-line); }
+    :where(data[data-tone]:not([data-chip] > data)) { background: transparent; box-shadow: inset 0 0 0 1px currentColor; }
+    :where([data-tone="info"]) { color: var(--de-circuit-info); }
+    :where(data[data-dot]) { background: transparent; box-shadow: none; color: var(--de-color-fg); }
+    :where(data[data-dot])::before { background: var(--de-color-faint); }
+    :where(data[data-dot][data-tone="ok"])::before     { background: var(--de-color-ok); }
+    :where(data[data-dot][data-tone="info"])::before   { background: var(--de-circuit-info); }
+    :where(data[data-dot][data-tone="warn"])::before   { background: var(--de-color-warn); }
+    :where(data[data-dot][data-tone="danger"])::before { background: var(--de-color-danger); }
+
+    /* .c-chip: inset fill on neutral; toned chips drop the fill, tone carried by the core's border/text colour */
+    :where([data-chip]) { background: var(--de-color-surface-2); }
+    :where([data-chip][data-tone]) { background: transparent; }
+    :where([data-chip]) > :where(data) { color: var(--de-color-faint); }
+    :where([data-chip][data-tone]) > :where(data) { color: inherit; opacity: 0.75; }
+
+    /* .c-avatar: accent-soft disc */
+    :where([data-avatar]) { background: var(--de-color-accent-soft); color: var(--de-color-accent); }
+
+    /* .c-meter: inset track, rail-orange fill */
+    :where(progress, meter) { background: var(--de-color-surface-2); }
+    :where(progress)::-webkit-progress-value { background: var(--de-circuit-rail); }
+    :where(progress)::-moz-progress-bar { background: var(--de-circuit-rail); }
+    :where(meter)::-webkit-meter-optimum-value { background: var(--de-circuit-rail); }
+    :where(meter)::-moz-meter-bar { background: var(--de-circuit-rail); }
+
+    /* .c-key */
+    :where(kbd:not(pre > kbd)) { background: var(--de-color-surface-2); color: var(--de-color-muted); }
+
+    /* .c-ramp: tinted label on its own colour */
+    :where([data-step]:not([data-swatch])) { background: color-mix(in srgb, currentColor 14%, transparent); }
+
+    /* .c-card: panel surface; hover lifts 1px onto accent-border + shadow-md */
+    :where(li) > :where(article) {
+      transition: border-color var(--de-dur-fast) var(--de-ease), box-shadow var(--de-dur-fast) var(--de-ease), transform var(--de-dur-fast) var(--de-ease);
+    }
+    :where(li) > :where(article):where(:hover) {
+      border-color: var(--de-color-accent);
+      box-shadow: var(--de-circuit-shadow-md);
+      transform: translateY(-1px);
+    }
+    :where(li) > :where(article) > :where(h3, h4) { border-block-end: 1px solid var(--de-color-line); }
+
+    /* .c-toast / .c-menu / .c-tooltip / palette rows */
+    :where([data-toast]) { background: var(--de-color-surface); }
+    :where([role="menu"]:not([popover])) { background: var(--de-color-surface); }
+    :where([role="menuitem"]):where(:hover) { background: var(--de-color-accent-soft); color: var(--de-color-accent); }
+    :where([role="menuitem"]) :where(kbd) { background: transparent; }
+    :where([role="menuitem"]):where(:hover) :where(kbd) { color: inherit; }
+    :where([role="tooltip"]) { background: var(--de-circuit-code-bg); color: var(--de-circuit-code-ink); }
+    :where(dialog[data-palette]) :where(li[role="option"][aria-selected="true"]) { border-inline-start-color: transparent; color: var(--de-color-accent); }
+    :where(dialog[data-palette]) > :where(footer) :where(kbd) { background: var(--de-color-surface-2); }
+
+    /* .c-list / .c-row: panel list, inset hover, accent-soft selection fill; only the keyboard cursor takes the rail */
+    :where(ul[role="listbox"]:not(dialog > ul), ol[role="listbox"]) { background: var(--de-color-surface); }
+    :where([role="listbox"]) > :where(li[role="option"]) { color: var(--de-color-muted); transition: background var(--de-dur-fast) var(--de-ease), color var(--de-dur-fast) var(--de-ease); }
+    :where([role="listbox"]) > :where(li[role="option"]):where(:hover) { color: var(--de-color-fg); background: var(--de-color-surface-2); }
+    :where([role="listbox"]) > :where(li[role="option"][aria-selected="true"]) {
+      color: var(--de-color-accent);
+      background: var(--de-color-accent-soft);
+    }
+    :where([role="listbox"]) > :where(li[role="option"][data-cursor]) { border-inline-start-color: transparent; }
+    :where([role="listbox"]) > :where(li[role="option"][aria-selected="true"]) > :where(small) { color: var(--de-color-accent); }
+
+    /* .c-table: panel frame, header on the inset, hover rows */
+    :where(table) { background: var(--de-color-surface); }
+    :where(thead) :where(th) { background: var(--de-color-surface-2); }
+    :where(tbody) :where(tr):where(:hover) { background: var(--de-color-surface-2); }
+    :where(caption) { color: var(--de-color-faint); }
+
+    /* .c-pager: panel cards that light up accent */
+    :where(nav[aria-label="pagination"]) > :where(a) { background: var(--de-color-surface); transition: border-color var(--de-dur-fast) var(--de-ease); }
+    :where(nav[aria-label="pagination"]) > :where(a):where(:hover) { color: var(--de-color-fg); }
+    :where(nav[aria-label="pagination"]) :where(small) { color: var(--de-color-faint); }
+
+    /* .c-board: inset columns, panel cards with shadow-sm */
+    :where([data-board]) > :where(section) { background: var(--de-color-surface-2); }
+    :where([data-board]) > :where(section) > :where(h3, h4) { color: var(--de-color-muted); }
+    :where([data-board]) > :where(section) > :where(h3, h4) :where(small) { color: var(--de-color-faint); }
+
+    /* .c-shell: panel chrome, accent-current links, accent-border resize handle */
+    :where([data-shell]) > :where(header) :where(nav) :where(a[aria-current]) { color: var(--de-color-accent); }
+    :where([data-shell]) > :where([data-resize]) { transition: background var(--de-dur-fast) var(--de-ease); }
+    :where([data-shell]) > :where([data-resize]):where(:hover) { background: color-mix(in oklab, var(--de-circuit-rail) 35%, transparent); }
+
+    /* .c-accordion: panel, accent when open */
+    :where(details) { background: var(--de-color-surface); }
+    :where(details) > :where(summary) { transition: color var(--de-dur-fast) var(--de-ease); }
+    :where(details) > :where(summary):where(:hover),
+    :where(details[open]) > :where(summary) { color: var(--de-color-accent); }
+    :where(details[open]) > :where(summary)::before { border-color: var(--de-color-accent); opacity: 1; }
+
+    /* .c-empty: quiet dashed frame */
+    :where([data-empty]) > :where(strong) { color: var(--de-color-fg); }
+
+    /* .c-scrim: the stage wash carries light ink */
+    :where([data-scrim]) { background: var(--de-circuit-scrim); color: var(--de-circuit-scrim-ink); }
+
+    /* .c-scroll: thin slate scrollbar; .c-dialog head */
+    :where([data-scroll]) { scrollbar-color: var(--de-color-faint) transparent; }
+    :where(dialog) > :where(article) > :where(header) :where(h3) { color: var(--de-color-fg); }
+
+    /* inline links in prose carry the accent underline */
+    :where(p, li, dd, td) :where(a) { text-decoration-color: color-mix(in oklab, var(--de-color-accent) 35%, transparent); }
+    :where(p, li, dd, td) :where(a):where(:hover) { text-decoration-color: currentColor; }
+  }
+}
+/* signature: a faint 24px slate grid behind hairline r-lg panels, one hue-driven accent as 2px top rules and glyph-led callouts, JetBrains Mono labels over IBM Plex Sans, and a dark code surface in both schemes. */

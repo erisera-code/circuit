@@ -1,0 +1,93 @@
+/*
+  design-engine — components: dialogs
+  -----------------------------------------------------------------------------
+  Native <dialog> modal styling: centered, surface background, radius,
+  padding, and a tinted ::backdrop. Entry/exit animation is handled in
+  capabilities/entry-transitions.css (guarded by @supports).
+
+  ::backdrop inherits from its originating element in every current engine,
+  so the overlay token reaches it and the rule can stay scoped + layered —
+  non-engine dialogs on the page keep their UA backdrop.
+*/
+
+@layer de.components {
+  /* structure/flow.css puts every <dialog> in a grid for its own row-gap
+     rhythm, and an author `display` declaration — even at zero specificity,
+     even this far down a cascade layer — always beats the UA stylesheet's
+     `dialog:not([open]) { display: none }` (origin order, not specificity).
+     Without this rule every closed dialog on the page would sit in normal
+     document flow with a real, invisible (visually) but hit-testable box.
+     capabilities/entry-transitions.css re-states this same value so its
+     `transition: display … allow-discrete` has something to transition to;
+     this is the fallback for browsers that don't support that syntax. */
+  :where([data-engine]) :where(dialog:not([open])) {
+    display: none;
+  }
+
+  :where([data-engine]) :where(dialog) {
+    margin: auto;
+    inline-size: min(90vw, 40rem);
+    border: var(--de-border);
+    border-radius: var(--de-radius-lg);
+    background: var(--de-color-surface);
+    color: var(--de-color-fg);
+    padding: var(--de-space-5);
+    max-inline-size: min(90vw, 40rem);
+    max-block-size: min(85dvh, 40rem);
+    overflow: auto;
+    box-shadow: var(--de-shadow-2);
+  }
+
+  :where([data-engine] dialog)::backdrop {
+    background: var(--de-overlay-bg);
+    backdrop-filter: blur(var(--de-blur));
+  }
+
+  /* a close affordance inferred from a button[data-close] inside the dialog */
+  :where([data-engine]) :where(dialog [data-close]) {
+    position: absolute;
+    inset-block-start: var(--de-space-2);
+    inset-inline-end: var(--de-space-2);
+    inline-size: auto;
+    padding: var(--de-space-1) var(--de-space-2);
+    font-size: var(--de-text-lg);
+    line-height: 1;
+    background: transparent;
+    border: none;
+    color: var(--de-color-muted);
+  }
+
+  /* dialog opened as a sheet/drawer from an edge — opt-in via data-sheet.
+     Still a plain <dialog>, so the existing showModal()/close()/Escape/
+     backdrop wiring in examples/index.html needs nothing extra to open one. */
+  :where([data-engine]) :where(dialog[data-sheet]) {
+    margin: 0;
+    border: none;
+    border-radius: 0;
+    block-size: 100dvh;
+    max-block-size: 100dvh;
+    inline-size: min(90vw, 28rem);
+  }
+  :where([data-engine]) :where(dialog[data-sheet="end"]) {
+    margin-inline-start: auto;
+    border-inline-start: var(--de-border);
+  }
+  :where([data-engine]) :where(dialog[data-sheet="start"]) {
+    margin-inline-end: auto;
+    border-inline-end: var(--de-border);
+  }
+  :where([data-engine]) :where(dialog[data-sheet="top"], dialog[data-sheet="bottom"]) {
+    inline-size: 100dvw;
+    max-inline-size: 100dvw;
+    block-size: auto;
+    max-block-size: min(80dvh, 28rem);
+  }
+  :where([data-engine]) :where(dialog[data-sheet="top"]) {
+    margin-block-end: auto;
+    border-block-end: var(--de-border);
+  }
+  :where([data-engine]) :where(dialog[data-sheet="bottom"]) {
+    margin-block-start: auto;
+    border-block-start: var(--de-border);
+  }
+}

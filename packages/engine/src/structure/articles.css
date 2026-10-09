@@ -1,0 +1,25 @@
+/*
+  design-engine — structure: articles
+  -----------------------------------------------------------------------------
+  <article> is a self-contained composition. A <header> inside it is a
+  byline/metadata block; time + address read as date/author. The first
+  heading in an article is its title. (Cards — articles inside lists — are
+  in cards.css.)
+*/
+
+@layer de.structure {
+  /* a header inside an article is a byline/metadata block */
+  :where([data-engine]) :where(article > header) {
+    row-gap: var(--de-space-2);
+    padding-block-end: var(--de-space-3);
+    border-block-end: 1px solid var(--de-color-line);
+  }
+  :where([data-engine]) :where(article > header > p:has(time, address)) {
+    color: var(--de-color-muted);
+    font-size: var(--de-text-sm);
+  }
+  :where([data-engine]) :where(article > header time, article > header address) {
+    display: inline;
+    font-style: normal;
+  }
+}
