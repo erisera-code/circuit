@@ -22,3 +22,6 @@ jobs:
       - run: npm test
       - name: Generated namespaced.css is committed
         run: git diff --exit-code -- packages/circuit/src/namespaced.css
+
+  workflow-lint:
+    uses: johnhenry/workflows/.github/workflows/workflow-lint.yml@v1
