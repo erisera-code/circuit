@@ -79,13 +79,20 @@ style.id = 'circuit-tokens';
 style.textContent = tokensCss();            // or tokensCss({ selector: '.app' }) to scope it
 document.head.append(style);
 
-tokens.light.accent;   // 'hsl(var(--circuit-hue) 95% 46%)'
+tokens.light.accent;   // 'oklch(from hsl(var(--circuit-hue) 95% 46%) min(l, 0.52) c h)'
 tokens.dark.bg;        // '#0f172a'
 ```
 
 `tokens` is `{ shared, light, dark }` (keys are the role names without the prefix; types
 ship in `tokens.d.ts`). `tokensCss()` is the same text as `namespaced.css`; a test keeps
 them in sync.
+
+**Text-safe roles.** `text`, `dim`, `accent`, `accent-hover`, `success`, `warning`, `danger`
+and `info` meet WCAG AA (4.5:1) as text on `bg`, `surface` and `inset` in both modes. `accent`
+stays AA at any `--circuit-hue`: it keeps the hue's own lightness and chroma, but clamps the
+OKLCH lightness (at most 0.52 in light, at least 0.71 in dark), so a hue that is naturally
+too light or too dark is pulled just far enough. A test sweeps the whole hue wheel. Colours
+on tinted `*-soft` fills and `faint` (a decorative role) are not covered.
 
 Map your app's roles onto the tokens in your own stylesheet; circuit never touches
 your variable names:

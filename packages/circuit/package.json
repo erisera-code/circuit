@@ -1,6 +1,6 @@
 {
   "name": "@erisera-code/circuit",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "The erisera OSS design system \u2014 one set of tokens, one accent hue per tool.",
   "license": "MIT",
   "type": "module",

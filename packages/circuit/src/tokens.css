@@ -27,18 +27,18 @@
 :root {
   /* ---- accent (the one thing that changes per tool) ---- */
   --hue: 25; /* default: erisera / matey orange */
-  --accent: hsl(var(--hue) 95% 46%);
-  --accent-hover: hsl(var(--hue) 95% 40%);
+  --accent: oklch(from hsl(var(--hue) 95% 46%) min(l, 0.52) c h);
+  --accent-hover: oklch(from hsl(var(--hue) 95% 40%) min(l, 0.47) c h);
   --accent-soft: hsl(var(--hue) 95% 53% / 0.09);
   --accent-border: hsl(var(--hue) 95% 46% / 0.35);
 
   /* ---- semantic states (fixed — never rotate with --hue) ---- */
-  --success: #0f9d63;
-  --success-soft: #0f9d6314;
-  --warning: #b45f06;
-  --warning-soft: #b45f0614;
-  --error: #d13c30;
-  --error-soft: #d13c3014;
+  --success: #0b7a4b;
+  --success-soft: #0b7a4b14;
+  --warning: #a45506;
+  --warning-soft: #a4550614;
+  --error: #c4372b;
+  --error-soft: #c4372b14;
   --info: #1d6fbf;
   --info-soft: #1d6fbf14;
 
@@ -72,7 +72,7 @@
   --bg-panel: #ffffff;
   --bg-inset: var(--n-50);
   --ink: var(--n-700);
-  --ink-2: var(--n-400);
+  --ink-2: #5b6b82;
   --ink-3: var(--n-300);
   --line: var(--n-100);
   --code-bg: var(--n-800);
@@ -155,8 +155,8 @@
  */
 @media (prefers-color-scheme: dark) {
   :root {
-    --accent: hsl(var(--hue) 92% 58%);
-    --accent-hover: hsl(var(--hue) 92% 66%);
+    --accent: oklch(from hsl(var(--hue) 92% 58%) max(l, 0.71) c h);
+    --accent-hover: oklch(from hsl(var(--hue) 92% 66%) max(l, 0.76) c h);
     --accent-soft: hsl(var(--hue) 92% 58% / 0.13);
     --accent-border: hsl(var(--hue) 92% 58% / 0.4);
 
@@ -206,8 +206,8 @@
 
 .dark,
 [data-theme='dark'] {
-  --accent: hsl(var(--hue) 92% 58%);
-  --accent-hover: hsl(var(--hue) 92% 66%);
+  --accent: oklch(from hsl(var(--hue) 92% 58%) max(l, 0.71) c h);
+  --accent-hover: oklch(from hsl(var(--hue) 92% 66%) max(l, 0.76) c h);
   --accent-soft: hsl(var(--hue) 92% 58% / 0.13);
   --accent-border: hsl(var(--hue) 92% 58% / 0.4);
 
@@ -264,17 +264,17 @@
  */
 .light,
 [data-theme='light'] {
-  --accent: hsl(var(--hue) 95% 46%);
-  --accent-hover: hsl(var(--hue) 95% 40%);
+  --accent: oklch(from hsl(var(--hue) 95% 46%) min(l, 0.52) c h);
+  --accent-hover: oklch(from hsl(var(--hue) 95% 40%) min(l, 0.47) c h);
   --accent-soft: hsl(var(--hue) 95% 53% / 0.09);
   --accent-border: hsl(var(--hue) 95% 46% / 0.35);
 
-  --success: #0f9d63;
-  --success-soft: #0f9d6314;
-  --warning: #b45f06;
-  --warning-soft: #b45f0614;
-  --error: #d13c30;
-  --error-soft: #d13c3014;
+  --success: #0b7a4b;
+  --success-soft: #0b7a4b14;
+  --warning: #a45506;
+  --warning-soft: #a4550614;
+  --error: #c4372b;
+  --error-soft: #c4372b14;
   --info: #1d6fbf;
   --info-soft: #1d6fbf14;
 
@@ -291,7 +291,7 @@
   --bg-panel: #ffffff;
   --bg-inset: var(--n-50);
   --ink: var(--n-700);
-  --ink-2: var(--n-400);
+  --ink-2: #5b6b82;
   --ink-3: var(--n-300);
   --line: var(--n-100);
   --code-bg: var(--n-800);
