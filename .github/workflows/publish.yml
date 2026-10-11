@@ -1,11 +1,14 @@
 # NOTE: the FILENAME of this workflow is part of npm trusted publishing -- keep it.
-# .github/workflows/publish.yml -- publishes @erisera-code/circuit (packages/circuit).
+# .github/workflows/publish.yml -- publishes @erisera-code/circuit (packages/circuit)
+# and @erisera-code/circuit-engine (packages/engine).
 name: Publish to npm
 
 # Publish model: main is the release branch. A push to main publishes only if
 # packages/circuit/package.json's version isn't on npm yet (otherwise a clean
-# no-op), then tags v<version> and creates a GitHub Release. See
-# johnhenry/workflows' README.
+# no-op), then tags v<version> and creates a GitHub Release. The engine job
+# does the same for packages/engine, but without the tag/Release: v<version>
+# belongs to circuit, so engine releases are tagged circuit-engine-v<version>
+# by hand. See johnhenry/workflows' README.
 on:
   push:
     branches: [main]
@@ -27,6 +30,23 @@ jobs:
       # the lockfile and workspaces live at the repo root
       install-command: cd ../.. && npm ci
       node-cache: npm
+      gate-commands: |
+        cd ../..
+        npm run build
+        npm test
+    secrets: inherit
+
+  publish-engine:
+    permissions:
+      contents: write # required by workflow-lint; create-release is off below
+      id-token: write # npm provenance
+    uses: johnhenry/workflows/.github/workflows/npm-publish.yml@v1
+    with:
+      node-version: "26"
+      working-directory: packages/engine
+      install-command: cd ../.. && npm ci
+      node-cache: npm
+      create-release: false
       gate-commands: |
         cd ../..
         npm run build

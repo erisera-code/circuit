@@ -9,6 +9,9 @@
   a rebuild.
 - New `examples/starter/index.html`: a page in the grammar with an instance
   switcher.
+- `engines.node` is `>=26`, the erisera/@johnhenry family floor; the
+  stylesheets themselves don't need Node, only the build and the `./mount`
+  helper's tooling do.
 - Deep re-audit of the whole project: removed the accent-coloured masthead
   rule and the rounded/tinted callout-banner-chip treatment from `circuit`,
   the tinted callout/banner wash from `snake`, capped `botanical`'s card
