@@ -1,0 +1,55 @@
+/*
+  design-engine — structure: app shell / sidebar
+  -----------------------------------------------------------------------------
+  A document-level app shell inferred from <body data-engine data-shell>:
+  a sticky header (role=banner), a sticky sidebar nav, and a main content
+  region. Pure layout from semantic structure — no classes.
+*/
+
+@layer de.structure {
+  :where([data-engine][data-shell]) {
+    display: grid;
+    grid-template-columns: var(--de-shell-aside) 1fr;
+    grid-template-rows: auto 1fr;
+    min-height: 100dvh;
+    max-inline-size: none;
+    padding: 0;
+  }
+
+  :where([data-engine][data-shell]) :where(header, [role="banner"]) {
+    grid-column: 1 / -1;
+    position: sticky;
+    top: 0;
+    z-index: var(--de-z-sticky);
+    background: color-mix(in oklab, var(--de-color-bg) 88%, transparent);
+    backdrop-filter: blur(var(--de-blur));
+    -webkit-backdrop-filter: blur(var(--de-blur));
+    border-block-end: var(--de-border);
+    padding: var(--de-space-2) var(--de-content-pad);
+  }
+
+  :where([data-engine][data-shell]) :where(aside, [role="navigation"]) {
+    position: sticky;
+    top: var(--de-space-6);
+    align-self: start;
+    height: calc(100dvh - var(--de-space-6));
+    overflow: auto;
+    padding-inline: var(--de-space-2);
+  }
+
+  :where([data-engine][data-shell]) :where(main) {
+    padding: var(--de-space-6) var(--de-content-pad);
+    max-inline-size: none;
+  }
+
+  /* collapse the shell sidebar on narrow viewports */
+  @media (max-width: 52rem) {
+    :where([data-engine][data-shell]) {
+      grid-template-columns: 1fr;
+    }
+    :where([data-engine][data-shell]) :where(aside, [role="navigation"]) {
+      position: static;
+      height: auto;
+    }
+  }
+}

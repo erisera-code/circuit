@@ -1,0 +1,53 @@
+/*
+  design-engine — foundation: capability flags
+  -----------------------------------------------------------------------------
+  Progressive-enhancement flags exposed as --de-has-* custom properties on the
+  scope anchor. They exist for STYLE QUERIES: a module (or a host) can branch
+  on real feature support without repeating the @supports condition:
+
+    @container style(--de-has-anchor: 1) { … }   — on descendants of the anchor
+
+  Note: a style query cannot match the element that sets the property, only
+  its descendants — which is exactly where the engine's rules live. Detection
+  of @-rules uses `@supports at-rule(…)`; where that syntax itself is unknown
+  the whole block is skipped and the flag stays 0, which is the safe answer.
+*/
+
+@layer de.properties {
+  :where([data-engine]) {
+    --de-has-anchor: 0;
+    --de-has-view-transitions: 0;
+    --de-has-scroll-driven: 0;
+    --de-has-starting-style: 0;
+    --de-has-calc-size: 0;
+    --de-has-relative-color: 0;
+    --de-has-light-dark: 0;
+    --de-has-field-sizing: 0;
+    --de-has-scope: 0;
+    --de-has-function: 0;
+    --de-has-typed-attr: 0;
+    --de-has-sibling-index: 0;
+    --de-has-contrast-color: 0;
+    /* style queries prove themselves: the probe below flips this to 1 on
+       descendants when @container style() is understood. */
+    --de-has-style-queries: probe;
+  }
+
+  @supports (anchor-name: --x)                       { :where([data-engine]) { --de-has-anchor: 1; } }
+  @supports (view-transition-name: --x)              { :where([data-engine]) { --de-has-view-transitions: 1; } }
+  @supports (animation-timeline: view())             { :where([data-engine]) { --de-has-scroll-driven: 1; } }
+  @supports (transition-behavior: allow-discrete)    { :where([data-engine]) { --de-has-starting-style: 1; } }
+  @supports (interpolate-size: allow-keywords)       { :where([data-engine]) { --de-has-calc-size: 1; } }
+  @supports (color: oklch(from red l c h))           { :where([data-engine]) { --de-has-relative-color: 1; } }
+  @supports (color: light-dark(red, blue))           { :where([data-engine]) { --de-has-light-dark: 1; } }
+  @supports (field-sizing: content)                  { :where([data-engine]) { --de-has-field-sizing: 1; } }
+  @supports at-rule(@scope)                          { :where([data-engine]) { --de-has-scope: 1; } }
+  @supports at-rule(@function)                       { :where([data-engine]) { --de-has-function: 1; } }
+  @supports (width: attr(x type(<length>)))          { :where([data-engine]) { --de-has-typed-attr: 1; } }
+  @supports (top: calc(sibling-index() * 1px))       { :where([data-engine]) { --de-has-sibling-index: 1; } }
+  @supports (color: contrast-color(red))             { :where([data-engine]) { --de-has-contrast-color: 1; } }
+
+  @container style(--de-has-style-queries: probe) {
+    :where([data-engine] *) { --de-has-style-queries: 1; }
+  }
+}

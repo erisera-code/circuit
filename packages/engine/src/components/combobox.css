@@ -1,0 +1,62 @@
+/*
+  design-engine — components: combobox
+  -----------------------------------------------------------------------------
+  A searchable, filterable select inferred from the WAI-ARIA combobox
+  pattern — a text input wired to a popup listbox, wrapped so the popup can
+  anchor to the field:
+    <div data-combobox>
+      <input type="text" role="combobox" aria-expanded="false"
+             aria-controls="cb-fruit" aria-autocomplete="list">
+      <ul role="listbox" id="cb-fruit" hidden>
+        <li role="option">Apple</li>
+        <li role="option">Apricot</li>
+      </ul>
+    </div>
+  Row styling (hover, aria-selected, data-cursor) is already carried by
+  structure/regions.css's listbox rules — this file only adds the field
+  chrome and the popup's own panel (border, surface, shadow, scroll cap).
+  Opening/closing/filtering/arrow-nav is JS — see examples/index.html.
+*/
+
+@layer de.components {
+  :where([data-engine]) :where([data-combobox]) {
+    position: relative;
+    display: grid;
+  }
+  :where([data-engine]) :where([data-combobox] > input[role="combobox"]) {
+    padding-inline-end: var(--de-space-6);
+  }
+  /* a caret, purely decorative (the expanded state is read from aria-expanded) */
+  :where([data-engine]) :where([data-combobox])::after {
+    content: "";
+    position: absolute;
+    inset-inline-end: var(--de-space-2);
+    inset-block-start: 50%;
+    inline-size: 0.5em;
+    block-size: 0.5em;
+    border-inline-end: 1px solid var(--de-color-muted);
+    border-block-end: 1px solid var(--de-color-muted);
+    transform: translateY(-70%) rotate(45deg);
+    pointer-events: none;
+  }
+
+  :where([data-engine]) :where([data-combobox] > [role="listbox"]) {
+    position: absolute;
+    inset-inline: 0;
+    inset-block-start: calc(100% + var(--de-space-1));
+    z-index: 20;
+    max-block-size: 16rem;
+    overflow: auto;
+    background: var(--de-color-surface);
+    border: 1px solid var(--de-color-edge);
+    border-radius: var(--de-radius-md);
+    box-shadow: var(--de-shadow-2);
+    padding: var(--de-space-1);
+  }
+  :where([data-engine]) :where([data-combobox] > [role="listbox"][hidden]) {
+    display: none;
+  }
+  :where([data-engine]) :where([data-combobox] > [role="listbox"] > [role="option"][hidden]) {
+    display: none;
+  }
+}

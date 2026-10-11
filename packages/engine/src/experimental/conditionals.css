@@ -1,0 +1,27 @@
+/*
+  design-engine — experimental: inline conditionals (if())
+  -----------------------------------------------------------------------------
+  OPT-IN. `if()` picks a value inline from a style(), media() or supports()
+  condition — the declaration-level twin of @container style(). Chromium
+  137+ only (Sept 2026). Gated with @supports so it is a no-op elsewhere.
+  Verified syntax (MDN):
+    property: if(style(--x: y): value-a; media(width < 40rem): value-b; else: value-c);
+*/
+
+@layer de.experimental {
+  @supports (width: if(style(--a: b): 1px; else: 2px)) {
+    /* a card's padding follows the density token without a media query
+       per breakpoint; --de-viewport comes from modes/responsive.css */
+    :where([data-engine]) :where(li > article, [data-grid] > article) {
+      padding: if(
+        style(--de-viewport: narrow): var(--de-space-3);
+        else: var(--de-card-pad)
+      );
+    }
+
+    /* a headline that balances only when it can wrap */
+    :where([data-engine]) :where(h1, h2) {
+      text-wrap: if(media(width < 40rem): pretty; else: balance);
+    }
+  }
+}

@@ -1,0 +1,49 @@
+/*
+  design-engine — structure: surfaces & inset
+  -----------------------------------------------------------------------------
+  When a design turns a plain element into a PANEL (gives it a border or a
+  background), the content must not sit against that edge. CSS cannot detect
+  "has a border", so the engine offers the inverse: one token, --de-inset,
+  that the core applies as padding to the elements designs typically turn
+  into panels, and that the core itself leaves unpadded. A shape facet sets
+  it once on the region root ("every panel in glass is inset 1.5 steps") or
+  per element; the default is zero, so the neutral document is unaffected.
+
+  Elements that already pad themselves in core (pre, fieldset, details,
+  callouts, cards via --de-card-pad, dialog) are not on this list.
+*/
+
+@layer de.structure {
+  :where([data-engine]) {
+    --de-inset: 0px; /* a length, not a bare 0: max() and calc() need a unit */
+  }
+
+  :where([data-engine]) :where(section, article:not(li > article), form, figure, nav, blockquote, aside, dl, [role="note"], [role="status"], [role="alert"]),
+  :where([data-engine]) > :where(header, footer) {
+    padding: var(--de-inset);
+  }
+
+  /* a fieldset keeps its top rule spacing even when nothing panels it */
+  :where([data-engine]) :where(fieldset) {
+    padding: max(var(--de-space-3), var(--de-inset)) var(--de-inset) var(--de-inset);
+  }
+
+  /* a collapsed-border table ignores padding, so the inset goes on the edge
+     cells: first/last column and first/last row */
+  :where([data-engine]) :where(th:first-child, td:first-child) { padding-inline-start: var(--de-inset); }
+  :where([data-engine]) :where(th:last-child, td:last-child) { padding-inline-end: var(--de-inset); }
+  :where([data-engine]) :where(table > :first-child > tr:first-child > :is(th, td)) { padding-block-start: calc(var(--de-space-2) + var(--de-inset)); }
+  :where([data-engine]) :where(table > :last-child > tr:last-child > :is(th, td)) { padding-block-end: calc(var(--de-space-2) + var(--de-inset)); }
+  :where([data-engine]) :where(caption) { padding-inline: var(--de-inset); }
+
+  /* a nested region that brings its own design is a panel by nature: it is
+     always inset, by the larger of its own inset and one comfortable step */
+  :where([data-engine] [data-instance], [data-engine] [data-palette], [data-engine] [data-theme]) {
+    padding: max(var(--de-inset), var(--de-space-4));
+  }
+
+  /* a panelled blockquote keeps its inline indent as the larger of the two */
+  :where([data-engine]) :where(blockquote) {
+    padding-inline-start: max(var(--de-inset), var(--de-space-4));
+  }
+}

@@ -600,6 +600,129 @@
           <pre><span class="prompt">$</span> npm install @erisera-code/circuit
 <span class="out">✓ added @erisera-code/circuit@0.0.1</span></pre>
         </div>
+
+        <h3>Slider</h3>
+        <div class="demo-stack">
+          <input class="c-slider" type="range" min="0" max="100" value="40" aria-label="Volume">
+          <input class="c-slider" type="range" min="0" max="100" value="70" disabled aria-label="Volume (disabled)">
+        </div>
+
+        <h3>Segmented control</h3>
+        <div class="demo-flex">
+          <div class="c-segmented" role="radiogroup" aria-label="View">
+            <label><input type="radio" name="c-segmented-view" checked>Day</label>
+            <label><input type="radio" name="c-segmented-view">Week</label>
+            <label><input type="radio" name="c-segmented-view">Month</label>
+          </div>
+        </div>
+
+        <h3>Combobox</h3>
+        <p class="dek">Type to filter, arrow keys move through the visible options, Enter or click picks one.</p>
+        <div class="demo" style="max-width: 320px">
+          <div class="c-combobox">
+            <input class="c-field" id="cbFruit" type="text" role="combobox" aria-expanded="false" aria-controls="cbFruitList" aria-autocomplete="list" placeholder="Search fruit…">
+            <ul class="panel c-list" role="listbox" id="cbFruitList" hidden>
+              <li class="c-row" role="option">Apple</li>
+              <li class="c-row" role="option">Apricot</li>
+              <li class="c-row" role="option">Avocado</li>
+              <li class="c-row" role="option">Banana</li>
+              <li class="c-row" role="option">Blueberry</li>
+            </ul>
+          </div>
+        </div>
+
+        <h3>Skeleton</h3>
+        <div class="demo-stack" style="max-width: 320px" aria-busy="true">
+          <div class="c-row-flex">
+            <div class="c-skeleton avatar"></div>
+            <div class="c-grow c-stack tight">
+              <div class="c-skeleton text"></div>
+              <div class="c-skeleton text"></div>
+            </div>
+          </div>
+        </div>
+
+        <h3>Stat</h3>
+        <div class="demo-grid">
+          <div class="c-stat">
+            <span class="value">1,204</span>
+            <span class="label">Active users</span>
+            <span class="trend up">▲ 4.2%</span>
+          </div>
+          <div class="c-stat">
+            <span class="value">42ms</span>
+            <span class="label">p95 latency</span>
+            <span class="trend down">▼ 8ms</span>
+          </div>
+          <div class="c-stat">
+            <span class="value">99.98%</span>
+            <span class="label">Uptime</span>
+            <span class="trend flat">→ 0.0%</span>
+          </div>
+        </div>
+
+        <h3>Rating</h3>
+        <div class="demo-flex">
+          <span class="c-rating" role="img" aria-label="4.5 out of 5 stars" style="--val: 4.5"></span>
+          <span class="c-rating" role="img" aria-label="3 out of 5 stars" style="--val: 3"></span>
+        </div>
+
+        <h3>Stepper</h3>
+        <div class="demo" style="max-width: 480px">
+          <ol class="c-stepper">
+            <li class="done">Account</li>
+            <li class="current">Shipping</li>
+            <li>Payment</li>
+            <li>Confirm</li>
+          </ol>
+        </div>
+
+        <h3>Timeline</h3>
+        <div class="demo" style="max-width: 420px">
+          <ol class="c-timeline">
+            <li><time datetime="2026-09-01">Sep 1</time><p>Repo created.</p></li>
+            <li><time datetime="2026-09-07">Sep 7</time><p>v0.1.1 shipped.</p></li>
+            <li class="current"><time datetime="2026-09-09">Sep 9</time><p>Extended vocabulary landed.</p></li>
+          </ol>
+        </div>
+
+        <h3>Carousel</h3>
+        <div class="demo" style="max-width: 420px">
+          <div class="c-carousel" id="demoCarousel">
+            <div class="track">
+              <div class="c-card"><div class="body">Slide 1</div></div>
+              <div class="c-card"><div class="body">Slide 2</div></div>
+              <div class="c-card"><div class="body">Slide 3</div></div>
+            </div>
+            <div class="nav">
+              <button class="c-iconbtn ghost" data-prev aria-label="Previous">‹</button>
+              <button class="c-iconbtn ghost" data-next aria-label="Next">›</button>
+            </div>
+            <div class="dots" role="tablist" aria-label="Slide">
+              <button role="tab" aria-selected="true" aria-label="Slide 1"></button>
+              <button role="tab" aria-selected="false" aria-label="Slide 2"></button>
+              <button role="tab" aria-selected="false" aria-label="Slide 3"></button>
+            </div>
+          </div>
+        </div>
+
+        <h3>Drawer</h3>
+        <p class="dek">Same native <code>&lt;dialog&gt;</code> as the modal above — <code>.left</code> / <code>.top</code> / <code>.bottom</code> pick another edge.</p>
+        <div class="demo-flex">
+          <button class="c-btn secondary" id="openDrawer">Open drawer</button>
+          <dialog class="c-dialog drawer" id="demoDrawer" aria-labelledby="demoDrawerTitle">
+            <form method="dialog">
+              <div class="head"><span id="demoDrawerTitle">Filters</span><button class="x" value="cancel" aria-label="Close">✕</button></div>
+              <div class="body">
+                <div class="c-choices">
+                  <label class="c-check"><input type="checkbox" checked> Healthy only</label>
+                  <label class="c-check"><input type="checkbox"> Include paused</label>
+                </div>
+              </div>
+              <div class="actions"><button class="c-btn ghost" value="cancel">Reset</button><button class="c-btn primary" value="ok">Apply</button></div>
+            </form>
+          </dialog>
+        </div>
       </section>
 
       <section id="app-chrome">
@@ -920,9 +1043,54 @@ createCommandPalette({
 // app-chrome demos: native elements do the work; this only opens things and removes dismissed ones
 document.getElementById('openDialog').addEventListener('click', () => document.getElementById('demoDialog').showModal());
 document.getElementById('openConfirm').addEventListener('click', () => document.getElementById('demoConfirm').showModal());
+document.getElementById('openDrawer').addEventListener('click', () => document.getElementById('demoDrawer').showModal());
 const scrim = document.getElementById('demoScrim');
 document.getElementById('openScrim').addEventListener('click', () => { scrim.hidden = false; });
 scrim.addEventListener('click', () => { scrim.hidden = true; });
+
+// combobox: type to filter, arrow keys move through the visible options, Enter/click picks one
+(() => {
+  const input = document.getElementById('cbFruit');
+  const list = document.getElementById('cbFruitList');
+  const options = () => [...list.querySelectorAll('.c-row')];
+  let cursor = -1;
+  const open = () => { list.hidden = false; input.setAttribute('aria-expanded', 'true'); };
+  const close = () => { list.hidden = true; input.setAttribute('aria-expanded', 'false'); cursor = -1; };
+  const setCursor = (i) => {
+    const visible = options().filter((o) => !o.hidden);
+    visible.forEach((o) => o.removeAttribute('aria-selected'));
+    if (visible.length) { cursor = ((i % visible.length) + visible.length) % visible.length; visible[cursor].setAttribute('aria-selected', 'true'); visible[cursor].scrollIntoView({ block: 'nearest' }); }
+  };
+  input.addEventListener('input', () => {
+    const q = input.value.trim().toLowerCase();
+    options().forEach((o) => { o.hidden = q.length > 0 && !o.textContent.toLowerCase().includes(q); });
+    open(); cursor = -1;
+  });
+  input.addEventListener('focus', open);
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowDown') { e.preventDefault(); open(); setCursor(cursor + 1); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); open(); setCursor(cursor - 1); }
+    else if (e.key === 'Enter') { const sel = list.querySelector('.c-row[aria-selected="true"]'); if (sel) { input.value = sel.textContent; close(); } }
+    else if (e.key === 'Escape') { close(); }
+  });
+  list.addEventListener('click', (e) => { const row = e.target.closest('.c-row'); if (row) { input.value = row.textContent; close(); } });
+  document.addEventListener('click', (e) => { if (!e.target.closest('.c-combobox')) close(); });
+})();
+
+// carousel: prev/next scroll one slide; dots reflect and drive the current slide
+(() => {
+  const car = document.getElementById('demoCarousel');
+  const track = car.querySelector('.track');
+  const dots = [...car.querySelectorAll('.dots > [role="tab"]')];
+  const sync = () => {
+    const i = Math.round(track.scrollLeft / track.clientWidth);
+    dots.forEach((d, di) => d.setAttribute('aria-selected', String(di === i)));
+  };
+  car.querySelector('[data-prev]').addEventListener('click', () => track.scrollBy({ left: -track.clientWidth, behavior: 'smooth' }));
+  car.querySelector('[data-next]').addEventListener('click', () => track.scrollBy({ left: track.clientWidth, behavior: 'smooth' }));
+  dots.forEach((d, i) => d.addEventListener('click', () => track.scrollTo({ left: i * track.clientWidth, behavior: 'smooth' })));
+  track.addEventListener('scroll', sync, { passive: true });
+})();
 document.addEventListener('click', (e) => {
   const x = e.target.closest('.c-chip > .x, .c-banner > .x, .c-toast > .x');
   if (x) x.parentElement.remove();

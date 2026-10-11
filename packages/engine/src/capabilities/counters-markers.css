@@ -1,0 +1,52 @@
+/*
+  design-engine — capabilities: counter styles & markers
+  -----------------------------------------------------------------------------
+  Custom list markers via @counter-style (verified syntax, MDN) and ::marker
+  styling. A few reusable counter styles + a data-counter attribute to opt a
+  list into one. No classes required on the <ol>.
+*/
+
+@layer de.capabilities {
+  /* a checkmark marker for a "done" list */
+  @counter-style de-checks {
+    system: cyclic;
+    symbols: "\2713";
+    suffix: " ";
+  }
+
+  /* a numbered style with a leading zero */
+  @counter-style de-leading-zero {
+    system: numeric;
+    symbols: "0" "1" "2" "3" "4" "5" "6" "7" "8" "9";
+    pad: 2 "0";
+    suffix: ". ";
+  }
+
+  /* a progress-style marker (step done) */
+  @counter-style de-steps {
+    system: numeric;
+    suffix: " / ";
+  }
+
+  :where([data-engine]) :where([data-counter="checks"]) {
+    list-style: de-checks;
+  }
+  :where([data-engine]) :where([data-counter="zero"]) {
+    list-style: de-leading-zero;
+  }
+  :where([data-engine]) :where([data-counter="steps"]) {
+    list-style: de-steps;
+  }
+
+  /* a count badge on a heading via CSS counters (e.g. an FAQ) */
+  :where([data-engine] [data-counted]) {
+    counter-reset: de-count;
+  }
+  :where([data-engine] [data-counted]) :where(h2)::before {
+    counter-increment: de-count;
+    content: counter(de-count, de-leading-zero);
+    margin-inline-end: var(--de-space-2);
+    color: var(--de-color-accent);
+    font-variant-numeric: tabular-nums;
+  }
+}

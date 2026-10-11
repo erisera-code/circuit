@@ -1,0 +1,44 @@
+/*
+  design-engine — tokens: component-level
+  -----------------------------------------------------------------------------
+  Tier 3: component/context tokens. These alias semantic tokens to a
+  component's own namespace (e.g. --de-card-bg) so a component's rules read
+  var(--de-card-bg) and an instance can retune just that component without
+  touching global semantics. Defaults here mirror the semantic tokens.
+*/
+
+@layer de.tokens {
+  :where([data-engine]:not([data-engine] [data-engine])) {
+    /* card */
+    --de-card-bg: var(--de-color-surface);
+    --de-card-border: var(--de-border);
+    --de-card-radius: var(--de-radius-sm);
+    --de-card-pad: var(--de-space-4);
+    --de-card-shadow: none;
+
+    /* button */
+    --de-button-bg: var(--de-color-surface);
+    --de-button-fg: var(--de-color-fg);
+    --de-button-border: var(--de-border-edge);
+    --de-button-radius: var(--de-radius-sm);
+    --de-button-pad: var(--de-space-2) var(--de-space-4);
+    --de-button-primary-bg: var(--de-color-accent);
+    --de-button-primary-fg: var(--de-color-accent-fg);
+
+    /* input */
+    --de-input-bg: var(--de-color-bg);
+    --de-input-fg: var(--de-color-fg);
+    --de-input-border: var(--de-border-edge);
+    --de-input-radius: var(--de-radius-sm);
+    --de-input-pad: var(--de-space-2) var(--de-space-3);
+
+    /* callout */
+    --de-callout-bg: transparent;
+    --de-callout-border: 1px solid var(--de-color-line);
+    --de-callout-radius: 0;
+
+    /* code */
+    --de-code-bg: var(--de-color-surface-2);
+    --de-code-radius: var(--de-radius-sm);
+  }
+}

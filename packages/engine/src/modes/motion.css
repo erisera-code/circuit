@@ -1,0 +1,48 @@
+/*
+  design-engine — modes: motion
+  -----------------------------------------------------------------------------
+  data-motion="reduced|full" explicitly controls animation behavior on the
+  anchor or any nested region. "reduced" mirrors prefers-reduced-motion;
+  "full" lets an author opt INTO motion even when the OS prefers reduced
+  (e.g. a motion showcase). Default honors the OS preference.
+
+  Two mechanisms, no !important:
+  - durations are tokens (zeroed here / in reset.css);
+  - keyframe animations are swapped for --de-animation-reduced (default
+    `none`; a module can set a calmer twin on the same element). That swap
+    sits in the LAST engine layer so it outranks every engine animation while
+    a host's unlayered styles still win.
+*/
+
+@layer de.modes {
+  :where([data-engine][data-motion="reduced"], [data-engine] [data-motion="reduced"]) {
+    --de-dur-instant: 0s;
+    --de-dur-fast: 0s;
+    --de-dur: 0s;
+    --de-dur-slow: 0s;
+    scroll-behavior: auto;
+  }
+
+  :where([data-engine][data-motion="full"], [data-engine] [data-motion="full"]) {
+    --de-dur-instant: 60ms;
+    --de-dur-fast: 120ms;
+    --de-dur: 200ms;
+    --de-dur-slow: 360ms;
+  }
+}
+
+@layer de.utilities {
+  /* pseudo-elements cannot sit inside :where(), so they get their own selectors */
+  @media (prefers-reduced-motion: reduce) {
+    :where([data-engine]) :where(*):where(:not([data-motion="full"], [data-motion="full"] *)),
+    :where([data-engine]) :where(*):where(:not([data-motion="full"], [data-motion="full"] *))::before,
+    :where([data-engine]) :where(*):where(:not([data-motion="full"], [data-motion="full"] *))::after {
+      animation: var(--de-animation-reduced);
+    }
+  }
+  :where([data-engine][data-motion="reduced"], [data-engine] [data-motion="reduced"]) :where(*),
+  :where([data-engine][data-motion="reduced"], [data-engine] [data-motion="reduced"]) :where(*)::before,
+  :where([data-engine][data-motion="reduced"], [data-engine] [data-motion="reduced"]) :where(*)::after {
+    animation: var(--de-animation-reduced);
+  }
+}

@@ -1,0 +1,215 @@
+/*
+  design-engine — base: forms
+  -----------------------------------------------------------------------------
+  Bare form controls. Textual inputs share one rule; checkboxes/radios stay
+  inline with accent-color; labels stack via placement binding when they wrap
+  a textual control. Uses --de-input-* component tokens.
+*/
+
+@layer de.base {
+  :where([data-engine]) :where(input:not([type="checkbox"], [type="radio"], [type="submit"], [type="button"], [type="reset"]), select, textarea) {
+    display: block;
+    inline-size: 100%;
+    max-inline-size: 32rem;
+    padding: var(--de-input-pad);
+    font-size: var(--de-text-base);
+    color: var(--de-input-fg);
+    background: var(--de-input-bg);
+    border: var(--de-input-border);
+    border-radius: var(--de-input-radius);
+    transition:
+      border-color var(--de-transition),
+      box-shadow var(--de-transition);
+  }
+
+  :where([data-engine]) :where(select) {
+    appearance: none;
+    background-image: linear-gradient(45deg, transparent 50%, var(--de-color-muted) 50%),
+                      linear-gradient(135deg, var(--de-color-muted) 50%, transparent 50%);
+    background-position: calc(100% - 1.25rem) 50%, calc(100% - 0.75rem) 50%;
+    background-size: 6px 6px, 6px 6px;
+    background-repeat: no-repeat;
+    padding-inline-end: var(--de-space-5);
+  }
+
+  :where([data-engine]) :where(textarea) {
+    min-block-size: 6rem;
+    resize: vertical;
+    line-height: var(--de-leading);
+  }
+
+  /* pseudo-elements cannot sit inside :where(); the pseudo goes outside */
+  :where([data-engine]) :where(input, textarea)::placeholder {
+    color: var(--de-color-faint);
+    opacity: 1;
+  }
+
+  :where([data-engine]) :where(input:not([type="checkbox"], [type="radio"]):hover, select:hover, textarea:hover) {
+    border-color: var(--de-color-faint);
+  }
+
+  :where([data-engine]) :where(input:not([type="checkbox"], [type="radio"]):focus-visible, select:focus-visible, textarea:focus-visible) {
+    outline: none;
+    border-color: var(--de-color-accent);
+    box-shadow: 0 0 0 3px var(--de-state-focus-ring-soft);
+  }
+
+  /* validation states — only after the user has interacted */
+  :where([data-engine]) :where(input:user-invalid, textarea:user-invalid) {
+    border-color: var(--de-color-danger);
+  }
+  :where([data-engine]) :where(input:user-valid, textarea:user-valid) {
+    border-color: var(--de-color-ok);
+  }
+
+  :where([data-engine]) :where(label) {
+    display: block;
+    font-size: var(--de-text-sm);
+    font-weight: var(--de-weight-strong);
+  }
+
+  /* placement binding: a label wrapping a textual control stacks it */
+  :where([data-engine]) :where(label:has(> input:not([type="checkbox"], [type="radio"]), > select, > textarea)) {
+    display: grid;
+    gap: var(--de-space-1);
+  }
+
+  /* checkboxes/radios: inline, themeable accent */
+  :where([data-engine]) :where(input[type="checkbox"], input[type="radio"]) {
+    inline-size: 1.1em;
+    block-size: 1.1em;
+    accent-color: var(--de-color-accent);
+    cursor: pointer;
+  }
+
+  :where([data-engine]) :where(label:has(> input[type="checkbox"], > input[type="radio"])) {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--de-space-2);
+    font-weight: var(--de-weight-body);
+    font-size: var(--de-text-base);
+  }
+
+  :where([data-engine]) :where(fieldset) {
+    border: 0;
+    border-block-start: 1px solid var(--de-color-line);
+    row-gap: var(--de-space-3);
+  }
+
+  :where([data-engine]) :where(legend) {
+    font-weight: var(--de-weight-strong);
+    padding-inline-end: var(--de-space-2);
+    padding-block-end: var(--de-space-1);
+  }
+
+  /* a paragraph of controls at the end of a form is the action row */
+  :where([data-engine]) :where(form > p:last-child:has(> button)) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--de-space-2);
+    padding-block-start: var(--de-space-2);
+  }
+
+  /* auto-growing inputs (progressive) */
+  @supports (field-sizing: content) {
+    :where([data-engine]) :where(textarea[data-auto-size]) {
+      field-sizing: content;
+      min-block-size: 2rem;
+      max-block-size: 24rem;
+    }
+  }
+
+  /* ---- field hint & error: a <small> inside the label, tone from validity ---- */
+  :where([data-engine]) :where(label > small) {
+    font-weight: var(--de-weight-body);
+    color: var(--de-color-muted);
+    font-size: var(--de-text-xs);
+  }
+  :where([data-engine]) :where(label:has(> :user-invalid, > [aria-invalid="true"]) > small, label > small[role="alert"]) {
+    color: var(--de-color-danger);
+  }
+  :where([data-engine]) :where(input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="true"]) {
+    border-color: var(--de-color-danger);
+  }
+
+  /* ---- switch: a checkbox with role=switch ---- */
+  :where([data-engine]) :where(input[type="checkbox"][role="switch"]) {
+    appearance: none;
+    inline-size: 2.2em;
+    block-size: 1.2em;
+    border: 1px solid var(--de-color-line);
+    border-radius: var(--de-radius-full);
+    background: var(--de-color-surface-2);
+    position: relative;
+    transition: background var(--de-transition), border-color var(--de-transition);
+  }
+  :where([data-engine]) :where(input[type="checkbox"][role="switch"])::before {
+    content: "";
+    position: absolute;
+    inset-block-start: 0.15em;
+    inset-inline-start: 0.15em;
+    inline-size: 0.8em;
+    block-size: 0.8em;
+    border-radius: 50%;
+    background: var(--de-color-muted);
+    transition: translate var(--de-transition), background var(--de-transition);
+  }
+  :where([data-engine]) :where(input[type="checkbox"][role="switch"]:checked) {
+    background: var(--de-color-accent);
+    border-color: var(--de-color-accent);
+  }
+  :where([data-engine]) :where(input[type="checkbox"][role="switch"]:checked)::before {
+    translate: 1em 0;
+    background: var(--de-color-accent-fg);
+  }
+
+  /* ---- switch as a button: button[role=switch] > i is the drawn track ----
+     A toggle that is a real button (aria-checked, a decorative <i> for the
+     track, its label beside it) gets the same track and knob as the input. */
+  :where([data-engine]) :where(button[role="switch"]) > :where(i) {
+    display: inline-block;
+    flex: none;
+    vertical-align: middle;
+    inline-size: 2.2em;
+    block-size: 1.2em;
+    border: 1px solid var(--de-color-line);
+    border-radius: var(--de-radius-full);
+    background: var(--de-color-surface-2);
+    position: relative;
+    transition: background var(--de-transition), border-color var(--de-transition);
+  }
+  :where([data-engine]) :where(button[role="switch"]) > :where(i)::before {
+    content: "";
+    position: absolute;
+    inset-block-start: 0.15em;
+    inset-inline-start: 0.15em;
+    inline-size: 0.8em;
+    block-size: 0.8em;
+    border-radius: 50%;
+    background: var(--de-color-muted);
+    transition: translate var(--de-transition), background var(--de-transition);
+  }
+  :where([data-engine]) :where(button[role="switch"][aria-checked="true"]) > :where(i) {
+    background: var(--de-color-accent);
+    border-color: var(--de-color-accent);
+  }
+  :where([data-engine]) :where(button[role="switch"][aria-checked="true"]) > :where(i)::before {
+    translate: 1em 0;
+    background: var(--de-color-accent-fg);
+  }
+  :where([data-engine]) :where(button[role="switch"][data-state="mixed"]) > :where(i)::before {
+    translate: 0.5em 0;
+  }
+
+  /* forced colours: the drawn switch keeps a visible track and knob */
+  @media (forced-colors: active) {
+    :where([data-engine]) :where(button[role="switch"]) > :where(i) { border-color: ButtonText; background: Canvas; }
+    :where([data-engine]) :where(button[role="switch"]) > :where(i)::before { background: ButtonText; }
+    :where([data-engine]) :where(button[role="switch"][aria-checked="true"]) > :where(i) { background: Highlight; border-color: Highlight; }
+    :where([data-engine]) :where(button[role="switch"][aria-checked="true"]) > :where(i)::before { background: Canvas; }
+    :where([data-engine]) :where(input[type="checkbox"][role="switch"]) { border-color: ButtonText; background: Canvas; }
+    :where([data-engine]) :where(input[type="checkbox"][role="switch"])::before { background: ButtonText; }
+    :where([data-engine]) :where(input[type="checkbox"][role="switch"]:checked) { background: Highlight; border-color: Highlight; }
+    :where([data-engine]) :where(input[type="checkbox"][role="switch"]:checked)::before { background: Canvas; }
+  }
+}

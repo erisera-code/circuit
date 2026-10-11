@@ -1,0 +1,1777 @@
+/*
+  design-engine — instance: noitroidvania
+  -----------------------------------------------------------------------------
+  The Ashfall game chrome, translated: terminal-adjacent, monospace, dark,
+  square corners, 1px borders, no blur and no shadow. Elevation is a border
+  and a surface step — a raised box takes the hot line and the next surface,
+  never a drop shadow; the one box-shadow is the 2px inset accent MARK on the
+  row the cursor is on. Every state carries a glyph AND a colour: badges say
+  ✓ ✕ ! ◆, dots say ○ ● ◐ ⊗, callouts carry a tone glyph inside a 1px tone edge,
+  checkboxes are drawn [ ]/[x], radios ( )/(o), the switch [■ ]/[ ■].
+  Nothing moves but the stepped braille spinner, and that steps rather than
+  turns. Selected with data-instance="noitroidvania".
+
+  Dark-only by design: the palette prefers the dark side regardless of OS;
+  the light side of every pair is a derived paper inversion (real ink on
+  warm paper — fg at L 23%, the second ink at L 43%, the warm/cool accents
+  and the three tones darkened to L 46–49% at their own hue) for an author
+  who forces the light theme on the root or a region. The third ink stays
+  below 3:1 on purpose, as Ashfall's does: nothing a reader must act on is
+  written in it — hints, captions, column heads and the status bars take
+  the second ink; only markers, counts and idle lights take the third.
+
+  Facets: palette / type / shape / layout / fx — see docs/authoring-an-instance.md.
+*/
+
+/* ===== palette ===== */
+@layer de.instances.palette {
+  :where([data-engine], [data-engine] *):where([data-instance="noitroidvania"]:not([data-palette]), [data-palette="noitroidvania"]) {
+    /* surface: the page, then the first two steps up (the third is private to shape/fx) */
+    --de-color-bg:        light-dark(oklch(95.3% 0.010 87),  oklch(13.1% 0.010 285));
+    --de-color-surface:   light-dark(oklch(97.3% 0.007 89),  oklch(15.6% 0.011 276));
+    --de-color-surface-2: light-dark(oklch(92.9% 0.013 87),  oklch(18.4% 0.017 274));
+    /* ink: read first, read second, read for completeness (the third is decoration: below 3:1 by design) */
+    --de-color-fg:        light-dark(oklch(23.0% 0.012 81),  oklch(86.5% 0.015 85));
+    --de-color-muted:     light-dark(oklch(43.0% 0.018 85),  oklch(62.5% 0.022 88));
+    --de-color-faint:     light-dark(oklch(49% 0.017 83),  oklch(68% 0.012 82));
+    /* line: the default edge, decorative (~1.4:1); edge: the boundary of a control, 3:1 on the page */
+    --de-color-line:      light-dark(oklch(83.1% 0.019 86),  oklch(28.9% 0.021 266));
+    --de-color-edge:      light-dark(oklch(58.0% 0.016 86),  oklch(50.5% 0.022 266));
+    /* accent: warm for the thing you chose, cool for the thing that follows from it */
+    --de-color-accent:    light-dark(oklch(46.0% 0.100 71),  oklch(76.9% 0.111 72));
+    --de-color-accent-2:  light-dark(oklch(46.0% 0.085 184), oklch(80.3% 0.096 185));
+    --de-color-accent-fg: light-dark(oklch(95.3% 0.010 87),  oklch(0% 0 0));
+    /* status: the second half of a signal, never the whole of it */
+    --de-color-danger:    light-dark(oklch(49.0% 0.160 28),  oklch(63.0% 0.160 27));
+    --de-color-warn:      light-dark(oklch(46.0% 0.100 86),  oklch(78.1% 0.137 85));
+    --de-color-ok:        light-dark(oklch(46.0% 0.130 144), oklch(78.8% 0.139 144));
+    /* the scrim: the only translucent surface */
+    --de-overlay-bg:      light-dark(oklch(95.3% 0.010 87 / 0.8), oklch(11.8% 0.011 285 / 0.8));
+    /* state: a hovered row is the second surface step, a pressed one the third */
+    --de-state-hover-overlay:  var(--de-color-surface-2);
+    --de-state-active-overlay: light-dark(oklch(89.8% 0.017 88), oklch(21.5% 0.020 272));
+    --de-state-focus-ring:     var(--de-color-accent);
+
+    /* rarity ramp → the six categorical steps (common … relic, then the off-ramp) */
+    --de-cat-1: light-dark(oklch(43.0% 0.018 85),  oklch(62.5% 0.022 88));
+    --de-cat-2: light-dark(oklch(48.0% 0.102 137), oklch(70.5% 0.112 136));
+    --de-cat-3: light-dark(oklch(48.0% 0.110 250), oklch(67.1% 0.109 247));
+    --de-cat-4: light-dark(oklch(48.0% 0.140 304), oklch(66.8% 0.124 307));
+    --de-cat-5: light-dark(oklch(46.0% 0.100 71),  oklch(76.9% 0.111 72));
+    --de-cat-6: light-dark(oklch(46.0% 0.130 8),   oklch(60.0% 0.146 6));
+
+    /* syntax: ten hues beside the ink, none competing with the accent; every one ≥ 4.5:1 in the well */
+    --de-sx-kw:    light-dark(oklch(47.0% 0.157 323), oklch(73.4% 0.130 323));
+    --de-sx-str:   light-dark(oklch(45.0% 0.116 134), oklch(79.0% 0.111 127));
+    --de-sx-fn:    light-dark(oklch(46.0% 0.113 247), oklch(75.8% 0.096 242));
+    --de-sx-cm:    light-dark(oklch(47.0% 0.025 274), oklch(60.0% 0.021 269));
+    --de-sx-num:   light-dark(oklch(46.0% 0.108 74),  oklch(81.2% 0.098 74));
+    --de-sx-tag:   light-dark(oklch(47.0% 0.141 29),  oklch(71.1% 0.131 30));
+    --de-sx-attr:  light-dark(oklch(45.0% 0.098 97),  oklch(76.1% 0.104 93));
+    --de-sx-punct: light-dark(oklch(45.5% 0.019 275), oklch(64.5% 0.018 275));
+    --de-sx-type:  light-dark(oklch(45.0% 0.086 184), oklch(79.8% 0.089 181));
+    --de-sx-bool:  light-dark(oklch(47.0% 0.130 3),   oklch(73.9% 0.099 7));
+  }
+  /* dark-only: prefer the ash scheme unless the author forces a theme */
+  :where([data-engine], [data-engine] *):where([data-instance="noitroidvania"]:not([data-palette]), [data-palette="noitroidvania"]):where(:not([data-theme])) {
+    color-scheme: dark;
+  }
+}
+
+/* ===== type ===== */
+@layer de.instances.type {
+  :where([data-engine], [data-engine] *):where([data-instance="noitroidvania"]:not([data-type]), [data-type="noitroidvania"]) {
+    /* one family, three sizes: 12 / 10 / 9 — headings only a step above */
+    --de-font-body: var(--de-font-mono);
+    --de-font-display: var(--de-font-mono);
+    --de-font-code: var(--de-font-mono);
+    --de-text-xs: 0.5625rem;
+    --de-text-sm: 0.625rem;
+    --de-text-base: 0.75rem;
+    --de-text-lg: 0.875rem;
+    --de-text-xl: 1rem;
+    --de-text-2xl: 1.125rem;
+    --de-leading: 1.35;
+    --de-leading-tight: 1.35;
+    --de-leading-display: 1.35;
+    --de-measure: 84ch;
+    --de-weight-body: 400;
+    --de-weight-strong: 600;
+    --de-weight-display: 400;
+  }
+
+  @scope (:where([data-engine], [data-engine] *):where([data-instance="noitroidvania"]:not([data-type]), [data-type="noitroidvania"])) to ([data-instance], [data-type]) {
+    /* tracked mono; tabular figures so counters never jitter */
+    :where(:scope) {
+      letter-spacing: 0.04em;
+      font-variant-numeric: tabular-nums;
+    }
+    :where(p, li, dd) { line-height: var(--de-leading); }
+
+    /* the heading treatment of the whole system: uppercase, widely tracked, small */
+    :where(h1, h2, h3, h4, h5, h6) {
+      font-weight: var(--de-weight-display);
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+    }
+    :where(:scope) > :where(header) > :where(h1) {
+      font-size: var(--de-text-lg);
+      letter-spacing: 0.3em;
+    }
+    :where(:scope) > :where(header) :where(small) {
+      font-size: var(--de-text-xs);
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+    }
+    /* section headings are column heads */
+    :where(section) > :where(h2),
+    :where(main) > :where(aside) > :where(nav) > :where(h2) {
+      font-size: var(--de-text-sm);
+      letter-spacing: 0.18em;
+    }
+    :where(h3, h4, h5, h6) { font-size: var(--de-text-sm); }
+    /* the panel title inside a dialog */
+    :where(dialog) :where(h3) { letter-spacing: 0.3em; }
+
+    /* labels: caps at the label size */
+    :where(label, legend, th, caption, summary, figure:has(> pre) > figcaption, [data-empty] > strong, nav[aria-label="pagination"] small) {
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      font-size: var(--de-text-sm);
+      font-weight: var(--de-weight-body);
+    }
+    :where(nav[aria-label="pagination"] small) { font-size: var(--de-text-xs); }
+    :where(label:has(> input[type="checkbox"], > input[type="radio"])) {
+      text-transform: none;
+      letter-spacing: inherit;
+      font-size: var(--de-text-base);
+    }
+    :where(label) > :where(small) {
+      text-transform: none;
+      letter-spacing: inherit;
+      font-size: var(--de-text-xs);
+    }
+    /* controls do not inherit the caps of the label that wraps them */
+    :where(input, select, textarea) {
+      text-transform: none;
+      letter-spacing: 0.04em;
+    }
+    :where(figcaption) { font-size: var(--de-text-sm); }
+
+    /* buttons and tabs: caps, tracked a little less than a label */
+    :where(button, [role="tab"], nav[aria-label="pagination"] a) {
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size: var(--de-text-sm);
+      font-weight: var(--de-weight-body);
+    }
+    :where(button[data-variant="link"], [role="menuitem"], [data-chip] > button, [data-toast] > button[aria-label]) {
+      text-transform: none;
+      letter-spacing: inherit;
+      font-size: var(--de-text-base);
+    }
+    :where(button[data-icon]) { letter-spacing: 0; font-size: var(--de-text-base); }
+    :where([role="listbox"] > li[role="option"]) :where(button) { font-size: var(--de-text-xs); letter-spacing: 0.1em; }
+
+    /* badges are verdicts (caps, tiny); chips are nouns (label size, plain) */
+    :where(data) {
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size: var(--de-text-xs);
+      font-weight: var(--de-weight-body);
+    }
+    :where([data-chip]) { font-size: var(--de-text-sm); }
+    :where([data-chip]) > :where(data) {
+      text-transform: none;
+      letter-spacing: inherit;
+      font-size: inherit;
+    }
+    :where([data-avatar]) {
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: var(--de-text-sm);
+      font-weight: var(--de-weight-body);
+    }
+    :where(kbd) { font-size: var(--de-text-xs); }
+    :where(small) { font-size: var(--de-text-sm); }
+    :where(dt) { font-weight: var(--de-weight-body); }
+    :where(blockquote > p) { font-size: var(--de-text-base); }
+    :where(blockquote) :where(cite) {
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      font-size: var(--de-text-xs);
+    }
+    /* status bars read at the label size */
+    :where(:scope) > :where(footer),
+    :where([data-shell]) > :where(footer),
+    :where(dialog[data-palette]) > :where(footer) { font-size: var(--de-text-xs); }
+    /* links: underlined, offset off the descenders */
+    :where(a) { text-underline-offset: 2px; }
+  }
+}
+
+/* ===== shape ===== */
+@layer de.instances.shape {
+  :where([data-engine], [data-engine] *):where([data-instance="noitroidvania"]:not([data-shape]), [data-shape="noitroidvania"]) {
+    /* square, hairline, flat */
+    --de-radius-sm: 0;
+    --de-radius-md: 0;
+    --de-radius-lg: 0;
+    --de-radius-full: 0;
+    --de-border-w: 1px;
+    --de-shadow-opacity: 0;
+    --de-shadow-1: none;
+    --de-shadow-2: none;
+    /* every panel is inset one step */
+    --de-inset: var(--de-space-2);
+
+    /* cards: the first surface step and the default edge; content pads itself */
+    --de-card-bg: var(--de-color-surface);
+    --de-card-border: 1px solid var(--de-color-line);
+    --de-card-radius: 0;
+    --de-card-pad: 0;
+    --de-card-shadow: none;
+
+    /* buttons: the second surface step behind the control edge (a box takes
+       the line; a thing you can press takes the edge, which clears 3:1 on the
+       page); primary is NOT a filled wash — accent edge, third step, accent ink */
+    --de-button-bg: var(--de-color-surface-2);
+    --de-button-fg: var(--de-color-fg);
+    --de-button-border: 1px solid var(--de-color-edge);
+    --de-button-radius: 0;
+    --de-button-pad: var(--de-space-1) var(--de-space-2);
+    --de-button-primary-bg: var(--de-noitroidvania-surface-3);
+    --de-button-primary-fg: var(--de-color-accent);
+
+    /* inputs: controls at rest sit on the second step */
+    --de-input-bg: var(--de-color-surface-2);
+    --de-input-fg: var(--de-color-fg);
+    --de-input-border: 1px solid var(--de-color-edge);
+    --de-input-radius: 0;
+    --de-input-pad: var(--de-space-1) var(--de-space-2);
+
+    --de-callout-bg: transparent;
+    --de-callout-border: 1px solid var(--de-color-line);
+    --de-callout-radius: 0;
+
+    /* code sits in the well: a thing you look into */
+    --de-code-bg: var(--de-noitroidvania-well);
+    --de-code-radius: 0;
+  }
+
+  @scope (:where([data-engine], [data-engine] *):where([data-instance="noitroidvania"]:not([data-shape]), [data-shape="noitroidvania"])) to ([data-instance], [data-shape]) {
+    /* the third surface step, the well, and the two other edges — private */
+    :where(:scope) {
+      --de-noitroidvania-surface-3: light-dark(oklch(89.8% 0.017 88), oklch(21.5% 0.020 272));
+      --de-noitroidvania-well:      light-dark(oklch(92.2% 0.014 89), oklch(11.8% 0.014 284));
+      --de-noitroidvania-line-hot:  light-dark(oklch(71.1% 0.021 85), oklch(38.6% 0.029 264));
+      --de-noitroidvania-line-soft: light-dark(oklch(90.4% 0.014 89), oklch(20.1% 0.014 273));
+      /* a control's edge already outranks the hot line, so its hot state is the second ink */
+      --de-noitroidvania-edge-hot: var(--de-color-muted);
+      /* the one box-shadow: the cursor-row mark, not a lift — for the row the
+         cursor is on and the current shell item ONLY, never a container */
+      --de-noitroidvania-mark: inset 0 0 0 1px var(--de-color-accent);
+    }
+
+    /* focus: a 1px ring, offset so it never sits on the 1px border */
+    :where(:focus-visible) {
+      outline: 1px solid var(--de-color-accent);
+      outline-offset: 1px;
+    }
+    :where(input, select, textarea):where(:focus-visible) {
+      outline: 1px solid var(--de-color-accent);
+      outline-offset: 1px;
+      box-shadow: none;
+      border-color: var(--de-noitroidvania-edge-hot);
+    }
+
+    /* elevation on hover = the hot edge */
+    :where(button, select, textarea, input:not([type="checkbox"], [type="radio"])):where(:hover) {
+      border-color: var(--de-noitroidvania-edge-hot);
+    }
+    :where(form > button:last-child, form > *:last-child button, menu button),
+    :where(form > button:last-child, form > *:last-child button, menu button):where(:hover) {
+      border-color: var(--de-color-accent);
+    }
+    :where(button[data-variant="danger"]),
+    :where(button[data-variant="danger"]):where(:hover) {
+      border-color: var(--de-color-danger);
+    }
+    :where(button[data-variant="ghost"]) { border-color: transparent; }
+    :where(button[data-variant="ghost"]):where(:hover) { border-color: var(--de-noitroidvania-edge-hot); }
+    :where(button[data-theme-toggle][aria-pressed="true"]) { border-color: var(--de-noitroidvania-edge-hot); }
+
+    /* masthead and footer: a raised panel built of strips, and a status bar */
+    :where(:scope) > :where(header) { border: 1px solid var(--de-noitroidvania-line-hot); }
+    :where(:scope) > :where(header) > :where(p:first-child:has(> small)) { border-block-end: 1px solid var(--de-color-line); }
+    :where(:scope) > :where(header) > :where(nav) { border-block-start: 1px solid var(--de-color-line); }
+    :where(:scope) > :where(footer) { border: 1px solid var(--de-color-line); }
+
+    /* the archive column: a panel with a column head */
+    :where(main) > :where(aside) > :where(nav) { border: 1px solid var(--de-color-line); padding: var(--de-space-2); }
+    :where(main) > :where(aside) > :where(nav) > :where(h2) { border-block-end: 1px solid var(--de-color-line); }
+
+    /* section headings: column heads */
+    :where(section) > :where(h2) { border-block-end: 1px solid var(--de-color-line); }
+
+    /* cards: default edge; a hovered card takes the hot line, never a shadow */
+    :where(li) > :where(article) {
+      border: 1px solid var(--de-color-line);
+      border-radius: 0;
+      box-shadow: none;
+    }
+    :where(li) > :where(article):where(:hover) { border-color: var(--de-noitroidvania-line-hot); }
+    :where(li) > :where(article) > :where(h3, h4) { border-block-end: 1px solid var(--de-noitroidvania-line-soft); }
+
+    /* quotes: a 1px box in the line colour, no rail */
+    :where(blockquote) { border: 1px solid var(--de-color-line); }
+    /* callouts: a 1px box that takes the tone all round; the glyph (fx) agrees */
+    :where([role="note"], [role="status"], [role="alert"]):where(:not([data-banner], [data-toast], small, data, article[role="dialog"] > header > *)) {
+      border: 1px solid var(--de-color-line);
+    }
+    :where([role="status"]:not([data-banner], [data-toast], data, article[role="dialog"] > header > *)) { border-color: var(--de-color-ok); }
+    :where([role="alert"]:not([data-banner], [data-toast], small)) { border-color: var(--de-color-danger); }
+
+    /* banner: edges top and bottom only; tone on the edge */
+    :where([data-banner]) { border-block: 1px solid var(--de-color-line); }
+    :where([data-banner][role="status"], [data-banner][data-tone="ok"]) { border-color: var(--de-color-ok); }
+    :where([data-banner][data-tone="warn"]) { border-color: var(--de-color-warn); }
+    :where([data-banner][role="alert"], [data-banner][data-tone="danger"]) { border-color: var(--de-color-danger); }
+
+    /* toasts: the hot line all round, tone on the whole edge, no shadow */
+    :where([data-toast]) {
+      border: 1px solid var(--de-noitroidvania-line-hot);
+      border-radius: 0;
+      box-shadow: none;
+    }
+    :where([data-toast][role="status"], [data-toast][data-tone="ok"]) { border-color: var(--de-color-ok); }
+    :where([data-toast][data-tone="warn"]) { border-color: var(--de-color-warn); }
+    :where([data-toast][role="alert"], [data-toast][data-tone="danger"]) { border-color: var(--de-color-danger); }
+
+    /* overlays are raised: dialog, palette and popover take the hot line (tokens only) */
+    :where(dialog, [popover]) { --de-border: 1px solid var(--de-noitroidvania-line-hot); }
+    :where(dialog) > :where(article) > :where(header) { border: 1px solid var(--de-color-line); }
+    :where(dialog[data-palette]) :where(li[role="option"]) {
+      border-radius: 0;
+      border-block-end: 1px solid var(--de-noitroidvania-line-soft);
+    }
+    :where(dialog[data-palette]) :where(li[role="option"]:last-child) { border-block-end: 0; }
+    :where(dialog[data-palette]) :where(li[role="option"][aria-selected="true"]) { box-shadow: var(--de-noitroidvania-mark); }
+    :where([role="tooltip"], [data-tooltip]) {
+      border: 1px solid var(--de-noitroidvania-line-hot);
+      box-shadow: none;
+    }
+    :where([role="menu"]) { border: 1px solid var(--de-noitroidvania-line-hot); }
+    /* the separator takes the line, not the soft line: on the second step the soft line vanishes */
+    :where([role="menu"]) > :where(hr) { border-block-start: 1px solid var(--de-color-line); }
+
+    /* rows: the soft line between them, the mark under the cursor */
+    :where([role="listbox"] > li[role="option"]) { border-block-end-color: var(--de-noitroidvania-line-soft); }
+    :where([role="listbox"] > li[role="option"][data-cursor]) { box-shadow: var(--de-noitroidvania-mark); }
+    :where([role="menuitem"][data-cursor]) { box-shadow: var(--de-noitroidvania-mark); }
+
+    /* key caps */
+    :where(kbd) {
+      border: 1px solid var(--de-noitroidvania-line-hot);
+      border-radius: 0;
+    }
+
+    /* tabs: a strip with shared borders, not a row of buttons */
+    :where([role="tablist"]) { border-block-end: 0; }
+    :where([role="tab"]) {
+      border: 1px solid var(--de-color-edge);
+      border-inline-end: 0;
+      border-radius: 0;
+    }
+    :where([role="tab"]:last-child) { border-inline-end: 1px solid var(--de-color-edge); }
+    :where([role="tab"][aria-selected="true"]) { border-color: var(--de-noitroidvania-edge-hot); }
+
+    /* small identities */
+    :where([data-avatar]) {
+      border-radius: 0;
+      border-color: var(--de-noitroidvania-line-hot);
+    }
+    :where(data[data-dot]) { border: 0; }
+    :where(progress, meter) { border: 1px solid var(--de-color-line); }
+
+    /* code, figures, terminal */
+    :where(pre) { border: 1px solid var(--de-color-line); }
+    :where(figure) { border: 1px solid var(--de-color-line); }
+    :where(figure) > :where(figcaption) { border-block-start: 1px solid var(--de-color-line); }
+    :where(figure:has(> pre)) > :where(figcaption) {
+      border-block-start: 0;
+      border-block-end: 1px solid var(--de-color-line);
+    }
+    :where(figure:has(> pre)) > :where(pre) { border: 0; }
+    :where(pre[data-terminal], pre:has(> samp)) { border-color: var(--de-noitroidvania-line-hot); }
+
+    /* tables: heads on the line, rows on the soft line */
+    :where(thead th) { border-block-end: 1px solid var(--de-color-line); }
+    :where(td) { border-block-end: 1px solid var(--de-noitroidvania-line-soft); }
+    :where(tfoot td) { border-block-start: 1px solid var(--de-color-line); }
+
+    /* disclosures and key/value rows */
+    :where(details) { border-block: 0; border-block-start: 1px solid var(--de-noitroidvania-line-soft); }
+    :where(details + details) { border-block-start: 1px solid var(--de-noitroidvania-line-soft); }
+    :where(dt:not(:first-child)) { border-block-start: 1px solid var(--de-noitroidvania-line-soft); }
+
+    /* board columns and the nested shell */
+    :where([data-board]) > :where(section) { border: 1px solid var(--de-color-line); border-radius: 0; }
+    :where([data-board]) > :where(section) > :where(h3, h4) { border-block-end: 1px solid var(--de-color-line); }
+    :where([data-shell]) > :where(nav) :where(a) { border-radius: 0; }
+    :where(nav[aria-label="pagination"]) > :where(a) { border: 1px solid var(--de-color-edge); border-radius: 0; }
+    :where(nav[aria-label="pagination"]) > :where(a:hover) { border-color: var(--de-noitroidvania-edge-hot); }
+  }
+}
+
+/* ===== layout ===== */
+@layer de.instances.layout {
+  @scope (:where([data-engine], [data-engine] *):where([data-instance="noitroidvania"]:not([data-layout]), [data-layout="noitroidvania"])) to ([data-instance], [data-layout]) {
+    /* compact: a 6px-ish rhythm, tight gutters, an 84ch column */
+    :where(:scope) {
+      --de-flow: var(--de-space-2);
+      --de-grid-gap: var(--de-space-2);
+      --de-grid-min: 14rem;
+      --de-shell-aside: 12rem;
+      --de-content-pad: clamp(0.75rem, 3vw, 2rem);
+      padding-block: var(--de-space-4);
+    }
+    :where(:scope) > :where(main) { padding-block: var(--de-space-4); }
+    :where(:scope) > :where(main + aside, main + section) { padding-block-start: var(--de-space-4); }
+
+    /* prose containers are not panels here: no inset of their own */
+    :where(section:not([data-board] > section, [data-banner]), article:not(li > article), form:not(dialog > form), table) { padding: 0; }
+    :where(main) > :where(aside) { padding: 0; }
+
+    /* masthead: head strip / title / lede / foot strip */
+    :where(:scope) > :where(header) { padding: 0; row-gap: 0; }
+    :where(:scope) > :where(header) > :where(p:first-child:has(> small)) { padding: var(--de-space-1) var(--de-space-3); }
+    :where(:scope) > :where(header) > :where(h1) { padding: var(--de-space-2) var(--de-space-3) 0; }
+    :where(:scope) > :where(header) > :where(p:not(:first-child)) {
+      padding: var(--de-space-1) var(--de-space-3) var(--de-space-2);
+      margin-block-start: 0;
+    }
+    :where(:scope) > :where(header) > :where(nav) {
+      padding: var(--de-space-3);
+      gap: var(--de-space-1) var(--de-space-3);
+    }
+    /* footer: a status bar */
+    :where(:scope) > :where(footer) { padding: var(--de-space-1) var(--de-space-3); }
+
+    /* the archive column: head strip, then rows */
+    :where(main) > :where(aside) > :where(nav) {
+      display: grid;
+      row-gap: 0;
+      padding: 0;
+    }
+    :where(main) > :where(aside) > :where(nav) > :where(h2) { padding: var(--de-space-1) var(--de-space-2); }
+    :where(main) > :where(aside) > :where(nav) > :where(p) { padding: var(--de-space-2); margin-block-start: 0; }
+    :where(main) > :where(aside) > :where(nav) > :where(ol) { padding: 0 var(--de-space-2) var(--de-space-2) var(--de-space-4); }
+
+    /* section heads */
+    :where(section) > :where(h2) { padding: calc(var(--de-flow) * 3) var(--de-space-2) var(--de-space-1); }
+    :where(section) > :where(h2:first-child) { padding-block-start: 0; }
+    :where(section) > :where(h2) + :where(p) { margin-block-start: 0; }
+
+    /* cards: a head strip and a padded body, in every card list */
+    :where(li) > :where(article) {
+      padding: 0;
+      row-gap: 0;
+      container-type: normal;
+    }
+    :where(li) > :where(article) > :where(h3, h4) { padding: var(--de-space-1) var(--de-space-2); }
+    :where(li) > :where(article) > :where(p) { padding: var(--de-space-2); margin-block-start: 0; }
+    :where(li) > :where(article) > :where(p + p) { padding-block-start: 0; }
+
+    /* callouts and quotes: room in the gutter for the glyph */
+    :where(blockquote) {
+      padding: var(--de-space-2) var(--de-space-3);
+      gap: var(--de-space-1);
+    }
+    :where([role="note"], [role="status"], [role="alert"]):where(:not([data-banner], [data-toast], small, data, article[role="dialog"] > header > *)) {
+      position: relative;
+      padding: var(--de-space-2) var(--de-space-3);
+      padding-inline-start: calc(var(--de-space-3) + 2ch);
+      row-gap: var(--de-space-1);
+    }
+
+    /* notices */
+    :where([data-banner]) {
+      padding: var(--de-space-1) var(--de-space-3);
+      gap: var(--de-space-2);
+    }
+    :where([data-toast]) {
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      padding: var(--de-space-3) var(--de-space-4);
+      gap: var(--de-space-1) var(--de-space-2);
+    }
+    :where([data-toast]) > :where(p) { grid-column: 2; }
+    :where([data-toast]) > :where(button[aria-label]) { grid-column: 3; }
+    :where([data-empty]) {
+      padding: var(--de-space-4) var(--de-space-3);
+      justify-items: center;
+      text-align: center;
+      gap: var(--de-space-1);
+    }
+
+    /* palette: prompt bar, rows, help line */
+    :where(dialog[data-palette]) > :where(form) { display: flex; align-items: center; }
+    :where(dialog[data-palette]) > :where(form)::before { flex: none; padding-inline-start: var(--de-space-3); }
+    :where(dialog[data-palette]) :where(input[type="search"]) {
+      flex: 1 1 auto;
+      min-inline-size: 0;
+      padding: var(--de-space-2);
+    }
+    :where(dialog[data-palette]) > :where(ul[role="listbox"]) { padding: 0; }
+    :where(dialog[data-palette]) :where(li[role="option"]) {
+      padding: var(--de-space-1) var(--de-space-3);
+      gap: var(--de-space-2);
+    }
+    :where(dialog[data-palette]) > :where(footer) {
+      padding: var(--de-space-1) var(--de-space-3);
+      gap: var(--de-space-3);
+    }
+    /* the dialog's head strip */
+    :where(dialog) > :where(article) > :where(header) {
+      padding: var(--de-space-1) var(--de-space-3);
+      row-gap: 0;
+    }
+
+    /* rows, menus, tabs, tooltips */
+    :where([role="listbox"] > li[role="option"]) {
+      padding: var(--de-space-1) var(--de-space-2);
+      gap: var(--de-space-2);
+    }
+    :where([role="listbox"] > li[role="option"])::before {
+      flex: none;
+      inline-size: 1ch;
+      text-align: center;
+    }
+    :where([role="listbox"] > li[role="option"]) :where(button) { padding: 0 var(--de-space-1); }
+    :where([role="menu"]) {
+      padding: var(--de-space-1) 0;
+      gap: 0;
+      min-inline-size: 10rem;
+    }
+    :where([role="menuitem"]) { padding: var(--de-space-1) var(--de-space-3); }
+    :where([role="tablist"]) { gap: 0; }
+    :where([role="tab"]) { padding: var(--de-space-1) var(--de-space-3); }
+    :where([role="tooltip"], [data-tooltip]) { padding: var(--de-space-2) var(--de-space-3); }
+
+    /* forms */
+    :where(label:has(> input[type="checkbox"], > input[type="radio"])) { gap: var(--de-space-1); }
+    :where(input[type="checkbox"], input[type="radio"]) {
+      inline-size: auto;
+      block-size: auto;
+      padding: 0;
+    }
+    :where(fieldset) {
+      padding: var(--de-space-2) 0 0;
+      row-gap: var(--de-space-2);
+    }
+    :where(form > p:last-child:has(> button)) { gap: var(--de-space-1); }
+    :where(progress, meter) { block-size: calc(var(--de-space-1) * 1.5); }
+
+    /* tables, lists, disclosures */
+    :where(th, td) { padding: var(--de-space-1) var(--de-space-2); }
+    :where(caption) { padding: var(--de-space-1) var(--de-space-2); }
+    :where(dt:not(:first-child)) { padding-block-start: var(--de-space-1); }
+    :where(dd) { padding-inline-start: var(--de-space-3); }
+    :where(details > summary) {
+      padding: var(--de-space-1) var(--de-space-2);
+      gap: var(--de-space-2);
+      align-items: center;
+    }
+    :where(details > :not(summary)) {
+      padding: 0 var(--de-space-2) var(--de-space-2) calc(var(--de-space-2) * 2 + 1ch);
+    }
+
+    /* code, figures, terminal */
+    :where(pre) {
+      padding: var(--de-space-2) var(--de-space-3);
+      line-height: 1.5;
+    }
+    :where(figure) { gap: 0; padding: 0; }
+    :where(figure) > :where(figcaption) { padding: var(--de-space-1) var(--de-space-2); }
+    :where(pre[data-terminal], pre:has(> samp)) {
+      padding-block-start: calc(var(--de-space-2) * 2 + var(--de-text-xs) * 1.6);
+      gap: 0;
+    }
+    :where(pre[data-terminal], pre:has(> samp))::before {
+      padding: var(--de-space-1) var(--de-space-2);
+      padding-inline-start: calc(var(--de-space-2) * 2 + 5ch);
+      line-height: 1.6;
+    }
+    :where(pre[data-terminal], pre:has(> samp))::after {
+      position: absolute;
+      inset-block-start: 0;
+      inset-inline-start: var(--de-space-2);
+      padding-block: var(--de-space-1);
+      line-height: 1.6;
+    }
+
+    /* pager: two key-cap links at either end of a rule */
+    :where(nav[aria-label="pagination"]) {
+      padding: var(--de-space-2) 0 0;
+      gap: var(--de-space-2);
+      justify-content: space-between;
+      align-items: center;
+    }
+    :where(nav[aria-label="pagination"]) > :where(a[rel="prev"], a[rel="next"]) {
+      flex: 0 1 auto;
+      display: inline-flex;
+      align-items: baseline;
+      gap: var(--de-space-2);
+      padding: var(--de-space-1) var(--de-space-2);
+    }
+
+    /* board: columns with a head strip and a padded stack */
+    :where([data-board]) {
+      gap: var(--de-space-2);
+      padding: var(--de-space-2);
+      grid-auto-columns: minmax(12rem, 1fr);
+    }
+    :where([data-board]) > :where(section) { padding: 0; row-gap: 0; }
+    :where([data-board]) > :where(section) > :where(h3, h4) { padding: var(--de-space-1) var(--de-space-2); }
+    :where([data-board]) > :where(section) > :where(ul) {
+      padding: var(--de-space-2);
+      gap: var(--de-space-2);
+    }
+
+    /* shell: top strip, rail, main, status bar */
+    :where([data-shell]) > :where(header) {
+      padding: var(--de-space-1) var(--de-space-3);
+      gap: var(--de-space-2);
+    }
+    :where([data-shell]) > :where(nav, aside) { padding: var(--de-space-3) var(--de-space-2); }
+    :where([data-shell]) > :where(nav) :where(a) { padding: var(--de-space-1) var(--de-space-2); }
+    :where([data-shell]) > :where(main) { padding: var(--de-space-2) var(--de-space-3); }
+    :where([data-shell]) > :where(footer) {
+      padding: var(--de-space-1) var(--de-space-3);
+      gap: var(--de-space-3);
+    }
+    :where([data-scroll]) { padding: var(--de-space-1) var(--de-space-2); }
+    :where([data-chip]) { padding-inline: var(--de-space-1); }
+  }
+}
+
+/* ===== fx ===== */
+@layer de.instances.fx {
+  /* the one thing that moves: eight braille frames, stepped, no interpolation */
+  @keyframes de-noitroidvania-spin {
+    0%    { content: "⠋"; }
+    12.5% { content: "⠙"; }
+    25%   { content: "⠹"; }
+    37.5% { content: "⠸"; }
+    50%   { content: "⠼"; }
+    62.5% { content: "⠴"; }
+    75%   { content: "⠦"; }
+    87.5% { content: "⠧"; }
+  }
+  /* its calmer twin: an ellipsis says the same thing without moving */
+  @keyframes de-noitroidvania-wait {
+    from, to { content: "…"; }
+  }
+
+  @scope (:where([data-engine], [data-engine] *):where([data-instance="noitroidvania"]:not([data-fx]), [data-fx="noitroidvania"])) to ([data-instance], [data-fx]) {
+    :where(:scope) {
+      --de-noitroidvania-surface-3: light-dark(oklch(89.8% 0.017 88), oklch(21.5% 0.020 272));
+      --de-noitroidvania-well:      light-dark(oklch(92.2% 0.014 89), oklch(11.8% 0.014 284));
+      --de-noitroidvania-line-hot:  light-dark(oklch(71.1% 0.021 85), oklch(38.6% 0.029 264));
+      --de-noitroidvania-line-soft: light-dark(oklch(90.4% 0.014 89), oklch(20.1% 0.014 273));
+      /* the cursor-row mark (listbox cursor, palette option, current shell item) — never a container */
+      --de-noitroidvania-mark: inset 0 0 0 1px var(--de-color-accent);
+
+      /* one duration, one easing, and nothing travels */
+      --de-dur-instant: 140ms;
+      --de-dur-fast: 140ms;
+      --de-dur: 140ms;
+      --de-dur-slow: 140ms;
+      --de-ease: linear;
+      --de-ease-in: linear;
+      --de-ease-out: linear;
+      --de-ease-spring: linear;
+      --de-transition: var(--de-dur) var(--de-ease);
+      --de-lift: 0px;
+      --de-travel: 0px;
+
+      /* the grid texture: two hairlines at the soft line on the page colour */
+      color: var(--de-color-fg);
+      background-color: var(--de-color-bg);
+      background-image:
+        linear-gradient(var(--de-noitroidvania-line-soft) 1px, transparent 1px),
+        linear-gradient(90deg, var(--de-noitroidvania-line-soft) 1px, transparent 1px);
+      background-size: var(--de-space-4) var(--de-space-4);
+    }
+    /* the motion mode zeroes durations in an earlier layer; restate its switch here */
+    :where(:scope):where([data-motion="reduced"], [data-motion="reduced"] *) {
+      --de-dur-instant: 0s;
+      --de-dur-fast: 0s;
+      --de-dur: 0s;
+      --de-dur-slow: 0s;
+    }
+
+    :where(*)::selection {
+      background: var(--de-color-accent);
+      color: var(--de-color-accent-fg);
+    }
+    :where(pre, [data-scroll], [data-board], [data-shell] > main, dialog[data-palette] > ul) {
+      scrollbar-width: thin;
+      scrollbar-color: var(--de-noitroidvania-line-hot) transparent;
+    }
+    :where(li)::marker { color: var(--de-color-faint); }
+
+    /* masthead: strips on the second step, the title in accent */
+    :where(:scope) > :where(header) { background: var(--de-color-surface); }
+    :where(:scope) > :where(header) > :where(p:first-child:has(> small)) {
+      background: var(--de-color-surface-2);
+      color: var(--de-color-muted);
+    }
+    :where(:scope) > :where(header) > :where(h1) { color: var(--de-color-accent); }
+    :where(:scope) > :where(header) > :where(p:not(:first-child)) { color: var(--de-color-muted); }
+    :where(:scope) > :where(header) > :where(nav) { background: var(--de-color-surface-2); }
+    :where(:scope) > :where(header) > :where(nav) :where(a) { color: var(--de-color-muted); }
+    :where(:scope) > :where(header) > :where(nav) :where(a:hover) { color: var(--de-color-fg); }
+    :where(:scope) > :where(footer) {
+      background: var(--de-color-surface-2);
+      color: var(--de-color-muted);
+    }
+
+    /* column heads: the second ink, in caps and tracked — the tracking is what keeps them quiet */
+    :where(section) > :where(h2),
+    :where(main) > :where(aside) > :where(nav) > :where(h2) { color: var(--de-color-muted); }
+    :where(main) > :where(aside) > :where(nav) { background: var(--de-color-surface); }
+    :where(h3, h4, h5, h6) { color: var(--de-color-muted); }
+
+    /* links: the thing that follows, cool; hover to the first ink */
+    :where(p, li, dd, dt, td, th, figcaption, blockquote, summary, small) :where(a) {
+      color: var(--de-color-accent-2);
+      text-decoration: underline;
+    }
+    :where(a:hover) { color: var(--de-color-fg); }
+
+    /* code: inline on the second step in the cool accent; blocks in the well */
+    :where(code:not(pre code)) {
+      background: var(--de-color-surface-2);
+      color: var(--de-color-accent-2);
+    }
+    :where(pre) { background: var(--de-noitroidvania-well); }
+    :where(pre) :where(code) { background: transparent; color: inherit; }
+    :where(kbd) { background: transparent; color: var(--de-color-muted); }
+
+    /* cards: first step; hover to the second — the elevation rule, not a shadow */
+    :where(li) > :where(article) {
+      background: var(--de-color-surface);
+      transform: none;
+    }
+    :where(li) > :where(article):where(:hover) { background: var(--de-color-surface-2); }
+
+    /* callouts and quotes: a glyph in the gutter, inside the tone edge */
+    :where(blockquote) { background: var(--de-color-surface); }
+    :where(blockquote) :where(cite) { color: var(--de-color-muted); }
+    :where([role="note"], [role="status"], [role="alert"]):where(:not([data-banner], [data-toast], small, data, article[role="dialog"] > header > *))::before {
+      content: "i";
+      position: absolute;
+      inset-inline-start: var(--de-space-3);
+      inset-block-start: var(--de-space-2);
+      inline-size: 1ch;
+      text-align: center;
+      color: var(--de-color-muted);
+    }
+    :where([role="status"]:not([data-banner], [data-toast], data, article[role="dialog"] > header > *))::before { content: "✓"; color: var(--de-color-ok); }
+    :where([role="alert"]:not([data-banner], [data-toast], small))::before { content: "✕"; color: var(--de-color-danger); }
+
+    /* banner: second step, a glyph first */
+    :where([data-banner]) { background: var(--de-color-surface-2); }
+    :where([data-banner])::before {
+      content: "i";
+      flex: none;
+      inline-size: 1ch;
+      text-align: center;
+      color: var(--de-color-muted);
+    }
+    :where([data-banner][role="status"], [data-banner][data-tone="ok"])::before { content: "✓"; color: var(--de-color-ok); }
+    :where([data-banner][data-tone="warn"])::before { content: "!"; color: var(--de-color-warn); }
+    :where([data-banner][role="alert"], [data-banner][data-tone="danger"])::before { content: "✕"; color: var(--de-color-danger); }
+
+    /* toasts: second step, a glyph in the first column, nothing slides */
+    :where([data-toast]) { background: var(--de-color-surface-2); }
+    :where([data-toast])::before {
+      content: "i";
+      grid-column: 1;
+      grid-row: 1;
+      inline-size: 1ch;
+      text-align: center;
+      color: var(--de-color-muted);
+    }
+    :where([data-toast][role="status"], [data-toast][data-tone="ok"])::before { content: "✓"; color: var(--de-color-ok); }
+    :where([data-toast][data-tone="warn"])::before { content: "!"; color: var(--de-color-warn); }
+    :where([data-toast][role="alert"], [data-toast][data-tone="danger"])::before { content: "✕"; color: var(--de-color-danger); }
+    :where([data-empty]) { color: var(--de-color-muted); }
+    :where([data-empty]) > :where(strong) { color: var(--de-color-fg); }
+
+    /* badges: a verdict brings its glyph, so a row of them stays countable */
+    :where(data:not([data-tone], [data-dot], [data-chip] > data)) { color: var(--de-color-muted); }
+    :where(data[data-tone="ok"]:not([data-dot]))::before     { content: "✓ "; }
+    :where(data[data-tone="danger"]:not([data-dot]))::before { content: "✕ "; }
+    :where(data[data-tone="warn"]:not([data-dot]))::before   { content: "! "; }
+    :where(data[data-tone="info"]:not([data-dot]))::before   { content: "◆ "; }
+    /* dots: a one-glyph state light — the glyph is the state, the colour agrees */
+    :where(data[data-dot]:not([data-tone])) { color: var(--de-color-faint); }
+    :where(data[data-dot])::before {
+      content: "○ ";
+      inline-size: auto;
+      block-size: auto;
+      border-radius: 0;
+      background: none;
+      margin-inline-end: 0;
+    }
+    :where(data[data-dot][data-tone="ok"])::before { content: "● "; }
+    :where(data[data-dot][data-tone="warn"], data[data-dot][data-tone="info"])::before { content: "◐ "; }
+    :where(data[data-dot][data-tone="danger"])::before { content: "⊗ "; }
+
+    /* chips: a bordered noun on the second step */
+    :where([data-chip]) { background: var(--de-color-surface-2); }
+    :where([data-chip]:not([data-tone])) { color: var(--de-color-muted); }
+    :where([data-chip]) > :where(data) { color: var(--de-color-faint); }
+    :where([data-avatar]) { background: var(--de-color-surface-2); }
+
+    /* spinner: a glyph that changes, not a thing that turns */
+    :where([aria-busy="true"])::before {
+      content: "⠋";
+      inline-size: 1ch;
+      block-size: auto;
+      border: 0;
+      border-radius: 0;
+      vertical-align: baseline;
+      text-align: center;
+      color: var(--de-color-accent-2);
+      animation: de-noitroidvania-spin calc(var(--de-dur) * 6) steps(8, end) infinite;
+      --de-animation-reduced: de-noitroidvania-wait var(--de-dur) linear both;
+    }
+    :where(progress, meter) { background: var(--de-noitroidvania-well); }
+    :where(progress:not([value])) {
+      background: repeating-linear-gradient(90deg, var(--de-color-muted) 0 var(--de-space-2), var(--de-noitroidvania-well) var(--de-space-2) var(--de-space-3));
+    }
+
+    /* forms: labels, hints and placeholders in the second ink; an error carries ✕ as well as the colour */
+    :where(label, legend) { color: var(--de-color-muted); }
+    :where(label:has(> input[type="checkbox"], > input[type="radio"])) { color: var(--de-color-fg); }
+    :where(label:has(> [aria-invalid="true"], > :user-invalid)) { color: var(--de-color-danger); }
+    :where(label) > :where(small) { color: var(--de-color-muted); }
+    :where(input, textarea)::placeholder { color: var(--de-color-muted); opacity: 1; }
+    :where(label) > :where(small[role="alert"]) { color: var(--de-color-danger); }
+    :where(label) > :where(small[role="alert"])::before { content: "✕ "; }
+
+    /* check, radio, switch: native inputs drawn as glyph boxes */
+    :where(input[type="checkbox"], input[type="radio"]) {
+      appearance: none;
+      border: 0;
+      background: none;
+      position: static;
+      line-height: 1;
+      white-space: pre;
+      text-transform: none;
+      letter-spacing: 0;
+      font-family: var(--de-font-code);
+      color: var(--de-color-muted);
+    }
+    :where(input[type="checkbox"], input[type="radio"]):where(:hover) {
+      color: var(--de-color-fg);
+      background: none;
+      border-color: transparent;
+    }
+    :where(input[type="checkbox"]:checked, input[type="radio"]:checked) {
+      color: var(--de-color-accent);
+      background: none;
+      border-color: transparent;
+    }
+    :where(input[type="checkbox"]:disabled, input[type="radio"]:disabled) { opacity: 0.35; }
+    :where(input[type="checkbox"], input[type="radio"])::before {
+      content: "[ ]";
+      position: static;
+      inset: auto;
+      inline-size: auto;
+      block-size: auto;
+      border-radius: 0;
+      background: none;
+      translate: none;
+    }
+    :where(input[type="checkbox"]:checked)::before { content: "[x]"; }
+    :where(input[type="radio"])::before { content: "( )"; }
+    :where(input[type="radio"]:checked)::before { content: "(o)"; }
+    :where(input[type="checkbox"][role="switch"])::before { content: "[■ ]"; }
+    :where(input[type="checkbox"][role="switch"]:checked)::before {
+      content: "[ ■]";
+      background: none;
+      translate: none;
+    }
+
+    /* buttons: hover raises to the third step, press drops to the first */
+    :where(button):where(:hover) { background: var(--de-noitroidvania-surface-3); }
+    :where(button):where(:active) {
+      background: var(--de-color-surface);
+      transform: none;
+    }
+    :where(button:disabled) { opacity: 0.35; }
+    :where(form > button:last-child, form > *:last-child button, menu button) {
+      background: var(--de-noitroidvania-surface-3);
+      color: var(--de-color-accent);
+    }
+    :where(form > button:last-child, form > *:last-child button, menu button):where(:hover) {
+      background: var(--de-color-surface-2);
+      color: var(--de-color-fg);
+    }
+    :where(button[data-variant="ghost"]) {
+      background: transparent;
+      color: var(--de-color-muted);
+    }
+    :where(button[data-variant="ghost"]):where(:hover) {
+      background: var(--de-color-surface-2);
+      color: var(--de-color-fg);
+    }
+    :where(button[data-variant="danger"]) {
+      background: var(--de-button-bg);
+      color: var(--de-color-danger);
+    }
+    :where(button[data-variant="danger"]):where(:hover) {
+      background: var(--de-noitroidvania-surface-3);
+      color: var(--de-color-danger);
+    }
+    :where(button[data-variant="link"]) {
+      background: transparent;
+      color: var(--de-color-accent-2);
+    }
+    :where(button[data-variant="link"]):where(:hover) {
+      background: transparent;
+      color: var(--de-color-fg);
+    }
+    :where(button[data-theme-toggle][aria-pressed="true"]) { color: var(--de-color-accent); }
+
+    /* tabs: the chosen one is accent on the third step */
+    :where([role="tab"]) { color: var(--de-color-muted); }
+    :where([role="tab"][aria-selected="true"]) {
+      color: var(--de-color-accent);
+      background: var(--de-noitroidvania-surface-3);
+    }
+
+    /* disclosures: ▸ closed, ▾ open — the glyph is the state */
+    :where(details > summary) { color: var(--de-color-muted); }
+    :where(details > summary)::before {
+      content: "▸";
+      inline-size: 1ch;
+      block-size: auto;
+      border: 0;
+      transform: none;
+      opacity: 1;
+    }
+    :where(details[open] > summary)::before { content: "▾"; }
+    :where(details > summary:hover), :where(details[open] > summary) { color: var(--de-color-fg); }
+
+    /* tables and key/value rows */
+    :where(caption, th) { color: var(--de-color-muted); }
+    :where(tbody) :where(tr:hover) { background: var(--de-color-surface-2); }
+    :where(dt) { color: var(--de-color-muted); }
+
+    /* rows: hover steps up, the cursor takes the mark, the chosen row says ▸ */
+    :where([role="listbox"] > li[role="option"])::before {
+      content: " ";
+      white-space: pre;
+    }
+    :where([role="listbox"] > li[role="option"]:hover) { background: var(--de-color-surface-2); }
+    :where([role="listbox"] > li[role="option"][aria-selected="true"]) {
+      background: transparent;
+      color: var(--de-color-accent);
+    }
+    :where([role="listbox"] > li[role="option"][aria-selected="true"])::before { content: "▸"; }
+    :where([role="listbox"] > li[role="option"][data-cursor]) { background: var(--de-noitroidvania-surface-3); }
+    :where([role="listbox"] > li[role="option"][aria-disabled="true"]) { opacity: 0.4; }
+    :where([role="listbox"] > li[role="option"]) > :where(small) { color: var(--de-color-muted); }
+
+    /* palette: a › prompt on the second step; the cursor row takes the mark */
+    :where(dialog[data-palette]) > :where(form) { background: var(--de-color-surface-2); }
+    :where(dialog[data-palette]) > :where(form)::before {
+      content: "›";
+      color: var(--de-color-accent);
+    }
+    :where(dialog[data-palette]) :where(input[type="search"]) { background: transparent; }
+    :where(dialog[data-palette]) :where(li[role="option"])::before { content: none; }
+    :where(dialog[data-palette]) :where(li[role="option"]:hover) { background: var(--de-color-surface-2); }
+    :where(dialog[data-palette]) :where(li[role="option"][aria-selected="true"]) {
+      background: var(--de-noitroidvania-surface-3);
+      color: var(--de-color-fg);
+    }
+    :where(dialog[data-palette]) > :where(footer) { color: var(--de-color-muted); }
+
+    /* the dialog's head strip and its tracked accent title */
+    :where(dialog) > :where(article) > :where(header) { background: var(--de-color-surface-2); }
+    :where(dialog) > :where(article) > :where(header) :where(h3) { color: var(--de-color-accent); }
+
+    /* tooltip on the third step, menu on the second */
+    :where([role="tooltip"], [data-tooltip]) {
+      background: var(--de-noitroidvania-surface-3);
+      color: var(--de-color-fg);
+    }
+    :where([role="menu"]) { background: var(--de-color-surface-2); }
+    :where([role="menuitem"]:hover, [role="menuitem"][data-cursor]) { background: var(--de-noitroidvania-surface-3); }
+    :where([role="menuitem"]) :where(kbd) { color: var(--de-color-muted); }
+
+    /* figures: a caption strip on the second step; code figures sit in the well */
+    :where(figure) { background: var(--de-color-surface); }
+    :where(figure) > :where(figcaption) {
+      background: var(--de-color-surface-2);
+      color: var(--de-color-muted);
+    }
+    :where(figure:has(> pre)) { background: var(--de-noitroidvania-well); }
+
+    /* terminal: a window strip with three ● lights, a $ prompt, dim output */
+    :where(pre[data-terminal], pre:has(> samp)) {
+      background: var(--de-color-bg);
+      color: var(--de-color-fg);
+    }
+    :where(pre[data-terminal], pre:has(> samp))::before {
+      content: attr(data-title);
+      background: var(--de-color-surface-2);
+      color: var(--de-color-muted);
+      border-block-end: 1px solid var(--de-color-line);
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      font-size: var(--de-text-xs);
+    }
+    :where(pre[data-terminal], pre:has(> samp))::after {
+      content: "● ● ●";
+      font-size: var(--de-text-xs);
+      letter-spacing: 0;
+      background-image: linear-gradient(90deg, var(--de-color-danger) 0 33.3%, var(--de-color-warn) 33.3% 66.6%, var(--de-color-ok) 66.6%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    :where(pre[data-terminal], pre:has(> samp)) > :where(kbd) { color: var(--de-color-fg); }
+    :where(pre[data-terminal], pre:has(> samp)) > :where(kbd)::first-letter { color: var(--de-color-accent); }
+    :where(pre[data-terminal], pre:has(> samp)) > :where(samp) { color: var(--de-color-muted); }
+
+    /* pager: two key caps with the arrows drawn by the sheet */
+    :where(nav[aria-label="pagination"]) > :where(a) {
+      background: var(--de-color-surface-2);
+      color: var(--de-color-fg);
+    }
+    :where(nav[aria-label="pagination"]) > :where(a:hover) {
+      background: var(--de-noitroidvania-surface-3);
+      color: var(--de-color-fg);
+    }
+    :where(nav[aria-label="pagination"]) > :where(a[rel="prev"])::before { content: "← "; }
+    :where(nav[aria-label="pagination"]) > :where(a[rel="next"])::after { content: " →"; }
+    :where(nav[aria-label="pagination"]) :where(small) { color: var(--de-color-muted); }
+
+    /* board columns on the first step */
+    :where([data-board]) > :where(section) { background: var(--de-color-surface); }
+    :where([data-board]) > :where(section) > :where(h3, h4) { color: var(--de-color-muted); }
+    :where([data-board]) > :where(section) > :where(h3, h4) :where(small) { color: var(--de-color-faint); }
+
+    /* shell: strips on the second step, the rail on the first, the current row marked */
+    :where([data-shell]) > :where(header), :where([data-shell]) > :where(footer) { background: var(--de-color-surface-2); }
+    :where([data-shell]) > :where(footer) { color: var(--de-color-muted); }
+    :where([data-shell]) > :where(header) :where(a[aria-current]) { color: var(--de-color-accent); }
+    :where([data-shell]) > :where(nav, aside) { background: var(--de-color-surface); }
+    :where([data-shell]) > :where(nav) :where(a[aria-current]) {
+      background: var(--de-noitroidvania-surface-3);
+      color: var(--de-color-accent);
+      box-shadow: var(--de-noitroidvania-mark);
+    }
+    :where([data-shell]) > :where([data-resize]:hover) { background: var(--de-noitroidvania-line-hot); }
+    :where([data-pattern]) { --de-pattern-ink: var(--de-noitroidvania-line-soft); }
+  }
+
+  /* the OS switch, restated for the same reason as the attribute switch above */
+  @media (prefers-reduced-motion: reduce) {
+    @scope (:where([data-engine], [data-engine] *):where([data-instance="noitroidvania"]:not([data-fx]), [data-fx="noitroidvania"])) to ([data-instance], [data-fx]) {
+      :where(:scope):where(:not([data-motion="full"], [data-motion="full"] *)) {
+        --de-dur-instant: 0s;
+        --de-dur-fast: 0s;
+        --de-dur: 0s;
+        --de-dur-slow: 0s;
+      }
+    }
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ===== the game's own composition ===== */
+/*
+  Noitroidvania's chrome, rule for rule: the HUD corners, the pause box, the
+  prologue caption, the vendor card, the run overlays, the shell screens
+  (title, settings, run setup, game over) and the two dialogs (codex,
+  loadout) — every screen written against the shared classless vocabulary
+  (article[role=dialog], [role=listbox] > li[role=option], [role=menu],
+  section[data-track], [data-corner], [data-chip], progress, kbd, dl…) and
+  named where the vocabulary needs a name (aria-label="Traversal",
+  "Gathering field", "Altar"; data-layer="pause|prologue|radial|shell|
+  run-setup|game-over"; data-kind="vendor|swatch|thumb"). Generated from the
+  game's native skin sheets by scripts/skin2instance.py (emit-sorted): tokens
+  mapped onto the engine's, every compound in :where(), margins restated as
+  padding, translate or size, rules ordered by their native specificity so
+  source order reproduces the native cascade. It sits in the fx facet
+  because it has to outrank every generic facet on the same property — this
+  is the design's own composition, not a decoration on top of it.
+*/
+@layer de.instances.palette {
+  :where([data-engine], [data-engine] *):where([data-instance="noitroidvania"]:not([data-palette]), [data-palette="noitroidvania"]) {
+    /* the game's own channel colours: a hit point, a shield, the combo meter, a dash, flight — hues by taste, not by meaning */
+    --de-noitroidvania-hp:     light-dark(#c8453c, #c8453c);
+    --de-noitroidvania-shield: light-dark(#6fa8d3, #6fa8d3);
+    --de-noitroidvania-rhythm: light-dark(#e0a860, #e0a860);
+    --de-noitroidvania-dash:   light-dark(#9ad0e8, #9ad0e8);
+    --de-noitroidvania-flight: light-dark(#b8e0a0, #b8e0a0);
+    /* an empty cell of the map, the sixth surface */
+    --de-noitroidvania-cell:   light-dark(oklch(93% 0.012 88), #0a0b10);
+  }
+}
+@layer de.instances.fx {
+  @scope (:where([data-engine], [data-engine] *):where([data-instance="noitroidvania"]:not([data-fx]), [data-fx="noitroidvania"])) to ([data-instance], [data-fx]) {
+    :where(:scope) {
+      /* the three type sizes the chrome is drawn in, and the interface-scale unit derived from the base */
+      --de-noitroidvania-fs: var(--de-text-base);
+      --de-noitroidvania-fs-label: 10px;
+      --de-noitroidvania-fs-tiny: 9px;
+      --de-noitroidvania-gap: 6px;
+      --de-noitroidvania-u: calc(var(--de-noitroidvania-fs) / 12px);
+      --de-noitroidvania-dur: 140ms;
+      --de-noitroidvania-ease: linear;
+    }
+
+    /* ---- the engine's document rhythm does not apply inside the chrome ---- */
+    :where(*) { max-inline-size: none; }
+    :where(p, li, dd, dt, figcaption, blockquote, summary, legend, label, small, span, b, i, strong, em, data, kbd, time, th, td) { line-height: inherit; }
+    :where([role="note"], [role="status"], [role="alert"], label, legend, th, caption, summary, dt, [role="tab"], [role="menuitem"]) { font-size: inherit; letter-spacing: inherit; text-transform: inherit; color: inherit; }
+    :where(main, article, section, aside, header, footer, figure, nav, form, details, fieldset, [role="search"], [role="group"], [role="note"], [role="status"], [role="alert"]) {
+      display: block; row-gap: normal; grid-template-columns: none; align-content: normal;
+      padding: 0; border: 0; background: none; inline-size: auto; max-inline-size: none; margin: 0;
+    }
+    :where([role="note"], [role="status"], [role="alert"], [data-toast], [role="listbox"] > li[role="option"])::before { content: none; }
+    :where(section + section) { padding-block-start: 0; }
+    :where(main, article, section, aside) > :where(h2, h3, h4) { padding: 0; }
+    :where([data-engine] [data-engine]) { padding: 0; }
+    :where(ul, ol) { padding-inline-start: 40px; }
+    :where(nav) :where(ul, ol) { display: block; flex-wrap: nowrap; gap: normal; align-items: normal; }
+    :where(nav) :where(li) { display: list-item; }
+    :where(nav) :where(a) { display: inline; padding: 0; border: 0; background: none; }
+    :where(li + li, li > ul, li > ol) { padding-block-start: 0; }
+    :where(dl, dt, dd) { padding: 0; }
+    :where(h1, h2, h3, h4) { font: inherit; letter-spacing: inherit; text-transform: inherit; }
+    :where(strong, b, em, i) { text-transform: inherit; letter-spacing: inherit; }
+    :where(h1, h2, h3, h4, p, li, dd, dt, small, span, strong, b, i, data) { overflow-wrap: normal; word-break: normal; hyphens: manual; }
+    :where([data-scroll], [data-toasts], [data-toast], section, aside, article, main) { font-size: inherit; }
+    :where([data-toasts], [data-toast]) { position: static; inset: auto; }
+    /* the scrim is a sibling behind the panels; sibling order stacks it, never a z token */
+    :where([data-scrim]) { z-index: auto; }
+    :where(small) { font-size: smaller; }
+    :where(data, kbd) { display: inline; border: 0; padding: 0; background: none; font: inherit; color: inherit; letter-spacing: inherit; text-transform: inherit; }
+    :where(label) { display: inline; gap: normal; padding: 0; }
+    :where(progress) { border: 0; background: none; block-size: auto; }
+    :where([role="listbox"]) { border: 0; padding: 0; max-inline-size: none; }
+    :where([role="listbox"] > li[role="option"]) { padding: 0; border: 0; background: none; box-shadow: none; gap: normal; align-items: stretch; color: inherit; font-size: inherit; }
+    :where([role="listbox"] > li[role="option"]) > :where(small) { margin-inline-start: 0; color: inherit; }
+    :where([role="listbox"] > li[role="option"]) :where(button) { line-height: inherit; min-inline-size: 0; min-block-size: 0; }
+    :where([role="menu"]) { border: 0; background: none; min-inline-size: 0; padding: 0; }
+    :where([role="menuitem"]) { padding: 0; }
+    :where([role="tablist"]) { border: 0; background: none; gap: 0; }
+    :where([role="tab"]) { border-block-end: 0; background: none; }
+    :where([data-chip], [data-scroll], [data-scrim], [data-toasts], [data-toast], [data-stat], [data-empty]) { padding: 0; border: 0; background: none; box-shadow: none; gap: normal; justify-items: normal; text-align: inherit; }
+    :where([data-stat]) :where(data) { font: inherit; }
+    :where(th, td, caption) { padding: 0; }
+    :where(pre) { padding: 0; line-height: inherit; }
+    :where(table) { border: 0; }
+
+    /* ---- the base the native skin was written over: a plain control ---- */
+    :where(button, input, select, textarea) {
+      font: inherit; letter-spacing: inherit; color: inherit; text-transform: none; line-height: inherit;
+      background: var(--de-color-surface-2); border: 1px solid var(--de-color-line);
+      border-radius: 0; padding: 2px 6px; cursor: pointer; min-inline-size: 0; min-block-size: 0; inline-size: auto;
+    }
+    :where(button:hover, select:hover) { border-color: var(--de-noitroidvania-line-hot); background: var(--de-noitroidvania-surface-3); }
+    :where(button:active) { background: var(--de-color-surface); }
+    :where(button[disabled]) { opacity: .35; cursor: default; }
+    :where(input, textarea) { cursor: text; }
+    :where(input[type="checkbox"], input[type="radio"]) { appearance: auto; inline-size: auto; block-size: auto; padding: 0; }
+    :where(:focus-visible) { outline: 1px solid var(--de-color-accent); outline-offset: 1px; }
+    :where([data-layer="prologue"]) :where(header) { text-align: center; max-width: min(520px, 80vw); }
+    :where([data-layer="prologue"]) > :where(ul) { list-style: none; margin: 0; padding: 0; display: flex; justify-content: center; gap: 18px; }
+    :where([data-layer="prologue"]) :where(li) { display: flex; align-items: center; gap: 6px; transition: opacity var(--de-noitroidvania-dur) var(--de-noitroidvania-ease); }
+    :where([data-layer="prologue"]) > :where(p) { margin: 0; font-size: var(--de-noitroidvania-fs-tiny); letter-spacing: .16em; color: var(--de-color-faint); }
+    :where([data-layer="prologue"]) :where(progress) { display: block; width: 100%; height: 2px; padding-top: 3px; appearance: none; border: 0; background: transparent; color: var(--de-color-muted); }
+    :where([data-kind="vendor"]) :where(header) { display: flex; align-items: baseline; gap: calc(8px * var(--de-noitroidvania-u)); }
+    :where([data-kind="vendor"]) :where(p), :where([data-kind="vendor"]) :where(small), :where([data-kind="vendor"]) :where(ul) { margin: 0; }
+    :where([data-kind="vendor"]) :where(small), :where([data-kind="vendor"]) :where(time) { display: block; font-size: inherit; color: var(--de-color-faint); }
+    :where([data-kind="vendor"]) :where(ul) { list-style: none; padding: 0; }
+    :where([data-kind="vendor"]) :where(li) { display: grid; grid-template-columns: round(nearest, calc(12px * var(--de-noitroidvania-u)), 1px) minmax(0, 1fr) auto; align-items: baseline; gap: 0 calc(6px * var(--de-noitroidvania-u)); }
+    :where([data-kind="vendor"]) :where(time) { display: inline; }
+    :where(figure) { position: relative; flex: 1 1 auto; margin: 8px; border: 1px solid var(--de-color-line); background: var(--de-noitroidvania-well); overflow: hidden; }
+    :where([data-layer="shell"]) :where(main), :where([data-layer="shell"]) :where(section) { display: flex; flex-direction: column; gap: 22px; }
+    :where([data-layer="shell"]) :where(header:not(section > header)) { display: flex; flex-direction: column; gap: 10px; text-align: center; }
+    :where([data-layer="shell"]) :where(aside) { color: var(--de-color-faint); font-size: calc(var(--de-noitroidvania-fs) * .84); line-height: 1.7; border-left: 1px solid var(--de-color-line); padding-left: 12px; }
+    :where([data-layer="shell"]) :where(dl) { margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 2px 18px; color: var(--de-color-faint); font-size: calc(var(--de-noitroidvania-fs) * .86); }
+    :where([data-layer="run-setup"]) :where(ul) { list-style: none; margin: 0; padding: 0; }
+    :where([data-layer="run-setup"]) :where(blockquote) { margin: 0; border: 1px solid var(--de-color-accent); padding: 3px 0 3px 9px; font-size: 12px; color: var(--de-color-fg); overflow-wrap: anywhere; }
+    :where([data-layer="run-setup"]) :where(aside) { margin: 0; font-size: var(--de-noitroidvania-fs-label); color: var(--de-color-muted); line-height: 1.5; border: 1px dashed var(--de-color-line); padding: 6px 8px; overflow-wrap: anywhere; }
+    :where([data-layer="game-over"]) :where(header) { display: flex; flex-direction: column; gap: 16px; }
+    :where([data-layer="game-over"]) :where(main) { display: flex; flex-direction: column; gap: 16px; }
+    :where([data-layer="game-over"]) :where(main) { margin-top: auto; }
+    :where([data-layer="game-over"]) :where(section) { display: flex; flex-direction: column; gap: 3px; }
+    :where([data-layer="game-over"]) :where(dl) { margin: 0; display: flex; flex-direction: column; gap: 3px; }
+    :where([data-layer="game-over"]) :where(dt) { font-weight: normal; color: var(--de-color-muted); letter-spacing: .12em; text-transform: uppercase; font-size: calc(var(--de-noitroidvania-fs) * .88); }
+    :where([data-layer="game-over"]) :where(dd) { margin: 0; }
+    :where([data-layer="game-over"]) :where(ol) { list-style: none; margin: 0; display: flex; flex-direction: column; gap: 1px; border-left: 1px solid var(--de-color-line); padding: 0 0 0 12px; font-size: calc(var(--de-noitroidvania-fs) * .84); }
+    :where([data-layer="prologue"]) :where(header) > :where(h2) { margin: 0; font-size: 15px; font-weight: normal; letter-spacing: .28em; text-transform: uppercase; color: var(--de-color-fg); }
+    :where([data-layer="prologue"]) :where(header) > :where(small) { display: block; font-size: 11px; letter-spacing: .1em; color: var(--de-color-faint); padding-top: 4px; }
+    :where([data-layer="prologue"]) :where(li) :where(kbd) { display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 5px; border: 1px solid var(--de-color-muted); background: rgb(from var(--de-color-surface) r g b / .9); font: inherit; font-size: var(--de-noitroidvania-fs-label); letter-spacing: .08em; color: var(--de-color-fg); }
+    :where([data-layer="prologue"]) :where(progress)::-webkit-progress-bar { background: transparent; }
+    :where([data-layer="prologue"]) :where(progress)::-webkit-progress-value { background: var(--de-color-muted); }
+    :where([data-layer="prologue"]) :where(progress)::-moz-progress-bar { background: var(--de-color-muted); }
+    :where([data-kind="vendor"]) :where(header) > :where(h3) { margin: 0; font: inherit; color: var(--de-color-accent); text-transform: uppercase; letter-spacing: .14em; }
+    :where([data-kind="vendor"]) :where(header) > :where(data) { font: inherit; }
+    :where([data-kind="vendor"]) :where(li)::before { content: ""; color: var(--de-color-faint); }
+    :where([data-kind="vendor"]) :where(li) > :where(span) { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    :where([data-kind="vendor"]) :where(li) > :where(data) { font: inherit; color: var(--de-color-accent); white-space: nowrap; }
+    :where([data-kind="vendor"]) :where(li) > :where(small) { grid-column: 1 / -1; }
+    :where(figure) > :where(div) { position: absolute; border: 1px solid var(--de-noitroidvania-line-hot); background: var(--de-color-surface-2); display: grid; place-items: center; overflow: hidden; font-size: var(--de-noitroidvania-fs-tiny); line-height: 1; color: transparent; }
+    :where(figure) > :where(figcaption) { position: absolute; left: 0; bottom: 0; right: 0; flex-wrap: wrap; row-gap: 2px; }
+    :where([data-layer="pause"]) :where(article) > :where(h1) { margin: 0; padding-bottom: 8px; font-size: 14px; letter-spacing: .4em; text-transform: uppercase; color: var(--de-color-accent); font-weight: normal; }
+    :where([data-layer="pause"]) :where(article) > :where(section) { display: block; }
+    :where([data-layer="shell"]) :where(header:not(section > header)) > :where(hr) { margin: 0; border: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--de-noitroidvania-line-hot), transparent); }
+    :where([data-layer="shell"]) :where(header:not(section > header)) > :where(p) { margin: 0 auto; color: var(--de-color-muted); font-size: calc(var(--de-noitroidvania-fs) * .95); line-height: 1.65; max-width: 56ch; }
+    :where([data-layer="shell"]) :where(header:not(section > header):has(> button)) { flex-direction: row; align-items: baseline; justify-content: space-between; gap: 12px; text-align: left; border-bottom: 1px solid var(--de-color-line); padding-bottom: 8px; }
+    :where([data-layer="shell"]) :where(section) > :where(h2) { margin: 0; font-size: var(--de-noitroidvania-fs); font-weight: normal; letter-spacing: .34em; text-transform: uppercase; color: var(--de-color-accent); }
+    :where([data-layer="shell"]) :where(section) > :where(h2) { border-bottom: 1px solid var(--de-color-line); padding-bottom: 8px; }
+    :where([data-layer="shell"]) :where(header:not(section > header)) > :where(button) { padding: 2px 6px; border: 1px solid var(--de-color-line); background: var(--de-color-surface-2); color: inherit; font: inherit; letter-spacing: inherit; cursor: pointer; text-align: left; }
+    :where([data-layer="shell"]) :where(header:not(section > header)) > :where(button) { display: flex; gap: 12px; align-items: baseline; width: auto; }
+    :where([data-layer="shell"]) :where(aside) > :where(p) { margin: 0; }
+    :where([data-layer="shell"]) :where(aside) :where(strong) { color: var(--de-color-muted); font-weight: normal; }
+    :where([data-layer="shell"]) :where(footer) > :where(p) { margin: 0; display: flex; gap: 18px; justify-content: center; color: var(--de-color-faint); font-size: calc(var(--de-noitroidvania-fs) * .82); letter-spacing: .12em; text-transform: uppercase; }
+    :where([data-layer="run-setup"]) :where(main) > :where(nav) { width: 272px; border-right: 1px solid var(--de-color-line); }
+    :where([data-layer="run-setup"]) :where(aside) > :where(small) { display: block; font-size: inherit; color: var(--de-color-faint); }
+    :where([data-layer="game-over"]) :where(main) > :where(div) { display: flex; flex-direction: column; gap: 16px; }
+    :where([data-layer="game-over"]) :where(main) > :where(div) { gap: 14px; }
+    :where([data-layer="game-over"]) :where(header) > :where(h1) { margin: 0; font-size: clamp(20px, 4.4vw, 34px); letter-spacing: .34em; text-indent: .34em; text-transform: uppercase; font-weight: normal; color: var(--de-noitroidvania-hp); text-shadow: 0 0 24px rgb(from var(--de-noitroidvania-hp) r g b / .28); }
+    :where([data-layer="game-over"]) :where(header) > :where(hr) { margin: 0; border: 0; height: 1px; background: linear-gradient(90deg, var(--de-noitroidvania-line-hot), transparent); }
+    :where([data-layer="game-over"]) :where(header) > :where(p) { margin: 0; color: var(--de-color-fg); font-size: calc(var(--de-noitroidvania-fs) * 1.15); letter-spacing: .1em; }
+    :where([data-layer="game-over"]) :where(main) > :where(p) { margin: 0; color: var(--de-color-muted); font-size: calc(var(--de-noitroidvania-fs) * .86); letter-spacing: .1em; text-transform: uppercase; }
+    :where([data-layer="game-over"]) :where(p) > :where(small) { font-size: inherit; }
+    :where([data-layer="game-over"]) :where(section) > :where(h2) { margin: 0; padding-bottom: 4px; font-size: calc(var(--de-noitroidvania-fs) * .84); font-weight: normal; letter-spacing: .3em; text-transform: uppercase; color: var(--de-color-accent); border-bottom: 1px solid var(--de-color-line); padding-bottom: 5px; }
+    :where([data-layer="game-over"]) :where(dl) > :where(div) { display: grid; grid-template-columns: 1fr auto; gap: 1px 14px; align-items: baseline; padding: 2px 0; }
+    :where([data-layer="game-over"]) :where(dt) + :where(dd) { color: var(--de-color-fg); justify-self: end; white-space: nowrap; }
+    :where([data-layer="game-over"]) :where(dd) + :where(dd) { grid-column: 1 / -1; color: var(--de-color-faint); font-size: calc(var(--de-noitroidvania-fs) * .82); line-height: 1.5; }
+    :where([data-layer="game-over"]) :where(ol) > :where(li) { color: var(--de-color-muted); }
+    :where([data-layer="game-over"]) :where(footer) > :where(p) { margin: 0; display: flex; gap: 18px; color: var(--de-color-faint); font-size: calc(var(--de-noitroidvania-fs) * .8); letter-spacing: .12em; text-transform: uppercase; }
+    :where([data-kind="vendor"]) > :where(div) > :where(small:has(> time)) { padding-top: 3px; }
+    :where([data-layer="shell"]) :where(header:not(section > header):not(:has(> button))) > :where(h1) { margin: 0; font-size: clamp(24px, 6.2vw, 46px); letter-spacing: .38em; text-indent: .38em; text-transform: uppercase; font-weight: normal; color: var(--de-color-accent); text-shadow: 0 0 26px rgb(from var(--de-color-accent) r g b / .22); }
+    :where([data-layer="shell"]) :where(header:not(section > header)) > :where(p:has(> small)) { max-width: none; line-height: 1.35; color: var(--de-color-faint); font-size: calc(var(--de-noitroidvania-fs) * .85); letter-spacing: .12em; text-transform: uppercase; }
+    :where([data-layer="shell"]) :where(header:not(section > header)) > :where(p) > :where(small) { font-size: inherit; }
+    :where([data-layer="shell"]) :where(header:not(section > header):has(> button)) > :where(h1) { margin: 0; font-size: var(--de-noitroidvania-fs); font-weight: normal; letter-spacing: .34em; text-transform: uppercase; color: var(--de-color-accent); }
+    :where([data-layer="shell"]) :where(header:not(section > header)) > :where(button) > :where(strong) { font-weight: normal; letter-spacing: .2em; text-transform: uppercase; color: var(--de-color-fg); }
+    :where([data-layer="shell"]) :where(dl) > :where(div) > :where(dt), :where([data-layer="shell"]) :where(dl) > :where(div) > :where(dd) { display: inline; margin: 0; padding: 0; }
+    :where([data-layer="shell"]) :where(dl) > :where(div) > :where(dt) { color: var(--de-color-muted); font-weight: normal; }
+    :where([data-layer="run-setup"]) :where(main) > :where(nav) > :where(h3) { margin: 0; font: inherit; padding: 4px 8px; border-bottom: 1px solid var(--de-color-line); color: var(--de-color-faint); text-transform: uppercase; letter-spacing: .18em; font-size: var(--de-noitroidvania-fs-label); }
+    :where([data-layer="run-setup"]) :where(main) > :where(nav) :where(h4) { margin: 0; font: inherit; padding: 3px 8px; font-size: var(--de-noitroidvania-fs-label); letter-spacing: .18em; text-transform: uppercase; color: var(--de-color-faint); background: var(--de-color-surface-2); border-bottom: 1px solid var(--de-color-line); border-top: 1px solid var(--de-color-line); }
+    :where([data-layer="run-setup"]) :where(main) > :where(nav) :where(li) { display: flex; align-items: center; gap: 6px; padding: 3px 8px; border-bottom: 1px solid var(--de-noitroidvania-line-soft); cursor: pointer; }
+    :where([data-layer="run-setup"]) :where(main) > :where(section) :where(h4) { margin: 0; padding-bottom: 5px; font: inherit; font-size: var(--de-noitroidvania-fs-label); letter-spacing: .18em; text-transform: uppercase; color: var(--de-color-faint); }
+    :where([data-layer="game-over"]) :where(header) > :where(p:has(> small)) { color: var(--de-color-faint); font-size: calc(var(--de-noitroidvania-fs) * .86); letter-spacing: inherit; }
+    :where([data-layer="run-setup"]) :where(main) > :where(nav) :where(li) > :where(div) { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; }
+    :where([data-layer="run-setup"]) :where(main) > :where(nav) :where(li) > :where(div) > :where(span) { font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    :where([data-layer="run-setup"]) :where(main) > :where(nav) :where(li) > :where(div) > :where(small) { font-size: var(--de-noitroidvania-fs-tiny); color: var(--de-color-faint); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    :where([data-scrim]) { background: var(--de-overlay-bg); }
+    :where([data-corner]) { display: flex; flex-direction: column; gap: calc(3px * var(--de-noitroidvania-u)); line-height: 1.15; }
+    :where([data-corner="tl"]) { align-items: flex-start; }
+    :where([data-band]) { display: flex; gap: calc(10px * var(--de-noitroidvania-u)); width: 100%; flex-wrap: wrap-reverse; align-items: flex-start; }
+    :where([data-corner="bl"]), :where([data-corner="bc"]), :where([data-corner="br"]) { min-width: 0; }
+    :where([data-corner="bl"]) { flex: 1 1 calc(190px * var(--de-noitroidvania-u)); align-items: flex-start; }
+    :where([data-corner="br"]) { flex: 1 1 calc(190px * var(--de-noitroidvania-u)); align-items: flex-end; }
+    :where([data-corner="bc"]) { flex: 0 1 auto; align-items: center; padding-bottom: 2px; }
+    @media (max-width: 700px) {
+      :where([data-corner="bc"]) { order: 1; flex: 1 0 100%; }
+    }
+    :where(article[role="dialog"]) :where([data-rarity]) { color: var(--de-cat-1); }
+    :where([data-layer="radial"]) :where([role="menu"]) { position: relative; width: 340px; height: 340px; border: 1px solid var(--de-noitroidvania-line-hot); border-radius: 50%; background: rgb(from var(--de-color-bg) r g b / .86); }
+    :where([data-layer="radial"]) :where([role="menuitem"]) { position: absolute; width: 92px; translate: -46px -18px; border: 1px solid var(--de-color-line); background: var(--de-color-surface); padding: 2px 4px; text-align: center; font-size: var(--de-noitroidvania-fs-label); }
+    :where([data-layer="prologue"]) { gap: 14px; }
+    :where([data-kind="vendor"]) { border: 1px solid var(--de-noitroidvania-line-hot); background: rgb(from var(--de-color-surface) r g b / .94); padding: calc(6px * var(--de-noitroidvania-u)) calc(11px * var(--de-noitroidvania-u)); min-width: calc(220px * var(--de-noitroidvania-u)); max-width: min(calc(360px * var(--de-noitroidvania-u)), 86vw); display: flex; flex-direction: column; gap: calc(2px * var(--de-noitroidvania-u)); font-size: calc(10px * var(--de-noitroidvania-u)); }
+    :where([data-layer="pause"]) :where([role="menu"]) { display: flex; flex-direction: column; gap: 6px; }
+    :where([data-toasts]) { display: flex; flex-direction: column; justify-content: flex-end; gap: calc(4px * var(--de-noitroidvania-u)); align-items: flex-end; width: 100%; }
+    :where([data-toast]) { border: 1px solid var(--de-noitroidvania-line-hot); background: rgb(from var(--de-color-surface) r g b / .92); padding: calc(3px * var(--de-noitroidvania-u)) calc(8px * var(--de-noitroidvania-u)); font-size: calc(11px * var(--de-noitroidvania-u)); max-width: calc(320px * var(--de-noitroidvania-u)); border-left-width: 3px; overflow-wrap: anywhere; }
+    :where([data-layer="shell"]) { background: radial-gradient(120% 80% at 50% 8%, #14161f 0%, var(--de-color-bg) 62%, #040407 100%); }
+    :where([data-layer="shell"]) > :where([data-engine]) { width: min(760px, calc(100vw - 32px)); padding: 40px 0 32px; display: flex; flex-direction: column; gap: 22px; }
+    :where([data-layer="shell"]) :where([role="menu"]) { display: grid; grid-template-columns: max-content 1fr; gap: 4px 0; }
+    :where([data-layer="run-setup"]) > :where([data-scrim]) { background: var(--de-overlay-bg); }
+    :where([data-layer="run-setup"]) > :where([data-engine]) { background: var(--de-color-surface); border: 1px solid var(--de-noitroidvania-line-hot); }
+    :where([data-layer="run-setup"]) :where([data-scroll]) { scrollbar-width: thin; scrollbar-color: var(--de-noitroidvania-line-hot) transparent; }
+    :where([data-layer="run-setup"]) :where([data-chip]) { display: inline-flex; align-items: center; gap: 4px; border: 1px solid var(--de-color-line); background: var(--de-color-surface-2); padding: 0 4px; font-size: var(--de-noitroidvania-fs-label); color: var(--de-color-muted); white-space: nowrap; }
+    :where([data-layer="game-over"]) > :where([data-engine]) { padding: 26px 26px 22px; display: flex; flex-direction: column; gap: 16px; background: linear-gradient(90deg, rgb(from var(--de-overlay-bg) r g b / .94) 0%, rgb(from var(--de-overlay-bg) r g b / .88) 72%, rgb(from var(--de-overlay-bg) r g b / 0) 100%); }
+    :where([data-layer="game-over"]) :where([role="menu"]) { display: flex; flex-direction: column; gap: 4px; padding-top: 8px; }
+    :where([data-layer="game-over"]) :where([role="menuitem"]) { display: flex; align-items: baseline; gap: 12px; padding: 2px 6px; border: 1px solid var(--de-color-line); background: var(--de-color-surface-2); cursor: pointer; text-align: left; width: 100%; font: inherit; letter-spacing: inherit; color: inherit; }
+    :where([data-corner]) :where(p) { margin: 0; padding: 0; list-style: none; }
+    :where([data-corner]) :where(ul) { margin: 0; padding: 0; list-style: none; }
+    :where([data-corner]) :where(section) { margin: 0; padding: 0; list-style: none; }
+    :where([data-corner="tl"]) > :where(div) { display: flex; flex-direction: column; gap: calc(3px * var(--de-noitroidvania-u)); width: 100%; max-width: calc(190px * var(--de-noitroidvania-u)); }
+    :where([data-corner]) :where(progress) { appearance: none; -webkit-appearance: none; display: block; width: 100%; border: 1px solid var(--de-color-line); background: var(--de-noitroidvania-well); overflow: hidden; color: var(--c, var(--de-color-muted)); }
+    :where([data-corner="tl"]) > :where(ul) { display: flex; gap: calc(3px * var(--de-noitroidvania-u)); flex-wrap: wrap; max-width: min(calc(220px * var(--de-noitroidvania-u)), 100%); }
+    :where([data-corner="tl"]) > :where(small) { font-size: inherit; color: var(--de-color-faint); }
+    :where(article[data-hand]) { display: flex; align-items: stretch; gap: calc(6px * var(--de-noitroidvania-u)); border: 1px solid var(--de-color-line); background: rgb(from var(--de-color-surface) r g b / .82); padding: calc(3px * var(--de-noitroidvania-u)) calc(6px * var(--de-noitroidvania-u)); width: calc(190px * var(--de-noitroidvania-u)); min-width: 0; max-width: 100%; }
+    :where([data-corner="bc"]) > :where(section) { display: flex; flex-direction: column; align-items: center; gap: calc(2px * var(--de-noitroidvania-u)); }
+    :where([data-layer="radial"]) :where([role="menu"]) > :where(p) { margin: 0; position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); text-align: center; width: 150px; font-size: var(--de-noitroidvania-fs-label); color: var(--de-color-muted); }
+    :where(section[data-track]) { padding: 8px; border-bottom: 1px solid var(--de-color-line); display: flex; flex-direction: column; gap: 4px; }
+    :where(section[data-axis]) { padding: 8px; border-bottom: 1px solid var(--de-color-line); display: flex; flex-direction: column; gap: 4px; }
+    :where([data-kind="vendor"]) :where(data[data-tone="ok"]) { color: var(--de-color-ok); }
+    :where([data-kind="vendor"]) :where(data[data-tone="warn"]) { color: var(--de-color-warn); }
+    :where([data-kind="vendor"]) :where(data[data-tone="danger"]) { color: var(--de-color-danger); }
+    :where([data-kind="vendor"]) :where(p[role="alert"]) { color: var(--de-color-danger); }
+    :where([data-kind="vendor"]) :where(li[aria-selected="true"]) { box-shadow: var(--de-noitroidvania-mark); padding-left: 4px; position: relative; left: -4px; width: calc(100% + 4px); }
+    :where([data-layer="pause"]) > :where(article) { border: 1px solid var(--de-noitroidvania-line-hot); background: var(--de-color-surface); padding: 18px 26px; display: flex; flex-direction: column; gap: 6px; min-width: 260px; max-height: 90vh; overflow-y: auto; }
+    :where([data-layer="pause"]) :where(button[role="menuitem"]) { padding: 4px 8px; text-align: left; letter-spacing: .14em; text-transform: uppercase; font-size: 11px; }
+    :where([data-toast]) > :where(small) { display: block; font-size: calc(9px * var(--de-noitroidvania-u)); letter-spacing: .18em; text-transform: uppercase; color: var(--de-color-faint); }
+    :where([data-toast]) > :where(strong) { display: block; font-weight: normal; }
+    :where([data-toast]) > :where(p) { display: block; margin: 0; font-size: calc(10px * var(--de-noitroidvania-u)); color: var(--de-color-muted); white-space: normal; }
+    :where(ul[aria-label="Run log"]) { list-style: none; margin: 0; padding: 0; width: 100%; text-align: right; font-size: calc(10px * var(--de-noitroidvania-u)); line-height: 1.55; letter-spacing: .06em; color: var(--de-color-muted); text-shadow: 0 1px 0 var(--de-noitroidvania-well); }
+    :where(p[aria-label="Controls"]) { margin: 0; text-align: center; font-size: calc(10px * var(--de-noitroidvania-u)); line-height: 1.7; letter-spacing: .08em; color: var(--de-color-faint); }
+    :where(pre[aria-label="Debug"]) { margin: 0; padding: calc(8px * var(--de-noitroidvania-u)) calc(10px * var(--de-noitroidvania-u)); font: calc(11px * var(--de-noitroidvania-u))/1.45 var(--de-font-mono); white-space: pre; color: #9fe8b0; background: rgba(6,8,10,.82); border: 1px solid #1e2a22; max-width: 100%; overflow: hidden; }
+    :where(article[aria-label="Altar"]), :where(article[aria-label="Ability cache"]) { font-size: calc(10px * var(--de-noitroidvania-u)); line-height: 1.5; letter-spacing: .06em; max-width: 100%; border: 1px solid var(--de-color-line); background: rgb(from var(--de-color-surface) r g b / .78); padding: calc(5px * var(--de-noitroidvania-u)) calc(10px * var(--de-noitroidvania-u)); text-align: center; opacity: .8; }
+    :where(article[aria-label="Ability cache"]) { border-color: var(--de-color-accent); background: rgb(from var(--de-color-surface) r g b / .94); padding: calc(6px * var(--de-noitroidvania-u)) calc(11px * var(--de-noitroidvania-u)); min-width: calc(210px * var(--de-noitroidvania-u)); opacity: 1; box-shadow: 0 0 0 1px rgb(from var(--de-color-accent) r g b / .33); }
+    :where(article[aria-label="Ability cache"]) { border-color: var(--de-color-ok); box-shadow: 0 0 0 1px rgb(from var(--de-color-ok) r g b / .33); }
+    :where([data-layer="shell"]) :where(li[role="option"]) { padding: 2px 6px; border: 1px solid var(--de-color-line); background: var(--de-color-surface-2); color: inherit; font: inherit; letter-spacing: inherit; cursor: pointer; text-align: left; }
+    :where([data-layer="shell"]) :where([role="menuitem"]) > :where(strong) { font-weight: normal; letter-spacing: .2em; text-transform: uppercase; color: var(--de-color-fg); }
+    :where([data-layer="shell"]) :where([role="menuitem"]) > :where(small) { font-size: calc(var(--de-noitroidvania-fs) * .88); color: var(--de-color-faint); }
+    :where([data-layer="shell"]) :where(ul[role="listbox"]) { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 3px; }
+    :where([data-layer="shell"]) :where(li[role="option"]) { display: grid; grid-template-columns: 1fr auto; gap: 4px 14px; align-items: baseline; }
+    :where([data-layer="run-setup"]) :where([data-scroll])::-webkit-scrollbar { width: 8px; }
+    :where([data-layer="run-setup"]) :where([data-scroll])::-webkit-scrollbar-thumb { background: var(--de-noitroidvania-line-hot); }
+    :where([data-layer="run-setup"]) > :where([data-engine]) > :where(header) { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; row-gap: 4px; padding: 6px 10px; border-bottom: 1px solid var(--de-color-line); background: var(--de-color-surface-2); }
+    :where([data-layer="run-setup"]) :where([data-scroll]) > :where(div) { display: flex; flex-direction: column; gap: 12px; }
+    :where([data-layer="run-setup"]) :where([data-scroll]) :where(header) { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    :where([data-layer="run-setup"]) :where([data-scroll]) :where(h3) { margin: 0; font: inherit; font-size: 14px; letter-spacing: .16em; text-transform: uppercase; color: var(--de-color-accent); }
+    :where([data-layer="run-setup"]) :where(aside[role="note"]) { border: 1px solid var(--de-color-warn); border-left-width: 3px; padding: 5px 8px; line-height: 1.35; }
+    :where([data-layer="run-setup"]) :where(p[data-stat]) { margin: 0; padding-bottom: 6px; display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; border: 1px solid var(--de-color-line); border: 1px solid var(--de-color-accent-2); padding: 5px 9px; }
+    :where([data-layer="run-setup"]) > :where([data-engine]) > :where(footer) { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; row-gap: 4px; padding: 4px 10px; border-top: 1px solid var(--de-color-line); background: var(--de-color-surface-2); font-size: var(--de-noitroidvania-fs-label); color: var(--de-color-faint); }
+    :where([data-layer="game-over"]) :where(p[data-empty]) { margin: 0; color: var(--de-color-faint); font-size: calc(var(--de-noitroidvania-fs) * .84); font-style: italic; padding: 2px 0; }
+    :where([data-layer="game-over"]) :where([role="menuitem"]) > :where(strong) { font-weight: normal; letter-spacing: .2em; text-transform: uppercase; color: var(--de-color-fg); min-width: 13ch; }
+    :where([data-layer="game-over"]) :where([role="menuitem"]) > :where(small) { color: var(--de-color-faint); font-size: calc(var(--de-noitroidvania-fs) * .88); }
+    :where(article[data-hand]) :where(p) { margin: 0; padding: 0; list-style: none; }
+    :where(article[data-hand]) :where(ul) { margin: 0; padding: 0; list-style: none; }
+    :where(article[data-hand]) :where(progress) { appearance: none; -webkit-appearance: none; display: block; width: 100%; border: 1px solid var(--de-color-line); background: var(--de-noitroidvania-well); overflow: hidden; color: var(--c, var(--de-color-muted)); }
+    :where([data-corner]) :where(progress)::-webkit-progress-bar { background: transparent; }
+    :where([data-corner]) :where(progress)::-webkit-progress-value { background: var(--c, var(--de-color-muted)); }
+    :where([data-corner]) :where(progress)::-moz-progress-bar { background: var(--c, var(--de-color-muted)); }
+    :where([data-corner="tl"]) > :where(ul) > :where(li) { position: relative; width: round(nearest, calc(20px * var(--de-noitroidvania-u)), 1px); height: round(nearest, calc(20px * var(--de-noitroidvania-u)), 1px); display: grid; place-items: center; border: 1px solid var(--de-noitroidvania-line-hot); background: var(--de-noitroidvania-cell); font-size: calc(12px * var(--de-noitroidvania-u)); line-height: 1; }
+    :where(article[data-hand]) > :where(kbd) { display: grid; place-items: center; flex: none; width: round(nearest, calc(22px * var(--de-noitroidvania-u)), 1px); border: 1px solid var(--de-color-line); font: inherit; font-size: calc(9px * var(--de-noitroidvania-u)); color: var(--de-color-muted); }
+    :where(article[data-hand]) > :where(i) { display: grid; place-items: center; flex: none; width: round(nearest, calc(22px * var(--de-noitroidvania-u)), 1px); font-style: normal; font-size: calc(13px * var(--de-noitroidvania-u)); }
+    :where(article[data-hand]) > :where(div) { display: flex; flex-direction: column; gap: calc(2px * var(--de-noitroidvania-u)); min-width: 0; flex: 1 1 auto; }
+    :where(article[data-hand]) :where(strong) { font-weight: normal; font-size: calc(11px * var(--de-noitroidvania-u)); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--de-cat-1); }
+    :where(article[data-hand]) :where(small) { display: flex; gap: calc(6px * var(--de-noitroidvania-u)); font-size: calc(9px * var(--de-noitroidvania-u)); color: var(--de-color-muted); overflow: hidden; white-space: nowrap; min-height: 1lh; }
+    :where(article[data-hand]) :where(small) > :where(*) { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+    :where(article[data-hand]) :where(ul) { display: flex; gap: calc(2px * var(--de-noitroidvania-u)); min-height: round(nearest, calc(3px * var(--de-noitroidvania-u)), 1px); }
+    :where(article[data-hand]) > :where(p) { display: flex; flex-direction: column; gap: calc(2px * var(--de-noitroidvania-u)); flex: none; width: round(nearest, calc(30px * var(--de-noitroidvania-u)), 1px); justify-content: center; }
+    :where(article[data-hand]) :where(progress) { height: round(nearest, calc(3px * var(--de-noitroidvania-u)), 1px); }
+    :where([data-corner="bc"]) > :where(section) > :where(ul) { display: flex; gap: calc(2px * var(--de-noitroidvania-u)); }
+    :where([data-corner="bc"]) > :where(section) > :where(p) { display: flex; gap: calc(8px * var(--de-noitroidvania-u)); font-size: calc(9px * var(--de-noitroidvania-u)); color: var(--de-color-muted); letter-spacing: .14em; }
+    :where(article[role="dialog"]) :where(table) { border-collapse: collapse; width: 100%; font-size: var(--de-noitroidvania-fs-label); }
+    :where(article[role="dialog"]) :where(th), :where(article[role="dialog"]) :where(td) { padding: 1px 8px; text-align: left; border-bottom: 1px solid var(--de-noitroidvania-line-soft); white-space: nowrap; }
+    :where(article[role="dialog"]) :where(th) { color: var(--de-color-faint); font-weight: normal; text-transform: uppercase; letter-spacing: .12em; }
+    :where(section[data-track]) > :where(header) { display: flex; align-items: baseline; gap: 8px; }
+    :where(section[data-track]) > :where(progress) { appearance: none; -webkit-appearance: none; display: block; width: 100%; height: 6px; border: 1px solid var(--de-color-line); background: var(--de-noitroidvania-well); overflow: hidden; color: var(--c, var(--de-color-muted)); }
+    :where(section[data-track]) > :where(ul) { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px; }
+    :where(section[data-axis]) > :where(header) { display: flex; align-items: baseline; gap: 8px; }
+    :where(section[data-axis]) > :where(div) { position: relative; height: 10px; border: 1px solid var(--de-color-line); background: var(--de-noitroidvania-well); }
+    :where(section[data-axis]) > :where(footer) { display: flex; align-items: baseline; font-size: var(--de-noitroidvania-fs-label); }
+    :where(article[role="dialog"]) :where(data) { font: inherit; color: var(--de-color-muted); }
+    :where([data-layer="prologue"]) :where(li) > :where(span:first-child) { display: inline-flex; gap: 3px; }
+    :where([data-layer="prologue"]) :where(li) > :where(span:last-child) { font-size: 11px; letter-spacing: .2em; text-transform: lowercase; color: var(--de-color-muted); }
+    :where([data-kind="vendor"]) :where(header) > :where(data:last-child) { margin-left: auto; color: var(--de-color-accent); white-space: nowrap; }
+    :where([data-kind="vendor"]) :where(li[aria-selected="true"])::before { content: "▸"; }
+    :where([data-kind="vendor"]) :where(li[aria-disabled="true"]) > :where(span), :where([data-kind="vendor"]) :where(li[aria-disabled="true"]) > :where(data) { color: var(--de-color-faint); }
+    :where([data-kind="vendor"]) :where(li[aria-selected="true"]) > :where(span) { color: var(--de-color-fg); }
+    :where([data-kind="vendor"]) > :where(div) > :where(p:not([role])) { color: var(--de-color-accent); padding-top: 3px; }
+    :where([data-kind="vendor"]) > :where(div) > :where(small:last-child) { padding-top: 3px; }
+    :where(article[role="dialog"]) > :where(header) { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 6px 10px; border-bottom: 1px solid var(--de-color-line); background: var(--de-color-surface-2); }
+    :where(article[role="dialog"]) > :where(footer), :where(article[role="dialog"]) :where(figcaption) { display: flex; align-items: center; gap: 10px; padding: 4px 10px; border-top: 1px solid var(--de-color-line); background: var(--de-color-surface-2); font-size: var(--de-noitroidvania-fs-label); color: var(--de-color-faint); }
+    :where(figure) > :where(p[data-empty]) { margin: 0; padding: 4px 8px; color: var(--de-color-faint); font-size: var(--de-noitroidvania-fs-label); }
+    :where(figure) > :where(div:not([data-visited])) { opacity: .18; }
+    :where(figure) > :where(div[data-kind="sanctum"]) { border-color: var(--de-color-accent); color: var(--de-color-accent); }
+    :where(figure) > :where(div[data-kind="rest"]) { border-color: var(--de-color-ok); color: var(--de-color-ok); }
+    :where(figure) > :where(div[data-kind="surface"]) { border-color: var(--de-color-accent-2); color: var(--de-color-accent-2); }
+    :where(figure) > :where(div[aria-current="location"]) { border-color: var(--de-color-accent); background: var(--de-noitroidvania-surface-3); box-shadow: inset 0 0 0 1px var(--de-color-accent); }
+    :where(figcaption) > :where(span[data-kind]) { display: inline-flex; align-items: center; gap: 4px; }
+    :where(figcaption) > :where(span[data-kind="sanctum"]) { color: var(--de-color-accent); }
+    :where(figcaption) > :where(span[data-kind="rest"]) { color: var(--de-color-ok); }
+    :where(figcaption) > :where(span[data-kind="surface"]) { color: var(--de-color-accent-2); }
+    :where(figcaption) > :where(span[data-tone="warn"]) { color: var(--de-color-warn); }
+    :where(ul[aria-label="Run log"]) > :where(li) { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    :where(p[aria-label="Controls"]) :where(kbd) { font: inherit; color: var(--de-color-muted); }
+    :where(article[aria-label="Altar"]) :where(h3), :where(article[aria-label="Ability cache"]) :where(h3) { margin: 0; font: inherit; color: var(--de-color-accent); text-transform: uppercase; letter-spacing: .14em; }
+    :where(article[aria-label="Ability cache"]) :where(h3) { color: var(--de-color-ok); }
+    :where(article[aria-label="Altar"]) :where(p), :where(article[aria-label="Ability cache"]) :where(p) { margin: 0; color: var(--de-color-muted); }
+    :where([data-layer="shell"]) :where(header:not(section > header)) > :where(button:hover) { border-color: var(--de-noitroidvania-line-hot); background: var(--de-noitroidvania-surface-3); }
+    :where([data-layer="shell"]) :where(li[role="option"]) > :where(span) { letter-spacing: .16em; text-transform: uppercase; }
+    :where([data-layer="shell"]) :where(li[role="option"]) > :where(strong) { font-weight: normal; color: var(--de-color-accent); letter-spacing: .14em; text-transform: uppercase; justify-self: end; white-space: nowrap; }
+    :where([data-layer="shell"]) :where(li[role="option"]) > :where(small) { grid-column: 1 / -1; color: var(--de-color-faint); font-size: calc(var(--de-noitroidvania-fs) * .86); line-height: 1.55; }
+    :where([data-layer="run-setup"]) > :where([data-engine]) > :where(header) > :where(h2) { margin: 0; font: inherit; letter-spacing: .3em; text-transform: uppercase; color: var(--de-color-accent); }
+    :where([data-layer="run-setup"]) > :where([data-engine]) > :where(header) > :where(p) { margin: 0; display: flex; align-items: center; gap: 6px; font-size: var(--de-noitroidvania-fs-label); color: var(--de-color-faint); letter-spacing: .16em; text-transform: uppercase; }
+    :where([data-layer="run-setup"]) > :where([data-engine]) > :where(header) :where(label) { display: inline-flex; align-items: center; gap: 6px; }
+    :where([data-layer="run-setup"]) > :where([data-engine]) > :where(header) :where(input) { width: 10ch; background: var(--de-color-surface-2); border: 1px solid var(--de-color-line); color: inherit; font: inherit; font-size: var(--de-noitroidvania-fs-label); letter-spacing: inherit; text-transform: none; padding: 2px 6px; border-radius: 0; }
+    :where([data-layer="run-setup"]) > :where([data-engine]) > :where(header) :where(button) { font-size: var(--de-noitroidvania-fs-tiny); letter-spacing: .12em; }
+    :where([data-layer="run-setup"]) :where(main) > :where(section) > :where([data-scroll]) { padding: 10px; display: flex; flex-direction: column; gap: 12px; }
+    :where([data-layer="run-setup"]) :where([data-scroll]) > :where(div) :where(ul) { display: flex; flex-direction: column; gap: 2px; }
+    :where([data-layer="run-setup"]) :where([data-scroll]) > :where(div) :where(li) { position: relative; padding-left: 13px; font-size: 11px; color: var(--de-color-muted); overflow-wrap: anywhere; }
+    :where([data-layer="run-setup"]) :where([data-scroll]) > :where(div) :where(p) { margin: 0; display: flex; flex-wrap: wrap; gap: 4px; }
+    :where([data-layer="run-setup"]) :where(aside[role="note"]) > :where(strong) { color: var(--de-color-warn); font-weight: normal; letter-spacing: .16em; text-transform: uppercase; display: block; }
+    :where([data-layer="run-setup"]) :where([data-scroll]) > :where(section) > :where(ul) { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 6px; }
+    :where([data-layer="run-setup"]) :where(p[data-stat]) > :where(data) { font-size: 13px; color: var(--de-color-accent-2); letter-spacing: .12em; }
+    :where([data-layer="run-setup"]) :where(p[data-stat]) > :where(span) { font-size: var(--de-noitroidvania-fs-label); color: var(--de-color-muted); overflow-wrap: anywhere; }
+    :where([data-layer="run-setup"]) :where(p[data-stat]) > :where(small) { font-size: var(--de-noitroidvania-fs-label); color: var(--de-color-faint); overflow-wrap: anywhere; }
+    :where([data-layer="run-setup"]) > :where([data-engine]) > :where(footer) > :where(p) { margin: 0; }
+    :where([data-layer="run-setup"]) > :where([data-engine]) > :where(footer) :where(kbd) { border: 1px solid var(--de-noitroidvania-line-hot); padding: 0 3px; color: var(--de-color-muted); }
+    :where([data-layer="run-setup"]) > :where([data-engine]) > :where(footer) > :where(menu) { margin: 0; padding: 0; list-style: none; display: flex; align-items: center; gap: 10px; }
+    :where([data-layer="game-over"]) :where(dt) + :where(dd[data-tone="good"]) { color: var(--de-color-ok); }
+    :where([data-layer="game-over"]) :where(dt) + :where(dd[data-tone="bad"]) { color: var(--de-color-danger); }
+    :where([data-layer="game-over"]) :where(ol) > :where(li:last-child) { color: var(--de-color-fg); }
+    :where(article[data-hand]) :where(progress)::-webkit-progress-bar { background: transparent; }
+    :where(article[data-hand]) :where(progress)::-webkit-progress-value { background: var(--c, var(--de-color-muted)); }
+    :where(article[data-hand]) :where(progress)::-moz-progress-bar { background: var(--c, var(--de-color-muted)); }
+    :where([data-corner="tl"]) > :where(ul) > :where(li) > :where(b) { position: absolute; right: -2px; bottom: -4px; font-size: calc(9px * var(--de-noitroidvania-u)); color: var(--de-color-fg); background: var(--de-noitroidvania-well); padding: 0 1px; }
+    :where([data-corner="tl"]) > :where(ul) > :where(li) > :where(u) { position: absolute; left: 0; bottom: 0; height: round(nearest, calc(2px * var(--de-noitroidvania-u)), 1px); width: 100%; transform-origin: 0 50%; transform: scaleX(var(--f,1)); background: currentColor; }
+    :where(article[data-hand]) :where(ul) > :where(li) { width: round(nearest, calc(8px * var(--de-noitroidvania-u)), 1px); height: round(nearest, calc(3px * var(--de-noitroidvania-u)), 1px); background: var(--de-noitroidvania-line-hot); }
+    :where([data-corner="bc"]) > :where(section) > :where(ul) > :where(li) { width: round(nearest, calc(12px * var(--de-noitroidvania-u)), 1px); height: round(nearest, calc(7px * var(--de-noitroidvania-u)), 1px); background: var(--de-noitroidvania-cell); border: 1px solid var(--de-color-line); }
+    :where([data-corner="bc"]) > :where(section) > :where(p) > :where(b) { font-weight: normal; color: var(--de-color-accent); }
+    :where(article[role="dialog"]) :where(aside) :where(dl) { margin: 0; display: flex; flex-direction: column; gap: 0; font-size: var(--de-noitroidvania-fs-label); color: var(--de-color-muted); }
+    :where(article[role="dialog"]) :where(td) > :where(span) { padding-inline-start: 6px; }
+    :where(article[role="dialog"]) > :where(footer) :where(kbd) { border: 1px solid var(--de-noitroidvania-line-hot); padding: 0 3px; color: var(--de-color-muted); }
+    :where(article[role="dialog"]) > :where(header) > :where(label) { color: var(--de-color-muted); }
+    :where(article[role="dialog"]) > :where(div) > :where(aside) { width: 330px; border-left: 1px solid var(--de-color-line); display: flex; flex-direction: column; min-height: 0; min-width: 0; }
+    :where(section[data-track]) > :where(header) > :where(h3) { margin: 0; font: inherit; color: var(--de-color-accent); text-transform: uppercase; letter-spacing: .16em; }
+    :where(section[data-track]) > :where(header) > :where(small) { font-size: var(--de-noitroidvania-fs-label); color: var(--de-color-faint); }
+    :where(section[data-track]) > :where(header) > :where(span) { margin-left: auto; color: var(--de-color-muted); }
+    :where(section[data-track]) > :where(progress)::-webkit-progress-bar { background: transparent; }
+    :where(section[data-track]) > :where(progress)::-webkit-progress-value { background: var(--c, var(--de-color-muted)); }
+    :where(section[data-track]) > :where(progress)::-moz-progress-bar { background: var(--c, var(--de-color-muted)); }
+    :where(section[data-track]) > :where(ul) > :where(li) { border: 1px solid var(--de-color-line); padding: 1px 5px; font-size: var(--de-noitroidvania-fs-label); color: var(--de-color-faint); }
+    :where(section[data-axis]) > :where(header) > :where(span) { flex: 1 1 auto; text-align: center; color: var(--de-color-faint); text-transform: uppercase; letter-spacing: .16em; font-size: var(--de-noitroidvania-fs-label); }
+    :where(section[data-axis]) > :where(div) > :where(b) { position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: var(--de-noitroidvania-line-hot); }
+    :where(section[data-axis]) > :where(div) > :where(i) { position: absolute; top: -2px; bottom: -2px; width: 3px; translate: -1px 0; background: var(--de-color-muted); }
+    :where(article[role="dialog"]) :where(data) > :where(b) { font-weight: normal; color: var(--de-color-faint); }
+    :where(article[role="dialog"]) > :where(header) > :where(h2) { margin: 0; font: inherit; letter-spacing: .3em; text-transform: uppercase; color: var(--de-color-accent); }
+    :where(article[role="dialog"]) > :where(footer) > :where(p) { margin: 0; }
+    :where(figure) > :where(div[data-kind="sanctum"])::after { content: "◆"; }
+    :where(figure) > :where(div[data-kind="rest"])::after { content: "+"; }
+    :where(figure) > :where(div[data-kind="surface"])::after { content: "↑"; }
+    :where(figcaption) > :where(span[data-kind]) > :where(i) { width: 9px; height: 9px; border: 1px solid currentColor; font-style: normal; font-size: 7px; line-height: 7px; text-align: center; }
+    :where(article[aria-label="Altar"]) :where(h3) > :where(small) { font-size: inherit; color: var(--de-color-faint); letter-spacing: .06em; }
+    :where(article[aria-label="Altar"]) :where(p:has(> span)) { padding-top: 2px; color: var(--de-color-fg); }
+    :where(article[aria-label="Altar"]) :where(p) > :where(span) { color: var(--de-color-faint); }
+    :where(article[aria-label="Altar"]) :where(p) > :where(small) { font-size: inherit; color: var(--de-color-faint); }
+    :where([data-layer="run-setup"]) :where(main) > :where(nav) :where(li:hover) { background: var(--de-color-surface-2); }
+    :where([data-layer="run-setup"]) :where(main) > :where(nav) :where(li[data-cursor]) { background: var(--de-noitroidvania-surface-3); }
+    :where([data-layer="run-setup"]) :where(main) > :where(nav) :where(li[aria-selected="true"]) { box-shadow: var(--de-noitroidvania-mark); }
+    :where([data-layer="run-setup"]) :where(main) > :where(nav) :where(li[aria-disabled="true"]) { opacity: .42; }
+    :where([data-layer="run-setup"]) :where([data-scroll]) > :where(div) :where(li)::before { content: "▸"; position: absolute; left: 0; color: var(--de-noitroidvania-line-hot); }
+    :where([data-layer="run-setup"]) :where([data-scroll]) > :where(div) :where(li) > :where(small) { font-size: inherit; color: inherit; }
+    :where([data-layer="run-setup"]) :where([data-scroll]) > :where(section) > :where(ul) > :where(li) { border: 1px solid var(--de-color-line); background: var(--de-color-surface-2); padding: 6px 8px; display: flex; flex-direction: column; gap: 3px; cursor: pointer; min-width: 0; }
+    :where([data-layer="run-setup"]) > :where([data-engine]) > :where(footer) > :where(p) + :where(p) { flex: 1 1 auto; min-width: 0; color: var(--de-color-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    :where(article[role="dialog"]) :where(li) > :where(span:has(> button)) { display: flex; gap: 3px; }
+    :where(article[role="dialog"]) > :where(div) > :where(aside) > :where(h3) { margin: 0; font: inherit; padding: 4px 8px; border-bottom: 1px solid var(--de-color-line); color: var(--de-color-faint); text-transform: uppercase; letter-spacing: .18em; font-size: var(--de-noitroidvania-fs-label); }
+    :where(article[role="dialog"]) > :where(div) > :where(aside) > :where(div) { padding: 8px; display: flex; flex-direction: column; gap: 8px; }
+    :where([data-layer="run-setup"]) :where(main) > :where(nav) :where(li) > :where(span:first-child) { width: 14px; flex: none; text-align: center; color: var(--de-color-faint); }
+    :where([data-layer="run-setup"]) :where([data-scroll]) > :where(section) > :where(ul) > :where(li) :where(strong) { font-weight: normal; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; }
+    :where([data-layer="run-setup"]) :where([data-scroll]) > :where(section) > :where(ul) > :where(li) > :where(em) { font-style: normal; font-size: var(--de-noitroidvania-fs-label); color: var(--de-color-accent-2); overflow-wrap: anywhere; }
+    :where([data-layer="run-setup"]) :where([data-scroll]) > :where(section) > :where(ul) > :where(li) > :where(p) { margin: 0; font-size: var(--de-noitroidvania-fs-label); color: var(--de-color-muted); overflow-wrap: anywhere; }
+    :where([data-layer="run-setup"]) :where([data-scroll]) > :where(section) > :where(ul) > :where(li) > :where(button) { align-self: flex-start; }
+    :where(article[role="dialog"]) :where(aside) :where(dl) > :where(div) > :where(dt), :where(article[role="dialog"]) :where(aside) :where(dl) > :where(div) > :where(dd) { display: inline; margin: 0; }
+    :where(article[role="dialog"]) :where(aside) :where(dl) > :where(div) > :where(dt) { color: var(--de-color-faint); }
+    :where(article[role="dialog"]) > :where(div) > :where(aside) > :where(div) > :where(h3) { margin: 0; font: inherit; color: var(--de-color-accent); text-transform: uppercase; letter-spacing: .12em; }
+    :where(article[role="dialog"]) > :where(div) > :where(aside) > :where(div) > :where(p) { margin: 0; color: var(--de-color-muted); font-size: 11px; }
+    :where(article[role="dialog"]) > :where(div) > :where(aside) > :where(div) > :where(small) { font-size: var(--de-noitroidvania-fs-label); color: var(--de-color-muted); }
+    :where(article[role="dialog"]) > :where(div) > :where(aside) > :where(div) > :where(dl) { margin: 0; display: flex; flex-direction: column; gap: 8px; font-size: var(--de-noitroidvania-fs-label); color: var(--de-color-muted); }
+    :where([data-layer="run-setup"]) :where(main) > :where(nav) :where(li[aria-selected="true"]) > :where(div) > :where(span) { color: var(--de-color-accent); }
+    :where(article[role="dialog"]) > :where(div) > :where(aside) > :where(div) > :where(p:has(> button)) { display: flex; align-items: center; gap: var(--de-noitroidvania-gap); font-size: var(--de-noitroidvania-fs); color: var(--de-color-fg); }
+    :where(article[role="dialog"]) > :where(div) > :where(aside) > :where(div) > :where(p) > :where(small) { font-size: var(--de-noitroidvania-fs-label); color: var(--de-color-faint); }
+    :where(article[role="dialog"]) > :where(div) > :where(aside) > :where(div) > :where(dl) > :where(div) > :where(dt), :where(article[role="dialog"]) > :where(div) > :where(aside) > :where(div) > :where(dl) > :where(div) > :where(dd) { display: inline; margin: 0; }
+    :where(article[role="dialog"]) > :where(div) > :where(aside) > :where(div) > :where(dl) > :where(div) > :where(dt) { color: var(--de-color-faint); }
+    :where([data-layer="radial"]) :where([role="menuitem"][data-cursor]) { border-color: var(--de-color-accent); color: var(--de-color-accent); background: var(--de-noitroidvania-surface-3); }
+    :where([data-layer="radial"]) :where([role="menuitem"][aria-disabled="true"]) { color: var(--de-color-faint); }
+    :where([data-kind="vendor"][data-range="0"]) { border-color: var(--de-color-line); opacity: .8; min-width: 0; }
+    :where([data-kind="vendor"][data-open="0"]) { border-color: var(--de-color-danger); }
+    :where([data-kind="vendor"][data-hostile="1"]) { border-color: var(--de-color-danger); }
+    :where([data-toast][data-tone="info"]) { border-color: var(--de-color-accent-2); }
+    :where([data-toast][data-tone="ok"]) { border-color: var(--de-color-ok); }
+    :where([data-toast][data-tone="warn"]) { border-color: var(--de-color-danger); }
+    :where([data-layer="shell"]) :where([role="menu"]) > :where([role="menuitem"]) { padding: 2px 6px; border: 1px solid var(--de-color-line); background: var(--de-color-surface-2); color: inherit; font: inherit; letter-spacing: inherit; cursor: pointer; text-align: left; }
+    :where([data-layer="shell"]) :where([role="menu"]) > :where([role="menuitem"]) { display: grid; grid-column: 1 / -1; grid-template-columns: subgrid; gap: 12px; align-items: baseline; width: 100%; }
+    :where([data-layer="shell"]) :where([role="menuitem"][data-cursor]) { border-color: var(--de-color-accent); }
+    :where([data-layer="shell"]) :where([role="menuitem"]:hover) { border-color: var(--de-noitroidvania-line-hot); background: var(--de-noitroidvania-surface-3); }
+    :where([data-layer="run-setup"]) :where([data-chip][data-tone="warn"]) { color: var(--de-color-warn); border-color: var(--de-color-warn); }
+    :where([data-layer="run-setup"]) :where([data-chip][data-tone="ok"]) { color: var(--de-color-accent); border-color: var(--de-color-accent); }
+    :where([data-layer="game-over"]) :where([role="menuitem"][data-cursor]) { border-color: var(--de-color-accent); }
+    :where([data-layer="game-over"]) :where([role="menuitem"]:hover) { border-color: var(--de-noitroidvania-line-hot); background: var(--de-noitroidvania-surface-3); outline: none; }
+    :where([data-layer="game-over"]) :where([role="menuitem"]:focus) { border-color: var(--de-noitroidvania-line-hot); outline: none; }
+    :where([data-corner="tl"]) :where(p[data-stat]) { display: flex; flex-wrap: wrap; justify-content: space-between; font-size: calc(10px * var(--de-noitroidvania-u)); letter-spacing: .14em; }
+    :where([data-corner="tl"]) :where(progress:nth-of-type(1)) { height: round(nearest, calc(9px * var(--de-noitroidvania-u)), 1px); }
+    :where([data-corner="tl"]) :where(progress:nth-of-type(2)) { height: round(nearest, calc(4px * var(--de-noitroidvania-u)), 1px); }
+    :where([data-corner="tl"]) :where(progress:nth-of-type(3)) { height: round(nearest, calc(4px * var(--de-noitroidvania-u)), 1px); }
+    :where([data-corner="tl"]) > :where(p:not([data-stat])) { display: flex; flex-wrap: wrap; gap: calc(8px * var(--de-noitroidvania-u)); align-items: center; font-size: calc(10px * var(--de-noitroidvania-u)); letter-spacing: .1em; }
+    :where([data-corner="tl"]) :where(data[data-currency]) { font: inherit; white-space: nowrap; }
+    :where([data-corner="tl"]) :where(data[data-currency="scrip"]) { color: var(--de-color-accent); }
+    :where([data-corner="tl"]) :where(data[data-currency="ash"]) { color: var(--de-color-muted); }
+    :where([data-corner="bl"]) > :where(ul[aria-label="Dash charges"]) { display: flex; gap: calc(3px * var(--de-noitroidvania-u)); }
+    :where([data-corner="bl"]) > :where(p[aria-label="Traversal"]) { display: flex; align-items: center; gap: calc(4px * var(--de-noitroidvania-u)); min-height: round(nearest, calc(13px * var(--de-noitroidvania-u)), 1px); }
+    :where([data-corner="bl"]) > :where(p[aria-label="Gathering field"]) { display: flex; align-items: center; gap: calc(4px * var(--de-noitroidvania-u)); min-height: round(nearest, calc(9px * var(--de-noitroidvania-u)), 1px); max-width: 100%; min-width: 0; font-size: calc(9px * var(--de-noitroidvania-u)); letter-spacing: .1em; }
+    :where(article[data-hand][data-armed]) { border-color: var(--de-color-accent); }
+    :where(article[data-hand][data-overheated]) { border-color: var(--de-color-danger); }
+    :where([data-corner="br"]) :where(article[data-hand]) { flex-direction: row-reverse; }
+    :where(article[role="dialog"]) > :where([role="search"]), :where(article[role="dialog"]) :where([role="group"]) { display: flex; flex-wrap: wrap; gap: 4px; padding: 5px 8px; border-bottom: 1px solid var(--de-color-line); align-items: center; }
+    :where(article[role="dialog"]) :where([data-rarity="uncommon"]) { color: var(--de-cat-2); }
+    :where(article[role="dialog"]) :where([data-rarity="rare"]) { color: var(--de-cat-3); }
+    :where(article[role="dialog"]) :where([data-rarity="epic"]) { color: var(--de-cat-4); }
+    :where(article[role="dialog"]) :where([data-rarity="relic"]) { color: var(--de-cat-5); }
+    :where(article[role="dialog"]) :where([data-rarity="cursed"]) { color: var(--de-cat-6); }
+    :where(article[role="dialog"]) :where([data-scroll]) { scrollbar-width: thin; scrollbar-color: var(--de-noitroidvania-line-hot) transparent; }
+    :where(article[role="dialog"]) :where([role="listbox"]) { list-style: none; margin: 0; padding: 0; }
+    :where(article[role="dialog"]) :where([data-kind="thumb"]) { display: block; width: 64px; height: 64px; flex: none; border: 1px solid var(--de-color-line); background: var(--de-noitroidvania-well); image-rendering: pixelated; }
+    :where(article[role="dialog"]) :where([data-chip]) { display: inline-flex; align-items: center; gap: 4px; border: 1px solid var(--de-color-line); background: var(--de-color-surface-2); padding: 0 4px; font-size: var(--de-noitroidvania-fs-label); color: var(--de-color-muted); white-space: nowrap; }
+    :where(article[role="dialog"]) { background: var(--de-color-surface); border: 1px solid var(--de-noitroidvania-line-hot); }
+    :where(article[aria-label="Altar"][data-ready]) { border-color: var(--de-color-accent); background: rgb(from var(--de-color-surface) r g b / .94); padding: calc(6px * var(--de-noitroidvania-u)) calc(11px * var(--de-noitroidvania-u)); min-width: calc(210px * var(--de-noitroidvania-u)); opacity: 1; box-shadow: 0 0 0 1px rgb(from var(--de-color-accent) r g b / .33); }
+    :where(article[aria-label="Altar"][data-ready]) { text-align: left; }
+    :where([data-layer="shell"]) :where(li[role="option"][data-cursor]) { border-color: var(--de-color-accent); }
+    :where([data-layer="shell"]) :where([role="menuitem"][data-cursor]) > :where(strong) { color: var(--de-color-accent); }
+    :where([data-layer="shell"]) :where(li[role="option"]:hover) { border-color: var(--de-noitroidvania-line-hot); background: var(--de-noitroidvania-surface-3); }
+    :where([data-layer="game-over"]) :where([role="menuitem"][data-cursor]) > :where(strong) { color: var(--de-color-accent); }
+    :where([data-corner="tl"]) :where(p[data-stat]) :where(data) { font: inherit; }
+    :where([data-corner="tl"]) :where(p[data-stat]) :where(small) { font-size: inherit; color: var(--de-color-faint); }
+    :where([data-corner="tl"]) > :where(ul) > :where(li[data-tone="ok"]) { border-color: var(--de-color-ok); color: var(--de-color-ok); }
+    :where([data-corner="tl"]) > :where(ul) > :where(li[data-tone="danger"]) { border-color: var(--de-color-danger); color: var(--de-color-danger); }
+    :where([data-corner="tl"]) > :where(ul) > :where(li:not([data-tone])) { border-color: var(--de-color-muted); color: var(--de-color-fg); }
+    :where([data-corner="tl"]) :where(data[data-currency="scrip"])::after { content: " run"; color: var(--de-color-faint); letter-spacing: .16em; }
+    :where([data-corner="tl"]) :where(data[data-currency="ash"])::after { content: " banked"; color: var(--de-color-faint); letter-spacing: .16em; }
+    :where([data-corner="bl"]) > :where(ul[aria-label="Dash charges"]) > :where(li) { width: round(nearest, calc(10px * var(--de-noitroidvania-u)), 1px); height: round(nearest, calc(10px * var(--de-noitroidvania-u)), 1px); border: 1px solid var(--de-noitroidvania-line-hot); background: var(--de-noitroidvania-well); position: relative; }
+    :where([data-corner="bl"]) > :where(p[aria-label="Traversal"]) > :where(ul) { display: flex; gap: calc(6px * var(--de-noitroidvania-u)); flex-wrap: wrap; }
+    :where([data-corner="bl"]) > :where(p[aria-label="Traversal"]) > :where(kbd) { display: grid; place-items: center; flex: none; min-width: round(nearest, calc(13px * var(--de-noitroidvania-u)), 1px); height: round(nearest, calc(13px * var(--de-noitroidvania-u)), 1px); padding: 0 calc(2px * var(--de-noitroidvania-u)); font: inherit; font-size: calc(9px * var(--de-noitroidvania-u)); color: var(--de-color-muted); }
+    :where([data-corner="bl"]) > :where(p[aria-label="Traversal"]) > :where(small) { flex: none; font-size: calc(9px * var(--de-noitroidvania-u)); color: var(--de-color-faint); }
+    :where([data-corner="bl"]) > :where(p[aria-label="Traversal"]) :where(li) { position: relative; display: grid; place-items: center; width: round(nearest, calc(13px * var(--de-noitroidvania-u)), 1px); height: round(nearest, calc(13px * var(--de-noitroidvania-u)), 1px); border: 1px solid var(--de-noitroidvania-line-hot); background: var(--de-color-surface); font-size: calc(10px * var(--de-noitroidvania-u)); line-height: 1; white-space: nowrap; text-shadow: 0 1px 0 var(--de-noitroidvania-well); }
+    :where([data-corner="bl"]) > :where(p[aria-label="Gathering field"]) > :where(i) { flex: none; font-style: normal; color: var(--de-noitroidvania-dash); }
+    :where([data-corner="bl"]) > :where(p[aria-label="Gathering field"]) > :where(ul) { display: flex; gap: calc(2px * var(--de-noitroidvania-u)); flex: none; }
+    :where([data-corner="bl"]) > :where(p[aria-label="Gathering field"]) > :where(span) { min-height: 1lh; min-width: 0; color: var(--de-color-warn); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    :where(article[data-hand]) :where(strong[data-rarity="uncommon"]) { color: var(--de-cat-2); }
+    :where(article[data-hand]) :where(strong[data-rarity="rare"]) { color: var(--de-cat-3); }
+    :where(article[data-hand]) :where(strong[data-rarity="epic"]) { color: var(--de-cat-4); }
+    :where(article[data-hand]) :where(strong[data-rarity="relic"]) { color: var(--de-cat-5); }
+    :where(article[data-hand]) :where(strong[data-rarity="cursed"]) { color: var(--de-cat-6); }
+    :where(article[data-hand]) :where(progress[data-off]) { visibility: hidden; }
+    :where(article[data-hand]) :where(progress[data-kind="fuel"]) { --c: var(--de-color-warn); }
+    :where(article[data-hand]) :where(progress[data-kind="hunger"]) { --c: var(--de-cat-6); }
+    :where(article[data-hand]) :where(progress[data-kind="spin"]) { --c: var(--de-noitroidvania-dash); }
+    :where(article[data-hand]) :where(progress[data-kind="battery"]) { --c: var(--de-color-accent-2); }
+    :where(article[data-hand]) :where(progress[data-kind="guard"]) { --c: var(--de-noitroidvania-shield); }
+    :where(article[role="dialog"]) :where([role="group"]) :where(select) { max-width: 130px; }
+    :where(article[role="dialog"]) > :where([role="search"]) :where(label) { display: inline-flex; align-items: center; gap: 3px; font-size: var(--de-noitroidvania-fs-label); color: var(--de-color-muted); cursor: pointer; }
+    :where(article[role="dialog"]) :where(section[data-hand]) { border: 1px solid var(--de-color-line); background: var(--de-color-surface-2); padding: 4px; display: flex; flex-direction: column; gap: 2px; }
+    :where(article[role="dialog"]) :where(ul[aria-label="Sockets"]) { display: flex; flex-direction: column; gap: 2px; }
+    :where(article[role="dialog"]) > :where(section[aria-label="Comparison"]) { border-top: 1px solid var(--de-noitroidvania-line-hot); background: var(--de-color-surface-2); }
+    :where(article[role="dialog"]) :where(th[scope="row"]) { width: 150px; text-transform: none; letter-spacing: inherit; }
+    :where(article[role="dialog"]) :where(th[aria-current="true"]) { color: var(--de-color-accent); }
+    :where(article[role="dialog"]) :where(section[role="tabpanel"]) { scrollbar-width: thin; scrollbar-color: var(--de-noitroidvania-line-hot) transparent; }
+    :where(article[role="dialog"]) :where([data-scroll])::-webkit-scrollbar { width: 8px; }
+    :where(article[role="dialog"]) :where([data-scroll])::-webkit-scrollbar-thumb { background: var(--de-noitroidvania-line-hot); }
+    :where(article[role="dialog"]) > :where(header) > :where([role="tablist"]) { display: flex; gap: 0; }
+    :where(article[role="dialog"]) :where(ul[aria-label]) { list-style: none; margin: 0; padding: 0; }
+    :where(article[role="dialog"]) :where([role="listbox"]) > :where(li) { cursor: pointer; }
+    :where(article[role="dialog"]) :where(ul[aria-label="Materials"]) { display: flex; flex-wrap: wrap; gap: 4px; padding: 8px; align-content: flex-start; }
+    :where(article[role="dialog"]) :where(i[data-kind="swatch"]) { display: block; width: 12px; height: 12px; border: 1px solid #000; flex: none; image-rendering: pixelated; }
+    :where(article[role="dialog"]) :where(i[data-kind="thumb"]) { display: grid; grid-template-rows: 1fr 1fr 2fr; }
+    :where(article[role="dialog"]) :where(p[aria-label="Composition"]) { margin: 0; display: flex; height: 8px; border: 1px solid var(--de-color-line); }
+    :where(article[role="dialog"]) :where(data[data-tone="ok"]) { color: var(--de-color-ok); }
+    :where(article[role="dialog"]) :where(data[data-tone="warn"]) { color: var(--de-color-warn); }
+    :where(article[role="dialog"]) :where(data[data-tone="danger"]) { color: var(--de-color-danger); }
+    :where(article[role="dialog"]) :where(section[role="note"]) { display: flex; flex-direction: column; gap: 6px; border: 1px solid var(--de-color-line); padding: 6px; background: var(--de-color-surface-2); }
+    :where([data-kind="vendor"]) :where(header) > :where(data:not([data-tone]):not(:last-child)) { color: var(--de-color-muted); }
+    :where(figure) > :where(div:not([data-visited])[data-kind="sanctum"]) { opacity: .45; }
+    :where(article[aria-label="Altar"]:not([data-ready])) :where(p) { color: var(--de-color-faint); }
+    :where(article[aria-label="Ability cache"]) :where(p:last-child) { padding-top: 3px; color: var(--de-color-ok); }
+    :where([data-layer="shell"]) :where(li[role="option"]) > :where(strong[data-tone="warn"]) { color: var(--de-color-warn); }
+    :where([data-layer="run-setup"]) > :where([data-engine]) > :where(header) :where(input:focus) { outline: none; border-color: var(--de-color-accent); }
+    :where([data-layer="run-setup"]) > :where([data-engine]) > :where(header) :where(input[readonly]) { color: var(--de-color-faint); border-style: dashed; }
+    :where([data-layer="run-setup"]) > :where([data-engine]) > :where(header) :where(button[aria-pressed="true"]) { color: var(--de-color-accent); border-color: var(--de-color-accent); }
+    :where([data-layer="run-setup"]) > :where([data-engine]) > :where(header) :where(button:disabled) { opacity: .4; cursor: default; }
+    :where([data-layer="run-setup"]) :where([data-scroll]) > :where(div) :where(p) > :where([data-chip]) { color: var(--de-color-accent-2); border-color: var(--de-noitroidvania-line-hot); }
+    :where([data-layer="run-setup"]) :where([data-scroll]) > :where(section) > :where(p[role="status"]) { margin: 0; padding-top: 5px; font-size: var(--de-noitroidvania-fs-label); color: var(--de-color-accent-2); overflow-wrap: anywhere; }
+    :where([data-layer="run-setup"]) > :where([data-engine]) > :where(footer) > :where(p:first-child) { display: flex; align-items: center; gap: var(--de-noitroidvania-gap); }
+    :where([data-layer="run-setup"]) > :where([data-engine]) > :where(footer) :where(button[data-act="start"]) { text-transform: uppercase; }
+    @media (max-width: 620px) {
+      :where([data-layer="run-setup"]) > :where([data-engine]) > :where(footer) > :where(p:first-child) { display: none; }
+    }
+    :where([data-corner="bl"]) > :where(ul[aria-label="Dash charges"]) > :where(li) > :where(i) { position: absolute; inset: 0; transform-origin: 50% 100%; transform: scaleY(var(--f,0)); background: var(--de-noitroidvania-dash); opacity: .5; }
+    :where([data-corner="bl"]) > :where(p[aria-label="Traversal"]) :where(li) > :where(b) { position: absolute; right: 0; top: calc(-2px * var(--de-noitroidvania-u)); font-size: calc(8px * var(--de-noitroidvania-u)); font-weight: normal; line-height: 1; color: var(--de-color-accent-2); text-shadow: 0 1px 0 var(--de-noitroidvania-well), 0 0 2px var(--de-noitroidvania-well); }
+    :where([data-corner="bl"]) > :where(p[aria-label="Traversal"]) :where(li) > :where(u) { position: absolute; left: 0; bottom: 0; height: round(nearest, calc(1px * var(--de-noitroidvania-u)), 1px); width: 100%; text-decoration: none; transform-origin: 0 50%; transform: scaleX(var(--f,1)); background: var(--de-color-accent-2); }
+    :where([data-corner="bl"]) > :where(p[aria-label="Gathering field"]) > :where(ul) > :where(li) { width: round(nearest, calc(5px * var(--de-noitroidvania-u)), 1px); height: round(nearest, calc(5px * var(--de-noitroidvania-u)), 1px); background: var(--de-noitroidvania-cell); border: 1px solid var(--de-color-line); }
+    :where(article[data-hand]) :where(ul) > :where(li[data-on]) { background: var(--de-color-accent); }
+    :where(article[data-hand]) :where(ul) > :where(li[data-spare]) { visibility: hidden; }
+    :where([data-corner="bc"]) > :where(section) > :where(ul) > :where(li[data-on]) { background: var(--de-noitroidvania-rhythm); border-color: var(--de-noitroidvania-rhythm); }
+    :where(article[role="dialog"]) > :where(header) > :where(p:not([role])) { margin: 0; color: var(--de-color-muted); }
+    :where(article[role="dialog"]) :where(section[role="tabpanel"]) > :where(h3) { margin: 0; font: inherit; padding: 4px 8px; border-bottom: 1px solid var(--de-color-line); color: var(--de-color-faint); text-transform: uppercase; letter-spacing: .18em; font-size: var(--de-noitroidvania-fs-label); }
+    :where(article[role="dialog"]) :where(section[role="tabpanel"]) > :where(small) { display: block; font-size: var(--de-noitroidvania-fs-label); color: var(--de-color-muted); }
+    :where(article[role="dialog"]) :where(section[data-hand]) > :where(small) { display: block; font-size: var(--de-noitroidvania-fs-label); color: var(--de-color-muted); }
+    :where(article[role="dialog"]) :where(ul[aria-label="Weapons"]) > :where(li), :where(article[role="dialog"]) :where(ul[aria-label="Modules"]) > :where(li) { display: flex; align-items: center; gap: 6px; padding: 2px 8px; border-bottom: 1px solid var(--de-noitroidvania-line-soft); cursor: pointer; background: transparent; box-shadow: none; }
+    :where(article[role="dialog"]) :where(ul[aria-label="Recipes"]) > :where(li) { display: flex; align-items: center; gap: 6px; padding: 2px 8px; border-bottom: 1px solid var(--de-noitroidvania-line-soft); cursor: pointer; }
+    :where(article[role="dialog"]) :where(section[data-hand]) > :where(header), :where(article[role="dialog"]) :where(ul[aria-label="Sockets"]) > :where(li), :where(article[role="dialog"]) :where(ul[aria-label="Carried"]) > :where(li), :where(article[role="dialog"]) :where(ul[aria-label="Stash"]) > :where(li), :where(article[role="dialog"]) :where(ul[aria-label="Pouch"]) > :where(li) { display: flex; align-items: center; gap: 6px; border: 1px solid var(--de-color-line); padding: 2px 5px; background: var(--de-color-surface-2); }
+    :where(article[role="dialog"]) :where(section[data-hand]) > :where(header), :where(article[role="dialog"]) :where(ul[aria-label="Sockets"]) > :where(li) { background: transparent; border: none; padding: 1px 2px; }
+    :where(article[role="dialog"]) :where(ul[aria-label="Sockets"]) > :where(li) { inline-size: calc(100% - 12px); margin-inline-start: auto; border-left: 1px solid var(--de-color-line); }
+    :where(article[role="dialog"]) :where(ul[aria-label="Loadout slots"]) > :where(li), :where(article[role="dialog"]) :where(ul[aria-label="Quick pairs"]) > :where(li) { display: flex; align-items: center; gap: 6px; padding: 4px 8px; border-bottom: 1px solid var(--de-noitroidvania-line-soft); }
+    :where(article[role="dialog"]) :where(section[role="note"]) > :where(small) { font-size: var(--de-noitroidvania-fs-label); color: var(--de-color-muted); }
+    :where(article[role="dialog"]) :where(section[role="note"]) > :where(div) { display: flex; flex-direction: column; gap: 2px; }
+    :where(article[role="dialog"]) > :where(section[aria-label="Comparison"]) > :where(header) { display: flex; align-items: center; gap: 8px; padding: 3px 8px; border-bottom: 1px solid var(--de-color-line); }
+    :where(article[role="dialog"]) :where(td) > :where(span[data-tone="ok"]) { color: var(--de-color-ok); }
+    :where(article[role="dialog"]) :where(td) > :where(span[data-tone="danger"]) { color: var(--de-color-danger); }
+    :where(article[role="dialog"]) > :where(footer) > :where(p[data-tone="ok"]) { color: var(--de-color-ok); }
+    :where(article[role="dialog"]) :where(section[role="tabpanel"])::-webkit-scrollbar { width: 8px; }
+    :where(article[role="dialog"]) :where(section[role="tabpanel"])::-webkit-scrollbar-thumb { background: var(--de-noitroidvania-line-hot); }
+    :where(article[role="dialog"]) > :where(header) > :where([role="tablist"]) > :where(button) { border-right: none; text-transform: uppercase; letter-spacing: .16em; font-size: var(--de-noitroidvania-fs-label); padding: 3px 10px; color: var(--de-color-muted); }
+    :where(article[role="dialog"]) > :where(header) > :where(p[role="status"]) { margin: 0; flex: 1 1 auto; min-width: 0; color: var(--de-color-faint); }
+    :where(article[role="dialog"]) :where(ul[aria-label="Materials"]) > :where(li) { width: 128px; border: 1px solid var(--de-color-line); background: var(--de-color-surface-2); padding: 3px 5px; display: flex; align-items: center; gap: 5px; }
+    :where(article[role="dialog"]) :where(ol[aria-label="Reactions"]) > :where(li) { display: flex; gap: 8px; padding: 6px 8px; border-bottom: 1px solid var(--de-noitroidvania-line-soft); }
+    :where(article[role="dialog"]) :where(i[data-kind="thumb"]) > :where(b) { display: block; background: var(--de-noitroidvania-line-soft); }
+    :where(article[role="dialog"]) :where(ul[aria-label="Enemies"]) > :where(li) { padding: 6px 8px; border-bottom: 1px solid var(--de-noitroidvania-line-soft); display: flex; flex-direction: column; gap: 3px; }
+    :where(article[role="dialog"]) :where(p[aria-label="Composition"]) > :where(i) { height: 100%; }
+    :where(article[role="dialog"]) :where(p[aria-label="Composition"]) + :where(small) { font-size: var(--de-noitroidvania-fs-label); color: var(--de-color-faint); }
+    :where(section[data-track]) > :where(ul) > :where(li[data-on]) { color: var(--de-color-ok); border-color: var(--de-color-ok); }
+    :where(section[data-axis]) > :where(header) > :where(button) { border: 0; background: none; padding: 0; letter-spacing: .1em; color: var(--de-color-muted); }
+    :where(section[data-axis]) > :where(header) > :where(button[data-side="neg"]) { text-align: right; }
+    :where(section[data-axis]) > :where(div) > :where(i[data-side="pos"]) { background: var(--de-color-accent); }
+    :where(section[data-axis]) > :where(div) > :where(i[data-side="neg"]) { background: var(--de-color-accent-2); }
+    :where(section[data-axis]) > :where(footer) > :where(data:last-child) { margin-left: auto; }
+    :where(article[role="dialog"]) :where(section[role="note"]) :where(h4) { margin: 0; font: inherit; color: var(--de-color-accent-2); font-size: var(--de-noitroidvania-fs-label); letter-spacing: .1em; }
+    :where(article[role="dialog"]) :where(section[role="note"]) :where(ul) { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+    :where(article[aria-label="Altar"]:not([data-ready])) :where(p) > :where(b) { font-weight: normal; color: var(--de-color-muted); }
+    :where(article[aria-label="Altar"]) :where(p) > :where(span[data-tone="ok"]) { color: var(--de-color-ok); }
+    :where(article[aria-label="Altar"]) :where(p) > :where(span[data-tone="danger"]) { color: var(--de-color-danger); }
+    :where([data-layer="run-setup"]) :where(main) > :where(nav) :where(li[aria-disabled="true"][data-cursor]) { opacity: .7; }
+    :where([data-layer="run-setup"]) :where([data-scroll]) > :where(section) > :where(ul) > :where(li:hover) { border-color: var(--de-noitroidvania-line-hot); }
+    :where([data-layer="run-setup"]) :where([data-scroll]) > :where(section) > :where(ul) > :where(li[data-cursor]) { background: var(--de-noitroidvania-surface-3); }
+    :where([data-layer="run-setup"]) :where([data-scroll]) > :where(section) > :where(ul) > :where(li[aria-selected="true"]) { border-color: var(--de-color-accent); }
+    :where([data-layer="run-setup"]) :where([data-scroll]) > :where(section) > :where(ul) > :where(li[aria-disabled="true"]) { opacity: .42; }
+    :where([data-layer="run-setup"]) :where([data-scroll]) > :where(section) > :where(ul) > :where(li[data-unaffordable]) { opacity: .62; }
+    :where(article[role="dialog"]) > :where(div) > :where(section:not([role])) > :where(h3) { margin: 0; font: inherit; padding: 4px 8px; border-bottom: 1px solid var(--de-color-line); color: var(--de-color-faint); text-transform: uppercase; letter-spacing: .18em; font-size: var(--de-noitroidvania-fs-label); }
+    :where(article[role="dialog"]) :where(ul[aria-label="Weapons"]) > :where(li) > :where(i), :where(article[role="dialog"]) :where(ul[aria-label="Modules"]) > :where(li) > :where(i) { width: 16px; text-align: center; font-style: normal; }
+    :where(article[role="dialog"]) :where(ul[aria-label="Weapons"]) > :where(li) > :where(button), :where(article[role="dialog"]) :where(ul[aria-label="Modules"]) > :where(li) > :where(button) { width: 16px; }
+    :where(article[role="dialog"]) :where(ul[aria-label="Weapons"]) > :where(li) > :where(strong), :where(article[role="dialog"]) :where(ul[aria-label="Modules"]) > :where(li) > :where(strong) { font-weight: normal; width: 168px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    :where(article[role="dialog"]) :where(ul[aria-label="Weapons"]) > :where(li) > :where(data), :where(article[role="dialog"]) :where(ul[aria-label="Modules"]) > :where(li) > :where(data) { width: 62px; font: inherit; font-size: var(--de-noitroidvania-fs-label); color: var(--de-color-muted); text-align: right; }
+    :where(article[role="dialog"]) :where(li) > :where(span) > :where(button) { font-size: var(--de-noitroidvania-fs-tiny); padding: 0 4px; letter-spacing: .1em; }
+    :where(article[role="dialog"]) :where(ul[aria-label="Recipes"]) > :where(li) > :where(header) { display: flex; align-items: center; gap: var(--de-noitroidvania-gap); }
+    :where(article[role="dialog"]) :where(ul[aria-label="Recipes"]) > :where(li) > :where(small) { width: 96px; font-size: var(--de-noitroidvania-fs-label); color: var(--de-color-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    :where(article[role="dialog"]) :where(section[data-hand]) > :where(header) > :where(small), :where(article[role="dialog"]) :where(ul[aria-label="Sockets"]) > :where(li) > :where(small), :where(article[role="dialog"]) :where(ul[aria-label="Carried"]) > :where(li) > :where(small), :where(article[role="dialog"]) :where(ul[aria-label="Stash"]) > :where(li) > :where(small), :where(article[role="dialog"]) :where(ul[aria-label="Pouch"]) > :where(li) > :where(small) { width: 58px; font-size: var(--de-noitroidvania-fs-tiny); letter-spacing: .12em; color: var(--de-color-faint); text-transform: uppercase; }
+    :where(article[role="dialog"]) :where(section[data-hand]) > :where(header) > :where(strong), :where(article[role="dialog"]) :where(ul[aria-label="Sockets"]) > :where(li) > :where(strong), :where(article[role="dialog"]) :where(ul[aria-label="Carried"]) > :where(li) > :where(strong), :where(article[role="dialog"]) :where(ul[aria-label="Stash"]) > :where(li) > :where(strong), :where(article[role="dialog"]) :where(ul[aria-label="Pouch"]) > :where(li) > :where(strong) { font-weight: normal; flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; }
+    :where(article[role="dialog"]) :where(ul[aria-label="Sockets"]) > :where(li) > :where(small) { color: var(--de-color-muted); }
+    :where(article[role="dialog"]) :where(ul[aria-label="Stash"]) > :where(li) > :where(i) { font-style: normal; }
+    :where(article[role="dialog"]) :where(ul[aria-label="Stash"]) > :where(li) > :where(span) { color: var(--de-color-faint); }
+    :where(article[role="dialog"]) :where(ul[aria-label="Loadout slots"]) > :where(li) > :where(small), :where(article[role="dialog"]) :where(ul[aria-label="Quick pairs"]) > :where(li) > :where(small) { width: 18px; font-size: inherit; color: var(--de-color-faint); }
+    :where(article[role="dialog"]) :where(ul[aria-label="Loadout slots"]) > :where(li) > :where(input) { width: 150px; }
+    :where(article[role="dialog"]) :where(ul[aria-label="Loadout slots"]) > :where(li) > :where(span), :where(article[role="dialog"]) :where(ul[aria-label="Quick pairs"]) > :where(li) > :where(span) { flex: 1 1 auto; min-width: 0; font-size: var(--de-noitroidvania-fs-label); color: var(--de-color-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    :where(article[role="dialog"]) > :where(section[aria-label="Comparison"]) > :where(header) > :where(h3) { margin: 0; font: inherit; text-transform: uppercase; letter-spacing: .16em; font-size: var(--de-noitroidvania-fs-label); color: var(--de-color-muted); }
+    :where(article[role="dialog"]) > :where(section[aria-label="Comparison"]) > :where(header) > :where(small) { font-size: inherit; color: var(--de-color-faint); }
+    :where(article[role="dialog"]) > :where(section[aria-label="Comparison"]) > :where(header) > :where(button) { margin-left: auto; }
+    :where(article[role="dialog"]) :where(ul[aria-label="Materials"]) > :where(li) > :where(span) { font-size: var(--de-noitroidvania-fs-label); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    :where(article[role="dialog"]) :where(ol[aria-label="Reactions"]) > :where(li) > :where(div) { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1 1 auto; }
+    :where(article[role="dialog"]) :where(ul[aria-label="Enemies"]) > :where(li) > :where(header) { display: flex; align-items: center; gap: var(--de-noitroidvania-gap); }
+    :where(article[role="dialog"]) :where(ul[aria-label="Enemies"]) > :where(li) > :where(small) { font-size: var(--de-noitroidvania-fs-label); color: var(--de-color-faint); }
+    :where(article[role="dialog"]) :where(section[role="note"]) :where(h4)::before { content: "▸ "; }
+    :where(article[role="dialog"]) :where(section[role="note"]) :where(ul) > :where(li) { padding-left: 14px; font-size: var(--de-noitroidvania-fs-label); color: var(--de-color-muted); }
+    :where([data-layer="run-setup"]) :where(main) > :where(nav) :where(li[aria-disabled="true"]) > :where(span:first-child) { color: var(--de-color-warn); }
+    :where([data-layer="run-setup"]) :where([data-scroll]) > :where(section) > :where(ul) > :where(li[aria-selected="true"]) > :where(strong) { color: var(--de-color-accent); }
+    :where([data-layer="run-setup"]) :where([data-scroll]) > :where(section) > :where(ul) > :where(li) > :where(p[data-tone="warn"]) { color: var(--de-color-muted); }
+    :where([data-layer="run-setup"]) :where([data-scroll]) > :where(section) > :where(ul[aria-multiselectable="true"]) > :where(li) > :where(strong) { display: flex; align-items: flex-start; gap: 6px; }
+    :where([data-layer="run-setup"]) :where([data-scroll]) > :where(section) > :where(ul) > :where(li) > :where(em[data-tone="warn"]) { color: var(--de-color-warn); }
+    :where([data-layer="run-setup"]) :where([data-scroll]) > :where(section) > :where(ul) > :where(li) > :where(p:first-child) { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; color: var(--de-color-fg); }
+    :where(article[role="dialog"]) :where(ul[aria-label="Recipes"]) > :where(li) > :where(header) > :where(strong) { font-weight: normal; width: 168px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    :where(article[role="dialog"]) :where(ul[aria-label="Recipes"]) > :where(li) > :where(header) > :where(small) { font-size: inherit; color: var(--de-color-faint); }
+    :where(article[role="dialog"]) :where(aside) :where(dl) > :where(div) > :where(dd[data-tone="ok"]) { color: var(--de-color-ok); }
+    :where(article[role="dialog"]) :where(aside) :where(dl) > :where(div) > :where(dd[data-tone="danger"]) { color: var(--de-color-danger); }
+    :where(article[role="dialog"]) :where(ol[aria-label="Reactions"]) > :where(li) > :where(div) > :where(p) { margin: 0; color: var(--de-color-fg); }
+    :where(article[role="dialog"]) :where(ol[aria-label="Reactions"]) > :where(li) > :where(div) > :where(small) { font-size: var(--de-noitroidvania-fs-label); color: var(--de-color-faint); }
+    :where(article[role="dialog"]) :where(ul[aria-label="Enemies"]) > :where(li) > :where(header) > :where(b) { font-weight: normal; }
+    :where(article[role="dialog"]) :where(ul[aria-label="Enemies"]) > :where(li) > :where(header) > :where(i) { font-style: normal; color: var(--de-color-faint); }
+    :where(article[role="dialog"]) :where(ul[aria-label="Enemies"]) > :where(li) > :where(header) > :where(span) { color: var(--de-color-faint); }
+    :where(article[role="dialog"]) > :where(div) > :where(aside) > :where(div) > :where(p[data-tone="ok"]) { color: var(--de-color-ok); }
+    :where(article[role="dialog"]) > :where(div) > :where(aside) > :where(div) > :where(p[data-tone="warn"]) { color: var(--de-color-warn); }
+    :where(article[role="dialog"]) > :where(div) > :where(aside) > :where(div) > :where(p[data-empty]) { font-size: var(--de-noitroidvania-fs-label); color: var(--de-color-muted); }
+    :where(article[role="dialog"]) > :where(div) > :where(aside) > :where(div) > :where(p:has(> [data-chip])) { display: flex; align-items: center; gap: var(--de-noitroidvania-gap); }
+    :where(article[role="dialog"]) :where(section[role="note"]) :where(ul) > :where(li) > :where(b) { color: var(--de-color-fg); font-weight: normal; }
+    :where(article[role="dialog"]) :where(section[role="note"]) :where(ul) > :where(li) > :where(i) { color: var(--de-color-faint); font-style: normal; }
+    :where([data-layer="run-setup"]) :where([data-scroll]) > :where(section) > :where(ul[aria-multiselectable="true"]) > :where(li) > :where(strong)::before { content: "[ ]"; flex: none; white-space: nowrap; color: var(--de-color-faint); font-size: var(--de-noitroidvania-fs); letter-spacing: .04em; text-transform: none; }
+    :where([data-layer="run-setup"]) :where([data-scroll]) > :where(section) > :where(ul) > :where(li) > :where(p:first-child) > :where(strong) { color: var(--de-color-fg); }
+    :where([data-layer="run-setup"]) :where([data-scroll]) > :where(section) > :where(ul) > :where(li) > :where(p:first-child) > :where(data) { margin-left: auto; font-size: 11px; color: var(--de-color-accent-2); letter-spacing: .1em; white-space: nowrap; }
+    :where(article[role="dialog"]) :where(ol[aria-label="Reactions"]) > :where(li) > :where(div) > :where(p) > :where(b) { color: var(--de-color-accent-2); font-weight: normal; }
+    :where(article[role="dialog"]) :where(ol[aria-label="Reactions"]) > :where(li) > :where(div) > :where(p) > :where(i) { color: var(--de-color-accent); font-style: normal; }
+    :where([data-corner="bl"]) > :where(p[aria-label="Gathering field"]:not([data-active])) { visibility: hidden; }
+    :where([data-corner="tl"]) :where(p[data-stat]) > :where(span:first-child) { color: var(--de-color-muted); }
+    :where([data-corner="bl"]) > :where(ul[aria-label="Dash charges"]) > :where(li[data-full]) { background: var(--de-noitroidvania-dash); border-color: var(--de-noitroidvania-dash); }
+    :where([data-corner="bl"]) > :where(p[aria-label="Traversal"]) > :where(kbd:not(:empty)) { border: 1px solid var(--de-color-line); }
+    :where([data-corner="bl"]) > :where(p[aria-label="Traversal"]) :where(li:not([data-ready])) { color: var(--de-color-muted); }
+    :where([data-corner="bl"]) > :where(p[aria-label="Traversal"]) :where(li[data-armed]) { border-color: var(--de-color-accent); color: var(--de-color-accent); }
+    :where([data-corner="bl"]) > :where(p[aria-label="Gathering field"]) > :where(span[data-near="2"]) { color: var(--de-color-danger); }
+    :where([data-corner="bl"]) > :where(p[aria-label="Gathering field"]) > :where(span[data-near="3"]) { color: var(--de-color-danger); }
+    :where(article[role="dialog"]) > :where([role="search"]) :where(input[type="search"]) { min-width: 170px; flex: 1 1 auto; }
+    :where(article[role="dialog"]) :where(section:not([role])) > :where([data-scroll]) { padding: 6px; display: flex; flex-direction: column; gap: 4px; }
+    :where(article[role="dialog"]) :where(section[data-hand][aria-current="true"]) { border-color: var(--de-color-accent); }
+    :where(article[role="dialog"]) :where([role="listbox"]) > :where(li[data-redacted]) { opacity: .4; }
+    :where(article[role="dialog"]) :where([role="listbox"]) > :where(li[aria-selected="true"]) { background: var(--de-color-surface-2); box-shadow: var(--de-noitroidvania-mark); }
+    :where(article[aria-label="Altar"][data-ready]) :where(p:last-child) { padding-top: 3px; color: var(--de-color-accent); }
+    :where([data-layer="run-setup"]) > :where([data-engine]) > :where(footer) :where(button[data-act="start"][disabled]) { color: var(--de-color-faint); border-color: var(--de-color-line); }
+    :where([data-corner="bl"]) > :where(p[aria-label="Traversal"]) :where(li[data-armed])::before { content: "▸"; position: absolute; left: calc(-5px * var(--de-noitroidvania-u)); font-size: calc(9px * var(--de-noitroidvania-u)); color: var(--de-color-accent); }
+    :where([data-corner="bl"]) > :where(p[aria-label="Gathering field"]) > :where(ul) > :where(li[data-on]) { background: var(--de-noitroidvania-dash); border-color: var(--de-noitroidvania-dash); }
+    :where([data-corner="bl"]) > :where(p[aria-label="Gathering field"]) > :where(span[data-near="1"])::after { content: " ◂"; }
+    :where([data-corner="bl"]) > :where(p[aria-label="Gathering field"]) > :where(span[data-near="2"])::after { content: " ◂◂"; }
+    :where([data-corner="bl"]) > :where(p[aria-label="Gathering field"]) > :where(span[data-near="3"])::after { content: " ◂◂◂"; }
+    :where([data-corner="bc"]) > :where(section[data-decay]) > :where(ul) > :where(li[data-on]) { opacity: .45; }
+    :where(article[role="dialog"]) :where(section:not([role])) :where([data-scroll]) > :where(h4) { margin: 0; font: inherit; padding: 4px 8px; border-bottom: 1px solid var(--de-color-line); color: var(--de-color-faint); text-transform: uppercase; letter-spacing: .18em; font-size: var(--de-noitroidvania-fs-label); }
+    :where(article[role="dialog"]) :where(section:not([role])) > :where([data-scroll]) > :where(small) { display: block; font-size: var(--de-noitroidvania-fs-label); color: var(--de-color-muted); }
+    :where(article[role="dialog"]) :where(ul[aria-label="Weapons"]) > :where(li:hover), :where(article[role="dialog"]) :where(ul[aria-label="Modules"]) > :where(li:hover) { background: var(--de-color-surface-2); }
+    :where(article[role="dialog"]) :where(ul[aria-label="Weapons"]) > :where(li[data-cursor]), :where(article[role="dialog"]) :where(ul[aria-label="Modules"]) > :where(li[data-cursor]) { background: var(--de-noitroidvania-surface-3); box-shadow: var(--de-noitroidvania-mark); }
+    :where(article[role="dialog"]) :where(ul[aria-label="Modules"]) > :where(li[aria-disabled="true"]) { opacity: .4; }
+    :where(article[role="dialog"]) :where(ul[aria-label="Recipes"]) > :where(li:hover) { background: var(--de-color-surface-2); }
+    :where(article[role="dialog"]) > :where(header) > :where([role="tablist"]) > :where(button:last-child) { border-right: 1px solid var(--de-color-line); }
+    :where(article[role="dialog"]) > :where(header) > :where([role="tablist"]) > :where(button[aria-selected="true"]) { color: var(--de-color-accent); border-color: var(--de-noitroidvania-line-hot); background: var(--de-noitroidvania-surface-3); }
+    :where(article[role="dialog"]) :where(ul[aria-label="Materials"]) > :where(li:hover) { border-color: var(--de-noitroidvania-line-hot); }
+    :where(article[role="dialog"]) :where(ul[aria-label="Materials"]) > :where(li[data-redacted]) { opacity: .35; cursor: default; }
+    :where(article[role="dialog"]) :where(ul[aria-label="Materials"]) > :where(li[aria-selected="true"]) { border-color: var(--de-color-accent); box-shadow: none; }
+    :where(article[role="dialog"]) :where(i[data-kind="thumb"]) > :where(b[data-any]) { background: repeating-linear-gradient(45deg, var(--de-noitroidvania-line-soft) 0 4px, #1d2029 4px 8px); }
+    :where(article[role="dialog"]) :where(section[role="tabpanel"]) > :where(p[data-empty]) { margin: 0; padding: 8px; color: var(--de-color-muted); font-size: 11px; border-bottom: 1px solid var(--de-color-line); }
+    :where(section[data-axis]) > :where(header) > :where(button:hover), :where(section[data-axis]) > :where(header) > :where(button:active) { border: 0; background: none; color: var(--de-color-fg); }
+    :where(section[data-axis]) > :where(header) > :where(button[aria-pressed="true"]) { color: var(--de-color-accent); }
+    :where(article[role="dialog"]) :where(section[role="note"]) :where(p[data-empty]) { margin: 0; padding-left: 14px; font-size: var(--de-noitroidvania-fs-label); color: var(--de-color-faint); }
+    :where(article[role="dialog"]) :where(section[role="note"]) :where(p[data-tone="warn"]) { margin: 0; color: var(--de-color-warn); font-size: var(--de-noitroidvania-fs-label); }
+    :where(article[role="dialog"]) :where(ul[aria-label="Weapons"]) > :where(li[data-on]) > :where(strong), :where(article[role="dialog"]) :where(ul[aria-label="Modules"]) > :where(li[data-on]) > :where(strong) { color: var(--de-color-accent); }
+    :where(article[role="dialog"]) :where(ul[aria-label="Weapons"]) > :where(li) > :where(small:first-of-type), :where(article[role="dialog"]) :where(ul[aria-label="Modules"]) > :where(li) > :where(small:first-of-type) { width: 96px; font-size: var(--de-noitroidvania-fs-label); color: var(--de-color-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    :where(article[role="dialog"]) :where(ul[aria-label="Weapons"]) > :where(li) > :where(small:last-of-type), :where(article[role="dialog"]) :where(ul[aria-label="Modules"]) > :where(li) > :where(small:last-of-type) { flex: 1 1 auto; min-width: 0; font-size: var(--de-noitroidvania-fs-label); color: var(--de-color-faint); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    :where(article[role="dialog"]) :where(ul[aria-label="Sockets"]) > :where(li[data-empty]) > :where(strong) { color: var(--de-color-faint); }
+    :where(article[role="dialog"]) :where(section[data-hand]) > :where(header) > :where(button), :where(article[role="dialog"]) :where(ul[aria-label="Sockets"]) > :where(li) > :where(button), :where(article[role="dialog"]) :where(ul[aria-label="Carried"]) > :where(li) > :where(button), :where(article[role="dialog"]) :where(ul[aria-label="Stash"]) > :where(li) > :where(button), :where(article[role="dialog"]) :where(ul[aria-label="Pouch"]) > :where(li) > :where(button) { font-size: var(--de-noitroidvania-fs-tiny); padding: 0 4px; }
+    :where(article[role="dialog"]) :where(ol[aria-label="Reactions"]) > :where(li) > :where(small:first-child) { font-size: var(--de-noitroidvania-fs-label); color: var(--de-color-faint); width: 40px; flex: none; text-align: right; }
+    :where(article[role="dialog"]) :where(ul[aria-label="Enemies"]) > :where(li) > :where(p[data-tone]) { margin: 0; font-size: var(--de-noitroidvania-fs-label); color: var(--de-color-muted); }
+    :where(article[role="dialog"]) :where(section[role="note"]) :where(p[data-tone="warn"])::before { content: "! "; }
+    :where(article[role="dialog"]) :where(ul[aria-label="Recipes"]) > :where(li) > :where(small) > :where(span[data-tone="ok"]) { color: var(--de-color-ok); }
+    :where(article[role="dialog"]) :where(ul[aria-label="Recipes"]) > :where(li) > :where(small) > :where(span[data-tone="warn"]) { color: var(--de-color-warn); }
+    :where(article[role="dialog"]) :where(ul[aria-label="Loadout slots"]) > :where(li) > :where(span) > :where(span[data-tone="warn"]) { color: var(--de-color-warn); }
+    :where(article[role="dialog"]) :where(ol[aria-label="Reactions"]) > :where(li) > :where(div) > :where(small[data-tone="ok"]) { color: var(--de-color-ok); }
+    :where(article[role="dialog"]) :where(ul[aria-label="Enemies"]) > :where(li) > :where(header) > :where(span:first-of-type) { margin-left: auto; }
+    :where(article[role="dialog"]) :where(ul[aria-label="Enemies"]) > :where(li) > :where(header) > :where(span[data-tone="warn"]) { color: var(--de-color-warn); }
+    :where(article[role="dialog"]) :where(ul[aria-label="Enemies"]) > :where(li) > :where(p[data-tone]) > :where(b) { font-weight: normal; color: var(--de-color-ok); }
+    :where(article[role="dialog"]) :where(ul[aria-label="Enemies"]) > :where(li) > :where(p[data-tone="danger"]) > :where(b) { color: var(--de-color-danger); }
+    :where([data-layer="run-setup"]) :where([data-scroll]) > :where(section) > :where(ul[aria-multiselectable="true"]) > :where(li[aria-selected="true"]) > :where(strong)::before { content: "[×]"; color: var(--de-color-accent); }
+    :where([data-layer="run-setup"]) :where([data-scroll]) > :where(section) > :where(ul) > :where(li[data-unaffordable]) > :where(p:first-child) > :where(data) { color: var(--de-color-warn); }
+    :where(article[role="dialog"]) :where(ul[aria-label="Weapons"]) > :where(li) > :where(button[aria-pressed="true"]), :where(article[role="dialog"]) :where(ul[aria-label="Modules"]) > :where(li) > :where(button[aria-pressed="true"]) { color: var(--de-color-accent); }
+  }
+}
+/* signature: Ashfall game chrome — dark tracked mono in square 1px boxes, elevation as a hotter line and a surface step, a 2px inset mark on the cursor row, and a glyph beside every colour. */

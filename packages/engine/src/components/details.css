@@ -1,0 +1,53 @@
+/*
+  design-engine — components: details / disclosure
+  -----------------------------------------------------------------------------
+  <details>/<summary> as a disclosure: a rule above and below, a plain
+  summary line with a small CSS-drawn caret, no box, no fill. Consecutive
+  <details> share their rules so a stack reads as an accordion.
+*/
+
+@layer de.components {
+  :where([data-engine]) :where(details) {
+    border-block: 1px solid var(--de-color-line);
+    row-gap: 0;
+    max-inline-size: var(--de-measure);
+  }
+  :where([data-engine]) :where(details + details) {
+    border-block-start: 0;
+  }
+
+  :where([data-engine]) :where(details > summary) {
+    display: flex;
+    align-items: baseline;
+    gap: var(--de-space-2);
+    padding-block: var(--de-space-3);
+    font-weight: var(--de-weight-strong);
+    list-style: none;
+    max-inline-size: none;
+  }
+  :where([data-engine]) :where(details > summary)::-webkit-details-marker { display: none; }
+
+  /* CSS-drawn caret */
+  :where([data-engine]) :where(details > summary)::before {
+    content: "";
+    flex: none;
+    inline-size: 0.45em;
+    block-size: 0.45em;
+    border-inline-end: 1.5px solid currentColor;
+    border-block-end: 1.5px solid currentColor;
+    transform: translateY(-0.15em) rotate(-45deg);
+    transition: transform var(--de-transition);
+    opacity: 0.7;
+  }
+  :where([data-engine]) :where(details[open] > summary)::before {
+    transform: translateY(-0.25em) rotate(45deg);
+  }
+
+  :where([data-engine]) :where(details > :not(summary)) {
+    padding-block: 0 var(--de-space-3);
+    padding-inline-start: calc(0.45em + var(--de-space-2));
+  }
+  :where([data-engine]) :where(details > :not(summary) + :not(summary)) {
+    padding-block-start: var(--de-space-2);
+  }
+}

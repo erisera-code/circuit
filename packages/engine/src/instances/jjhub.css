@@ -1,0 +1,893 @@
+/*
+  design-engine — instance: jjhub
+  -----------------------------------------------------------------------------
+  The JJHub web UI as a design: a monospace terminal where every button is
+  `[ bracketed ]`, section titles are box-drawing rules (── title ────),
+  checkboxes are painted `[x]` / `(o)` / `[on ]`, callouts are ledger rules
+  above and below and a glyph with no fill, cards are hairline panels with a 4px corner and no
+  shadow, list rows and table rows light up with a 6% hover / 12% accent
+  selection, and the terminal block wears three ● lights. Selected with
+  data-instance="jjhub".
+
+  Dark-first: the palette is jjhub's dark theme (#0b0e13 canvas, #7aa2f7
+  accent) unless the author forces a theme; every light-dark() pair carries
+  jjhub's light block on the other side. The accent is expressed through
+  --de-hue (jjhub's blue sits at hue 264 in both themes) so data-hue still
+  re-hues it.
+
+  Translated from jjhub's web/src/styles.css (examples/family/vendor/jjhub.css)
+  and docs/DESIGN-SYSTEM.md — same idiom, the engine's tokens and bindings.
+
+  Facets: palette / type / shape / layout / fx — see docs/authoring-an-instance.md.
+*/
+
+/* ===== palette ===== */
+@layer de.instances.palette {
+  :where([data-engine], [data-engine] *):where([data-instance="jjhub"]:not([data-palette]), [data-palette="jjhub"]) {
+    --de-hue: 264;
+    --de-chroma: 0.132;
+
+    /* --bg / --panel / --border / --fg / --dim, dark and light blocks */
+    --de-color-bg:        light-dark(oklch(97% 0.003 0),   oklch(16% 0.012 261));
+    --de-color-surface:   light-dark(oklch(94% 0.005 0),   oklch(19% 0.016 262));
+    --de-color-surface-2: light-dark(oklch(90% 0.008 258), oklch(24% 0.019 258));
+    --de-color-fg:        light-dark(oklch(26% 0.026 256), oklch(87% 0.020 250));
+    /* --dim, lifted so it reads as text at 4.5:1 on the panel and on a
+       selected row (jjhub's literal #78859c on #0b0e13 sits at 4.4) */
+    --de-color-muted:     light-dark(oklch(44% 0.026 255), oklch(72% 0.038 262));
+    --de-color-faint:     light-dark(oklch(50% 0.026 255), oklch(64% 0.032 260));
+    --de-color-line:      light-dark(oklch(86% 0.014 258), oklch(32% 0.026 258));
+    /* --border stays the hairline for panels; a CONTROL's boundary (field,
+       button, tab) is a stronger stroke that clears 3:1 on --bg and --panel */
+    --de-color-edge:      light-dark(oklch(58% 0.020 258), oklch(54% 0.030 258));
+
+    /* --accent (#2856c7 / #7aa2f7), routed through the hue knob */
+    --de-color-accent:    light-dark(oklch(49% 0.184 var(--de-hue)), oklch(72% 0.132 var(--de-hue)));
+    --de-color-accent-2:  light-dark(oklch(42% 0.184 var(--de-hue)), oklch(80% 0.110 var(--de-hue)));
+    /* primary buttons set their ink to --bg */
+    --de-color-accent-fg: light-dark(oklch(97% 0.003 0),   oklch(16% 0.012 261));
+
+    /* --fail / --warn / --pass */
+    --de-color-danger:    light-dark(oklch(54% 0.186 17),  oklch(72% 0.159 10));
+    --de-color-warn:      light-dark(oklch(54% 0.110 77),  oklch(78% 0.106 75));
+    --de-color-ok:        light-dark(oklch(53% 0.125 147), oklch(80% 0.139 130));
+
+    /* --hover-bg / --selected-bg: derived from the palette, as in jjhub */
+    --de-state-hover-overlay:  color-mix(in srgb, var(--de-color-fg) 6%, transparent);
+    --de-state-active-overlay: color-mix(in srgb, var(--de-color-fg) 12%, transparent);
+    --de-color-accent-soft:    color-mix(in srgb, var(--de-color-accent) 12%, transparent);
+
+    /* --scrim: dark in both themes (lighter on paper so ink over it still reads) */
+    --de-overlay-bg: light-dark(oklch(6% 0.01 250 / 0.38), oklch(6% 0.01 250 / 0.6));
+
+    /* --sx-*: syntax roles, the accent as the function colour, --pass as strings */
+    --de-sx-kw:    light-dark(oklch(45% 0.159 291), oklch(75% 0.134 299));
+    --de-sx-str:   light-dark(oklch(53% 0.125 147), oklch(80% 0.139 130));
+    --de-sx-fn:    light-dark(oklch(49% 0.184 264), oklch(72% 0.132 264));
+    --de-sx-cm:    light-dark(oklch(52% 0.028 254), oklch(64% 0.039 263));
+    --de-sx-num:   light-dark(oklch(56% 0.139 46),  oklch(79% 0.137 51));
+    --de-sx-tag:   light-dark(oklch(54% 0.186 17),  oklch(72% 0.159 10));
+    --de-sx-attr:  light-dark(oklch(51% 0.086 186), oklch(82% 0.100 182));
+    --de-sx-punct: light-dark(oklch(45% 0.026 257), oklch(77% 0.054 275));
+    --de-sx-type:  light-dark(oklch(52% 0.094 223), oklch(75% 0.124 213));
+    --de-sx-bool:  light-dark(oklch(54% 0.110 77),  oklch(78% 0.106 75));
+
+    /* --ramp-1…6: six hues that read as different, never as better/worse */
+    --de-cat-1: light-dark(oklch(49% 0.184 264), oklch(72% 0.132 264));
+    --de-cat-2: light-dark(oklch(53% 0.125 147), oklch(80% 0.139 130));
+    --de-cat-3: light-dark(oklch(54% 0.110 77),  oklch(78% 0.106 75));
+    --de-cat-4: light-dark(oklch(54% 0.186 17),  oklch(72% 0.159 10));
+    --de-cat-5: light-dark(oklch(48% 0.172 297), oklch(75% 0.134 299));
+    --de-cat-6: light-dark(oklch(52% 0.094 223), oklch(75% 0.124 213));
+  }
+  /* dark-first: jjhub is a dark terminal unless the author forces a theme */
+  :where([data-engine], [data-engine] *):where([data-instance="jjhub"]:not([data-palette]), [data-palette="jjhub"]):where(:not([data-theme])) {
+    color-scheme: dark;
+  }
+}
+
+/* ===== type ===== */
+@layer de.instances.type {
+  :where([data-engine], [data-engine] *):where([data-instance="jjhub"]:not([data-type]), [data-type="jjhub"]) {
+    /* monospace only */
+    --de-font-body: var(--de-font-mono);
+    --de-font-display: var(--de-font-mono);
+    --de-font-code: var(--de-font-mono);
+    /* --fs-xs 11 / --fs-sm 12 / --fs-md 13 / --fs-lg 14 / --fs-2xl 18; the landing h1 is 2em */
+    --de-text-xs:   0.6875rem;
+    --de-text-sm:   0.75rem;
+    --de-text-base: 0.8125rem;
+    --de-text-lg:   0.875rem;
+    --de-text-xl:   1.125rem;
+    --de-text-2xl:  1.625rem;
+    --de-leading: 1.5;
+    --de-leading-tight: 1.3;
+    --de-measure: 96ch;
+    --de-weight-strong: 700;
+    --de-weight-display: 700;
+  }
+
+  @scope (:where([data-engine], [data-engine] *):where([data-instance="jjhub"]:not([data-type]), [data-type="jjhub"])) to ([data-instance], [data-type]) {
+    /* headings: bold body-scale mono, no tracking, no case games */
+    :where(h1, h2, h3, h4, h5, h6) {
+      letter-spacing: 0;
+      text-transform: none;
+      font-weight: 700;
+    }
+    :where(h2) { font-size: var(--de-text-lg); }
+    :where(h3, h4, h5, h6) { font-size: var(--de-text-base); }
+    /* a section title is dim body text between box-drawing rules */
+    :where(section, nav) > :where(h2) { font-weight: 400; font-size: var(--de-text-base); }
+    :where(li) > :where(article) > :where(h3, h4) { font-size: var(--de-text-base); font-weight: 600; }
+
+    /* links: plain until hovered */
+    :where(a) { text-decoration: none; }
+    :where(a):where(:hover) { text-decoration: underline; }
+
+    /* controls: regular weight, never wrap inside the brackets */
+    :where(button, summary) {
+      font-weight: 400;
+      line-height: var(--de-leading);
+      white-space: nowrap;
+    }
+    :where(form) > :where(p:last-child) > :where(button:last-child),
+    :where(form) > :where(button:last-child) { font-weight: 700; }
+    :where(label, legend, th, caption) { font-weight: 400; }
+    :where(label:has(> input:not([type="checkbox"], [type="radio"]), > select, > textarea)) { font-size: var(--de-text-base); }
+
+    /* badges, chips, keys: xs, no tracking */
+    :where(data, [data-badge]) { font-weight: 400; letter-spacing: 0; line-height: 1.45; }
+    :where([data-chip]) { font-size: var(--de-text-xs); }
+    :where(kbd) { font-size: var(--de-text-xs); }
+    :where(code, samp) { font-size: 0.95em; }
+    :where(pre) { font-size: var(--de-text-base); }
+    :where(figcaption) { font-size: var(--de-text-sm); }
+    :where([data-toast]) > :where(button[aria-label]) { font-size: var(--de-text-xl); }
+    :where([data-avatar]) { font-size: var(--de-text-xs); text-transform: uppercase; font-weight: 700; }
+    :where([data-avatar="lg"]) { font-size: var(--de-text-sm); }
+
+    /* board column headers are the one uppercase run */
+    :where([data-board]) > :where(section) > :where(h3, h4) { font-size: var(--de-text-xs); letter-spacing: 0.03em; font-weight: 400; }
+    /* pager readout and shell status line stay body-cased */
+    :where(nav[aria-label="pagination"]) :where(small) { text-transform: none; letter-spacing: 0; font-size: var(--de-text-sm); }
+    :where([data-shell]) > :where(footer) { font-size: var(--de-text-base); }
+    :where(blockquote) > :where(p) { font-size: 1em; }
+  }
+}
+
+/* ===== shape ===== */
+@layer de.instances.shape {
+  :where([data-engine], [data-engine] *):where([data-instance="jjhub"]:not([data-shape]), [data-shape="jjhub"]) {
+    /* --r-sm 2 / --r-md 3 / --r-lg 4 / --r-pill */
+    --de-radius-sm: 2px;
+    --de-radius-md: 3px;
+    --de-radius-lg: 4px;
+    --de-radius-full: 999px;
+    --de-border-w: 1px;
+    /* --shadow-sm / --shadow-md: heavy on the dark canvas, softened on paper */
+    --de-shadow-1: 0 4px 12px light-dark(oklch(26% 0.026 256 / 0.16), oklch(0% 0 0 / 0.3));
+    --de-shadow-2: 0 8px 18px light-dark(oklch(26% 0.026 256 / 0.12), oklch(0% 0 0 / 0.22));
+    /* .card: a hairline panel, 4px corner, flat */
+    --de-card-bg: var(--de-color-surface);
+    --de-card-border: 1px solid var(--de-color-line);
+    --de-card-radius: var(--de-radius-lg);
+    --de-card-shadow: none;
+    /* button: transparent, 1px edge stroke, 3px corner; primary fills with the accent */
+    --de-button-bg: transparent;
+    --de-button-fg: var(--de-color-fg);
+    --de-button-border: 1px solid var(--de-color-edge);
+    --de-button-radius: var(--de-radius-md);
+    --de-button-primary-bg: var(--de-color-accent);
+    --de-button-primary-fg: var(--de-color-accent-fg);
+    /* .field: a square well with an edge stroke */
+    --de-input-bg: var(--de-color-surface);
+    --de-input-fg: var(--de-color-fg);
+    --de-input-border: 1px solid var(--de-color-edge);
+    --de-input-radius: 0;
+    /* .code: panel ground, 4px corner */
+    --de-code-bg: var(--de-color-surface);
+    --de-code-radius: var(--de-radius-lg);
+  }
+
+  @scope (:where([data-engine], [data-engine] *):where([data-instance="jjhub"]:not([data-shape]), [data-shape="jjhub"])) to ([data-instance], [data-shape]) {
+    /* masthead: the landing hero's rule-off */
+    :where(:scope) > :where(header) { border-block-end: 1px solid var(--de-color-line); }
+
+    /* --focus-ring: one 2px accent ring everywhere; fields carry it as their border */
+    :where(button, a, summary, [role="option"], [role="tab"], [tabindex]):where(:focus-visible) {
+      outline: 2px solid var(--de-color-accent);
+      outline-offset: 2px;
+    }
+    :where(dialog[data-palette]) :where(li[role="option"]):where(:focus-visible) { outline-offset: -2px; }
+    :where(input, select, textarea):where(:focus-visible) {
+      outline: none;
+      border-color: var(--de-color-accent);
+      box-shadow: none;
+    }
+    :where(input, select, textarea):where(:hover) { border-color: var(--de-color-edge); }
+    :where(input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="true"]) { border-color: var(--de-color-danger); }
+    :where(textarea) { resize: vertical; }
+
+    /* buttons: hover turns the border accent; variants only change ink and ground */
+    :where(button):where(:hover:not(:disabled)) { border-color: var(--de-color-accent); background: transparent; }
+    :where(button[data-variant="ghost"]) { border-color: transparent; }
+    :where(button[data-variant="ghost"]):where(:hover:not(:disabled)) { border-color: transparent; }
+    :where(button[data-variant="danger"]) {
+      background: transparent;
+      border-color: color-mix(in srgb, var(--de-color-danger) 50%, var(--de-color-edge));
+    }
+    :where(button[data-variant="danger"]):where(:hover:not(:disabled)) {
+      border-color: var(--de-color-danger);
+      background: color-mix(in srgb, var(--de-color-danger) 12%, transparent);
+    }
+    :where(form) > :where(p:last-child) > :where(button:last-child),
+    :where(form) > :where(button:last-child) { border-color: var(--de-color-accent); }
+    :where(form) > :where(p:last-child) > :where(button:last-child:disabled),
+    :where(form) > :where(button:last-child:disabled) { border-color: transparent; }
+    /* a row's action buttons are peers of every other button, not a primary */
+    :where(menu button) { background: transparent; border-color: var(--de-color-edge); }
+    :where(button[data-theme-toggle]) { border: 1px solid var(--de-color-edge); }
+
+    /* .badge: outlined in currentColor; the status dot is bare */
+    :where(data, [data-badge]):where(:not([data-chip] > data, [data-dot])) {
+      border: 1px solid currentColor;
+      border-radius: var(--de-radius-sm);
+    }
+    :where(data[data-dot]) { border: 0; }
+    :where([data-chip]) { border-radius: var(--de-radius-sm); }
+
+    /* .callout: ledger rules above and below in the tone (like .sec-title),
+       the glyph column (fx), no fill — no side rail */
+    :where(aside:not(main > aside, article > header aside, [data-shell] > aside), [role="note"]),
+    :where([role="status"], [role="alert"]):where(:not([data-toast], [data-banner], small, data, article[role="dialog"] > header > *)) {
+      border: 0;
+      border-block: 1px solid var(--de-color-accent);
+      border-radius: 0;
+      background: transparent;
+    }
+    :where([role="status"]):where(:not([data-toast], [data-banner], data, article[role="dialog"] > header > *)) { border-block-color: var(--de-color-ok); }
+    :where([role="alert"]):where(:not([data-toast], [data-banner], small)) { border-block-color: var(--de-color-danger); }
+    :where(aside[data-tone="warn"], [role="note"][data-tone="warn"]) { border-block-color: var(--de-color-warn); }
+
+    /* .banner: rules above and below in the tone on the panel, the glyph first (fx) */
+    :where([data-banner]) {
+      border: 0;
+      border-block: 1px solid var(--de-color-accent);
+      background: var(--de-color-surface);
+    }
+    :where([data-banner][role="status"], [data-banner][data-tone="ok"]) { border-block-color: var(--de-color-ok); }
+    :where([data-banner][data-tone="warn"]) { border-block-color: var(--de-color-warn); }
+    :where([data-banner][role="alert"], [data-banner][data-tone="danger"]) { border-block-color: var(--de-color-danger); }
+
+    /* .notification-toast: square, the core's full 1px tone border and glyph, the deeper shadow */
+    :where([data-toast]) {
+      border-radius: 0;
+      box-shadow: var(--de-shadow-2);
+    }
+
+    /* kbd and inline code are small bordered chips; terminal prompts and code blocks are not */
+    :where(kbd):where(:not(pre > kbd)) {
+      border: 1px solid var(--de-color-line);
+      border-block-end-width: 1px;
+      border-radius: var(--de-radius-md);
+      background: transparent;
+    }
+    :where(code):where(:not(pre code)) {
+      border: 1px solid var(--de-color-line);
+      border-radius: var(--de-radius-md);
+    }
+    :where(pre) { border: 1px solid var(--de-color-line); border-radius: var(--de-radius-lg); }
+    /* .code: the figure carries the frame; the caption row is ruled off */
+    :where(figure:has(> pre)) { border: 1px solid var(--de-color-line); border-radius: var(--de-radius-lg); }
+    :where(figure:has(> pre)) > :where(pre) { border: 0; border-radius: 0; }
+    :where(figure:has(> pre)) > :where(figcaption) { border-block-end: 1px solid var(--de-color-line); }
+    /* .term */
+    :where(pre:has(> samp), pre[data-terminal]) { border: 1px solid var(--de-color-line); border-radius: var(--de-radius-lg); }
+
+    /* quotations: no rail — the > prefix (fx) quotes it */
+    :where(blockquote) { border-inline-start: 0; }
+
+    /* table.ops: a single rule under the header, rows unruled */
+    :where(thead th) { border-block-end: 1px solid var(--de-color-line); }
+    :where(td) { border-block-end: 0; }
+
+    /* .disclosure: no rules, the marker carries it */
+    :where(details) { border-block: 0; }
+
+    /* .row: bare rows, no dividers; the list is ruled off above and below
+       like the pager and the params ledger, not framed */
+    :where(ul[role="listbox"], ol[role="listbox"]) { border: 0; border-block: 1px solid var(--de-color-line); }
+    :where([role="listbox"] > li[role="option"]) { border-block-end: 0; }
+
+    /* .pager: a rule above, bare links */
+    :where(nav[aria-label="pagination"]) { border-block-start: 1px solid var(--de-color-line); }
+    :where(nav[aria-label="pagination"]) > :where(a[rel="prev"], a[rel="next"]) { border: 0; border-radius: 0; }
+
+    /* .board: bare columns with a ruled header, a pill count, 3px-cornered cards */
+    :where([data-board]) > :where(section) { border: 0; border-radius: 0; background: transparent; }
+    :where([data-board]) > :where(section) > :where(h3, h4) { border-block-end: 1px solid var(--de-color-line); }
+    :where([data-board]) > :where(section) > :where(h3, h4) > :where(small) {
+      border: 1px solid var(--de-color-line);
+      border-radius: var(--de-radius-full);
+    }
+    :where([data-board]) :where(li) > :where(article) { border-radius: var(--de-radius-md); }
+
+    /* .meter: a 1px well */
+    :where(progress, meter) { border: 1px solid var(--de-color-line); border-radius: 0; }
+
+    /* .menu-items / .tooltip: 3px-cornered panels */
+    :where([role="menu"]) { border: 1px solid var(--de-color-line); border-radius: var(--de-radius-md); }
+    :where([role="menuitem"]) { border-radius: 0; }
+    :where([role="tooltip"]) {
+      border: 1px solid var(--de-color-line);
+      border-radius: var(--de-radius-md);
+      box-shadow: var(--de-shadow-1);
+    }
+
+    /* .tabs: bracketed peers, the active one accent-framed */
+    :where([role="tab"]) { border: 1px solid var(--de-color-edge); border-radius: var(--de-radius-md); }
+    :where([role="tab"][aria-selected="true"]) { border-color: var(--de-color-accent); }
+
+    /* .scroll: a content well, not a frame */
+    :where([data-scroll]) { border: 0; }
+
+    /* .params: a ruled name / prose ledger */
+    :where(dl) { border-block-start: 1px solid var(--de-color-line); }
+    :where(dt, dd) { border-block-end: 1px solid var(--de-color-line); }
+  }
+}
+
+/* ===== layout ===== */
+@layer de.instances.layout {
+  @scope (:where([data-engine], [data-engine] *):where([data-instance="jjhub"]:not([data-layout]), [data-layout="jjhub"])) to ([data-instance], [data-layout]) {
+    :where(:scope) {
+      /* jjhub's literal 6px / 12px, on the density unit */
+      --de-jjhub-tight: calc(var(--de-space-unit) * 1.5);
+      --de-jjhub-pad: calc(var(--de-space-unit) * 3);
+      --de-flow: var(--de-space-2);
+      --de-grid-min: 14rem;
+      --de-grid-gap: var(--de-space-2);
+      --de-button-pad: calc(var(--de-space-unit) * 0.5) var(--de-space-2);
+      --de-input-pad: calc(var(--de-space-unit) * 0.75) var(--de-space-2);
+      --de-card-pad: var(--de-space-2) var(--de-jjhub-pad);
+    }
+
+    /* masthead */
+    :where(:scope) > :where(header) { row-gap: var(--de-space-2); padding-block-end: var(--de-space-3); }
+    :where(:scope) > :where(header) > :where(nav) { gap: var(--de-space-1) var(--de-jjhub-pad); }
+
+    /* .sec-title: glyph, title, rule on one line */
+    :where(section, nav) > :where(h2) {
+      display: flex;
+      align-items: center;
+      gap: 1ch;
+      max-inline-size: none;
+    }
+
+    /* cards: a tight title / body stack */
+    :where(li) > :where(article) { row-gap: var(--de-space-1); }
+
+    /* buttons: 2px 8px, brackets flush against the label */
+    :where(button) { min-block-size: 0; }
+    :where(button):where(:not([data-icon], [data-variant="link"], [data-chip] > button, [data-toast] > button[aria-label], [data-theme-toggle], [role="menuitem"])) { gap: 0; }
+    :where(button[data-icon]) {
+      inline-size: var(--de-space-4);
+      block-size: var(--de-space-4);
+      padding: 0;
+    }
+    :where(button[data-theme-toggle]) {
+      inline-size: auto;
+      min-inline-size: 2.5ch;
+      padding: var(--de-button-pad);
+    }
+    :where(form) > :where(p:last-child:has(> button)) { gap: var(--de-space-2); padding-block-start: var(--de-jjhub-tight); }
+
+    /* .form-field: label, control, hint at a 3px rhythm */
+    :where(label:has(> input:not([type="checkbox"], [type="radio"]), > select, > textarea)) { gap: calc(var(--de-space-unit) * 0.75); }
+    :where(textarea) { min-block-size: 4.5rem; }
+    :where(fieldset) { row-gap: var(--de-space-2); }
+    :where(label:has(> input[type="checkbox"], > input[type="radio"])) { gap: var(--de-jjhub-tight); }
+
+    /* .badge / .chip / .dot */
+    :where(data, [data-badge]):where(:not([data-chip] > data, [data-dot])) { padding: 0 var(--de-space-1); }
+    :where(data[data-dot]) { padding: 0; }
+    :where([data-chip]) {
+      padding-block: 0;
+      padding-inline: var(--de-jjhub-tight);
+      gap: calc(var(--de-space-unit) * 1.25);
+      line-height: 1.6;
+    }
+
+    /* .callout: glyph column + body column */
+    :where(aside:not(main > aside, article > header aside, [data-shell] > aside), [role="note"]),
+    :where([role="status"], [role="alert"]):where(:not([data-toast], [data-banner], small, data, article[role="dialog"] > header > *)) {
+      grid-template-columns: max-content minmax(0, 1fr);
+      column-gap: 1ch;
+      row-gap: var(--de-space-1);
+      padding: var(--de-space-1) calc(var(--de-space-unit) * 2.5);
+      max-inline-size: 72ch;
+    }
+    :where(aside:not(main > aside, article > header aside, [data-shell] > aside), [role="note"]) > :where(*),
+    :where([role="status"], [role="alert"]):where(:not([data-toast], [data-banner], small, data, article[role="dialog"] > header > *)) > :where(*) { grid-column: 2; }
+
+    /* .banner */
+    :where([data-banner]) {
+      padding: var(--de-jjhub-tight) calc(var(--de-space-unit) * 2.5);
+      gap: var(--de-jjhub-tight) calc(var(--de-space-unit) * 2.5);
+    }
+
+    /* .notification-toast */
+    :where([data-toast]) {
+      padding: var(--de-space-2) var(--de-space-2) var(--de-space-2) calc(var(--de-space-unit) * 2.5);
+      gap: var(--de-space-1) calc(var(--de-space-unit) * 2.5);
+    }
+
+    /* .empty */
+    :where([data-empty]) {
+      padding: var(--de-space-2) calc(var(--de-space-unit) * 2.5);
+      gap: var(--de-space-1);
+      max-inline-size: 40rem;
+    }
+
+    /* .cmdk: input row, list, footer — square rows edge to edge */
+    :where(dialog[data-palette]) :where(input[type="search"]) { padding: calc(var(--de-space-unit) * 2.5) var(--de-jjhub-pad); }
+    :where(dialog[data-palette]) > :where(ul[role="listbox"]) { padding: var(--de-space-1) 0; }
+    :where(dialog[data-palette]) :where(li[role="option"]) {
+      padding: var(--de-jjhub-tight) var(--de-jjhub-pad);
+      gap: var(--de-space-2);
+      border-radius: 0;
+    }
+    :where(dialog[data-palette]) > :where(footer) { padding: var(--de-jjhub-tight) var(--de-jjhub-pad); gap: var(--de-jjhub-tight); }
+
+    /* .menu-items / .tooltip */
+    :where([role="menu"]) {
+      padding: var(--de-space-2);
+      gap: var(--de-space-1);
+      min-inline-size: 11.25rem;
+    }
+    :where([role="menuitem"]) { padding: calc(var(--de-space-unit) * 0.5) var(--de-space-2); }
+    :where([role="tooltip"]) {
+      padding: var(--de-jjhub-tight) var(--de-space-2);
+      max-inline-size: min(20rem, calc(100vw - var(--de-space-4)));
+      line-height: 1.35;
+    }
+
+    /* .row: 1px 8px, single line */
+    :where([role="listbox"] > li[role="option"]):where(:not(dialog[data-palette] li)) {
+      padding: calc(var(--de-space-unit) * 0.25) var(--de-space-2);
+      gap: var(--de-space-1);
+    }
+
+    /* .code / bare pre / inline code / kbd */
+    :where(figure:has(> pre)) > :where(figcaption) {
+      padding: var(--de-space-1) calc(var(--de-space-unit) * 2.5);
+      gap: var(--de-space-2);
+    }
+    :where(pre) { padding: calc(var(--de-space-unit) * 2.5) var(--de-jjhub-pad); }
+    :where(code):where(:not(pre code)) { padding-inline: var(--de-space-1); }
+    :where(kbd):where(:not(pre > kbd)) { padding: 0 var(--de-space-1); }
+
+    /* .term: room for the window strip */
+    :where(pre:has(> samp), pre[data-terminal]) {
+      padding: calc(var(--de-space-unit) * 2.5) var(--de-jjhub-pad);
+      padding-block-start: calc(var(--de-space-unit) * 2.5 + 2em);
+      gap: 0;
+    }
+
+    /* table.ops: tight cells, a 12px gutter to the right */
+    :where(th) { padding: calc(var(--de-space-unit) * 0.5) var(--de-jjhub-pad) calc(var(--de-space-unit) * 0.5) 0; }
+    :where(td) { padding: calc(var(--de-space-unit) * 0.25) var(--de-jjhub-pad) calc(var(--de-space-unit) * 0.25) 0; }
+    :where(caption) { padding-block-end: var(--de-space-1); }
+
+    /* .params: name / prose in two columns, ruled per row */
+    :where(dl) {
+      grid-template-columns: minmax(8.75rem, max-content) minmax(0, 1fr);
+      gap: 0 var(--de-space-3);
+    }
+    :where(dt, dd) { padding: var(--de-jjhub-tight) 0; }
+    :where(dt:not(:first-child)) { padding-block-start: var(--de-jjhub-tight); }
+    :where(dd) { padding-inline-start: 0; }
+
+    /* .pager: prev / next as inline links either side */
+    :where(nav[aria-label="pagination"]) {
+      padding-block-start: var(--de-space-2);
+      gap: var(--de-space-2);
+      align-items: center;
+    }
+    :where(nav[aria-label="pagination"]) > :where(a[rel="prev"], a[rel="next"]) {
+      flex: 0 1 auto;
+      display: inline-flex;
+      align-items: baseline;
+      gap: 1ch;
+      padding: 0;
+    }
+
+    /* .board: 180px columns, 10px apart, 6px card stacks */
+    :where([data-board]) {
+      grid-auto-columns: minmax(11.25rem, 1fr);
+      gap: calc(var(--de-space-unit) * 2.5);
+      padding-block-end: var(--de-space-1);
+    }
+    :where([data-board]) > :where(section) { padding: 0; row-gap: var(--de-jjhub-tight); }
+    :where([data-board]) > :where(section) > :where(h3, h4) {
+      padding: calc(var(--de-space-unit) * 0.5) var(--de-space-1) var(--de-space-1);
+      align-items: center;
+    }
+    :where([data-board]) > :where(section) > :where(h3, h4) > :where(small) { padding: 0 var(--de-jjhub-tight); }
+    :where([data-board]) > :where(section) > :where(ul) { gap: var(--de-jjhub-tight); }
+    :where([data-board]) :where(li) > :where(article) {
+      padding: var(--de-jjhub-tight) var(--de-space-2);
+      row-gap: calc(var(--de-space-unit) * 0.5);
+    }
+
+    /* .topbar / .rail / .main / .statusbar */
+    :where([data-shell]) > :where(header) {
+      flex-wrap: wrap;
+      gap: var(--de-jjhub-tight) var(--de-space-2);
+      padding: var(--de-space-2) var(--de-jjhub-pad);
+    }
+    :where([data-shell]) > :where(header) > :where(nav) { gap: var(--de-space-2); }
+    :where([data-shell]) > :where(header) > :where(button:last-child) { margin-inline-start: auto; }
+    :where([data-shell]) > :where(nav, aside) { padding: var(--de-space-2) 0 var(--de-space-3); }
+    :where([data-shell]) > :where(nav) :where(a) { padding: calc(var(--de-space-unit) * 0.25) var(--de-space-2); border-radius: 0; }
+    :where([data-shell]) > :where(main) { padding: var(--de-jjhub-pad) var(--de-space-3) var(--de-space-4); }
+    :where([data-shell]) > :where(footer) {
+      padding: var(--de-space-1) var(--de-jjhub-pad);
+      gap: var(--de-jjhub-pad);
+      min-block-size: 1.625rem;
+    }
+
+    /* .avatar: 24 / 16 / 32 */
+    :where([data-avatar]) { --de-avatar-size: 1.5rem; }
+    :where([data-avatar="sm"]) { --de-avatar-size: 1rem; }
+    :where([data-avatar="lg"]) { --de-avatar-size: 2rem; }
+
+    /* .meter: 8px tall, 240px wide at most */
+    :where(progress, meter) {
+      block-size: var(--de-space-2);
+      inline-size: 100%;
+      max-inline-size: 15rem;
+    }
+
+    /* .disclosure: 4px summary, 14px indent */
+    :where(details > summary) { padding-block: var(--de-space-1); gap: 0; }
+    :where(details > :not(summary)) {
+      padding-inline-start: calc(var(--de-space-unit) * 3.5);
+      padding-block-end: var(--de-space-1);
+    }
+
+    /* .tabs */
+    :where([role="tablist"]) {
+      gap: var(--de-space-1);
+      padding: var(--de-jjhub-tight) var(--de-jjhub-pad);
+    }
+    :where([role="tab"]) { padding: var(--de-button-pad); }
+
+    /* .scroll */
+    :where([data-scroll]) { padding: 0; }
+
+    /* quotations: the > column, a 1ch gutter, then the quote */
+    :where(blockquote) {
+      padding-inline-start: 0;
+      grid-template-columns: max-content minmax(0, 1fr);
+      column-gap: 1ch;
+    }
+    :where(blockquote) > :where(*) { grid-column: 2; }
+  }
+}
+
+/* ===== fx ===== */
+@layer de.instances.fx {
+  @scope (:where([data-engine], [data-engine] *):where([data-instance="jjhub"]:not([data-fx]), [data-fx="jjhub"])) to ([data-instance], [data-fx]) {
+    :where(:scope) {
+      /* --selected-bg: 12% accent into the panel; --fg-strong for selected text */
+      --de-jjhub-selected: color-mix(in srgb, var(--de-color-accent) 12%, var(--de-color-surface));
+      --de-jjhub-fg-strong: light-dark(oklch(19% 0.021 258), oklch(94% 0.014 255));
+      /* the brackets on a filled primary: --bg 55% into the accent */
+      --de-jjhub-bracket-primary: color-mix(in srgb, var(--de-color-accent-fg) 82%, var(--de-color-accent)); /* dimmer than the label but still ≥ 3:1 on the fill */
+    }
+
+    /* links are always the accent, in prose and in nav alike */
+    :where(a) { color: var(--de-color-accent); }
+    :where(a):where(:hover) { color: var(--de-color-accent); }
+    :where(nav) :where(a) { color: var(--de-color-accent); }
+    :where(nav) :where(a):where(:hover) { color: var(--de-color-accent); }
+
+    /* masthead: the brand in accent bold, the version tag dim */
+    :where(:scope) > :where(header) > :where(h1) { color: var(--de-color-accent); }
+    :where(:scope) > :where(header) :where(small) { color: var(--de-color-muted); }
+
+    /* .sec-title: ── title ───────────── (the trailing rule grows, never overflows) */
+    :where(section, nav) > :where(h2) { color: var(--de-color-muted); }
+    :where(section, nav) > :where(h2)::before {
+      content: "──";
+      flex: none;
+      white-space: pre;
+    }
+    :where(section, nav) > :where(h2)::after {
+      content: "";
+      flex: 1 1 0;
+      min-inline-size: 2ch;
+      max-inline-size: 31ch;
+      block-size: 1px;
+      background: currentColor;
+    }
+
+    /* [ bracketed ] buttons: the brackets are generated, so a variant only changes ink */
+    :where(button):where(:not([data-icon], [data-variant="link"], [data-chip] > button, [data-toast] > button[aria-label], [data-theme-toggle], [role="menuitem"]))::before {
+      content: "[ ";
+      color: var(--de-color-muted);
+      white-space: pre;
+    }
+    :where(button):where(:not([data-icon], [data-variant="link"], [data-chip] > button, [data-toast] > button[aria-label], [data-theme-toggle], [role="menuitem"]))::after {
+      content: " ]";
+      color: var(--de-color-muted);
+      white-space: pre;
+    }
+    /* a ghost button sits on the page: its brackets take the page ink */
+    :where(button[data-variant="ghost"])::before,
+    :where(button[data-variant="ghost"])::after {
+      color: var(--de-color-fg);
+    }
+    :where(button):where(:hover:not(:disabled)) { color: var(--de-color-accent); }
+    :where(button):where(:active) { transform: none; }
+    :where(button:disabled) { color: var(--de-color-muted); opacity: 1; }
+    :where(menu button) { color: var(--de-color-fg); }
+
+    /* .btn-primary: a filled [ label ], brackets sunk into the fill */
+    :where(form) > :where(p:last-child) > :where(button:last-child),
+    :where(form) > :where(button:last-child) {
+      background: var(--de-color-accent);
+      color: var(--de-color-accent-fg);
+    }
+    :where(form) > :where(p:last-child) > :where(button:last-child)::before,
+    :where(form) > :where(p:last-child) > :where(button:last-child)::after,
+    :where(form) > :where(button:last-child)::before,
+    :where(form) > :where(button:last-child)::after { color: var(--de-jjhub-bracket-primary); }
+    :where(form) > :where(p:last-child) > :where(button:last-child):where(:hover:not(:disabled)),
+    :where(form) > :where(button:last-child):where(:hover:not(:disabled)) {
+      background: var(--de-color-accent);
+      color: var(--de-color-accent-fg);
+      filter: brightness(1.1);
+    }
+    :where(form) > :where(p:last-child) > :where(button:last-child:disabled),
+    :where(form) > :where(button:last-child:disabled) {
+      background: color-mix(in srgb, var(--de-color-accent) 35%, var(--de-color-surface));
+      color: var(--de-color-muted);
+      filter: none;
+    }
+
+    /* .btn-ghost: dim until hovered */
+    :where(button[data-variant="ghost"]) { color: var(--de-color-muted); }
+    :where(button[data-variant="ghost"]):where(:hover:not(:disabled)) { color: var(--de-color-accent); background: transparent; }
+    /* .btn-danger: reads in --fail */
+    :where(button[data-variant="danger"]) { color: var(--de-color-danger); }
+    :where(button[data-variant="danger"]):where(:hover:not(:disabled)) { color: var(--de-color-danger); }
+    /* .btn-icon: a dim glyph */
+    :where(button[data-icon]) { color: var(--de-color-muted); }
+    :where(button[data-icon]):where(:hover:not(:disabled)) { color: var(--de-color-accent); }
+    /* button.link: plain text that lights up */
+    :where(button[data-variant="link"]) { color: inherit; text-decoration: none; }
+    :where(button[data-variant="link"]):where(:hover:not(:disabled)) { color: var(--de-color-accent); text-decoration: underline; }
+    /* .theme-toggle: the ◐ glyph in dim */
+    :where(button[data-theme-toggle]) { color: var(--de-color-muted); }
+
+    /* .check / .radio / .switch: native inputs painted as [x] (o) [on ] */
+    :where(input[type="checkbox"], input[type="radio"]) {
+      appearance: none;
+      inline-size: 3ch;
+      block-size: auto;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      color: var(--de-color-muted);
+      font: inherit;
+      line-height: var(--de-leading);
+      cursor: pointer;
+      vertical-align: middle;
+    }
+    :where(input[type="checkbox"][role="switch"]) { inline-size: 5ch; }
+    :where(input[type="checkbox"], input[type="radio"])::before {
+      content: "[ ]";
+      display: block;
+      white-space: pre;
+      position: static;
+      inset: auto;
+      inline-size: auto;
+      block-size: auto;
+      border-radius: 0;
+      background: none;
+      translate: none;
+    }
+    :where(input[type="checkbox"]:checked)::before { content: "[x]"; }
+    :where(input[type="checkbox"]:indeterminate)::before { content: "[-]"; }
+    :where(input[type="radio"])::before { content: "( )"; }
+    :where(input[type="radio"]:checked)::before { content: "(o)"; }
+    :where(input[type="checkbox"][role="switch"])::before { content: "[off]"; }
+    :where(input[type="checkbox"][role="switch"]:checked)::before { content: "[on ]"; }
+    :where(input[type="checkbox"]:checked, input[type="radio"]:checked, input[type="checkbox"]:indeterminate) {
+      color: var(--de-color-accent);
+      background: transparent;
+      border: 0;
+    }
+    :where(input[type="checkbox"][role="switch"]:checked) { color: var(--de-color-ok); }
+    :where(input[type="checkbox"], input[type="radio"]):where(:hover:not(:disabled)) { color: var(--de-color-accent); }
+    :where(input[type="checkbox"]:disabled, input[type="radio"]:disabled) {
+      color: var(--de-color-muted);
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* .form-label dim, placeholders dim, .form-error carries a glyph as well as its colour */
+    :where(label:has(> input:not([type="checkbox"], [type="radio"]), > select, > textarea)) { color: var(--de-color-muted); }
+    :where(input, textarea)::placeholder { color: var(--de-color-muted); opacity: 1; }
+    :where(legend) { color: var(--de-color-muted); }
+    :where(label > small[role="alert"])::before,
+    :where(label:has(> [aria-invalid="true"]) > small)::before { content: "✗ "; }
+
+    /* .dot: a ● glyph coloured by state */
+    :where(data[data-dot]:not([data-tone])) { color: var(--de-color-muted); }
+    :where(data[data-dot])::before {
+      content: "● ";
+      white-space: pre;
+      inline-size: auto;
+      block-size: auto;
+      background: none;
+      border-radius: 0;
+      margin-inline-end: 0;
+    }
+
+    /* .card: flat, accent-framed on hover, accent title */
+    :where(li) > :where(article) { transform: none; }
+    :where(li) > :where(article):where(:hover) { border-color: var(--de-color-accent); }
+    :where(li) > :where(article) > :where(h3, h4) { color: var(--de-color-accent); }
+
+    /* .callout: ▸ ✓ ⚠ ✗ in the glyph column, in the rules' colour */
+    :where(aside:not(main > aside, article > header aside, [data-shell] > aside), [role="note"])::before,
+    :where([role="status"], [role="alert"]):where(:not([data-toast], [data-banner], small, data, article[role="dialog"] > header > *))::before {
+      content: "▸";
+      grid-column: 1;
+      grid-row: 1;
+      color: var(--de-color-accent);
+    }
+    :where([role="status"]):where(:not([data-toast], [data-banner], data, article[role="dialog"] > header > *))::before { content: "✓"; color: var(--de-color-ok); }
+    :where([role="alert"]):where(:not([data-toast], [data-banner], small))::before { content: "✗"; color: var(--de-color-danger); }
+    :where(aside[data-tone="warn"], [role="note"][data-tone="warn"])::before { content: "⚠"; color: var(--de-color-warn); }
+
+    /* .banner: the same glyph, first in the strip */
+    :where([data-banner])::before { content: "▸"; flex: none; color: var(--de-color-accent); }
+    :where([data-banner][role="status"], [data-banner][data-tone="ok"])::before { content: "✓"; color: var(--de-color-ok); }
+    :where([data-banner][data-tone="warn"])::before { content: "⚠"; color: var(--de-color-warn); }
+    :where([data-banner][role="alert"], [data-banner][data-tone="danger"])::before { content: "✗"; color: var(--de-color-danger); }
+
+    /* .term: the window strip with three ● lights (fail / warn / pass) and the title */
+    :where(pre:has(> samp), pre[data-terminal]) {
+      background: var(--de-color-bg);
+      color: var(--de-color-fg);
+    }
+    :where(pre:has(> samp), pre[data-terminal])::before {
+      color: var(--de-color-muted);
+      background-color: var(--de-color-surface);
+      border-block-end: 1px solid var(--de-color-line);
+      font-size: var(--de-text-sm);
+      letter-spacing: 0;
+      padding: var(--de-space-1) calc(var(--de-space-unit) * 2.5);
+      padding-inline-start: calc(var(--de-space-unit) * 2.5 + 3.75em);
+      background-image:
+        radial-gradient(circle, var(--de-color-danger) 0 44%, transparent 48%),
+        radial-gradient(circle, var(--de-color-warn) 0 44%, transparent 48%),
+        radial-gradient(circle, var(--de-color-ok) 0 44%, transparent 48%);
+      background-size: 0.7em 0.7em;
+      background-repeat: no-repeat;
+      background-position:
+        calc(var(--de-space-unit) * 2.5) 50%,
+        calc(var(--de-space-unit) * 2.5 + 1.05em) 50%,
+        calc(var(--de-space-unit) * 2.5 + 2.1em) 50%;
+    }
+    :where(pre:has(> samp), pre[data-terminal]) > :where(kbd) { color: var(--de-color-accent); }
+    :where(pre:has(> samp), pre[data-terminal]) > :where(samp) { color: var(--de-color-muted); }
+
+    /* .code__cap and every caption: dim */
+    :where(figcaption) { color: var(--de-color-muted); }
+    :where(blockquote) { color: var(--de-color-muted); }
+    /* quotations: the markdown > in the dim colour, beside the first line */
+    :where(blockquote)::before {
+      content: ">";
+      grid-column: 1;
+      grid-row: 1;
+      color: var(--de-color-muted);
+    }
+
+    /* table.ops: dim header, hover and selection fills across the row */
+    :where(caption, thead th) { color: var(--de-color-muted); }
+    :where(tbody tr):where(:hover) > :where(td) { background: var(--de-state-hover-overlay); }
+    :where(tbody tr[aria-selected="true"]) > :where(td) { background: var(--de-jjhub-selected); }
+
+    /* .row: hover, selected, keyboard cursor, dimmed */
+    :where([role="listbox"] > li[role="option"]):where(:hover) { background: var(--de-state-hover-overlay); }
+    :where([role="listbox"] > li[role="option"][aria-selected="true"]) {
+      background: var(--de-jjhub-selected);
+      color: var(--de-jjhub-fg-strong);
+    }
+    :where([role="listbox"] > li[role="option"][data-cursor]) {
+      background: var(--de-jjhub-selected);
+      box-shadow: inset 0 0 0 1px var(--de-color-accent);
+    }
+    :where([role="listbox"] > li[role="option"][aria-disabled="true"]) { opacity: 1; color: var(--de-color-muted); }
+
+    /* .pager: ◂ prev · page n of m · next ▸ */
+    :where(nav[aria-label="pagination"]) > :where(a) { color: var(--de-color-accent); }
+    :where(nav[aria-label="pagination"]) :where(small) { color: var(--de-color-muted); }
+    :where(nav[aria-label="pagination"]) > :where(a[rel="prev"])::before { content: "◂"; }
+    :where(nav[aria-label="pagination"]) > :where(a[rel="next"])::after { content: "▸"; }
+
+    /* .board-column-header dim */
+    :where([data-board]) > :where(section) > :where(h3, h4) { color: var(--de-color-muted); }
+
+    /* .menu-items / .tooltip on the panel */
+    :where([role="menu"]) { background: var(--de-color-surface); }
+    :where([role="tooltip"]) { background: var(--de-color-surface); color: var(--de-color-fg); }
+
+    /* .disclosure: ▸ / ▾ replaces the drawn caret */
+    :where(details > summary) { cursor: pointer; }
+    :where(details > summary)::before {
+      content: "▸";
+      inline-size: auto;
+      block-size: auto;
+      border: 0;
+      transform: none;
+      opacity: 1;
+      color: var(--de-color-muted);
+      padding-inline-end: 1ch;
+    }
+    :where(details[open] > summary)::before { content: "▾"; transform: none; }
+    :where(details > summary):where(:hover) { color: var(--de-color-accent); }
+
+    /* .spinner: 2px ring, accent top */
+    :where([aria-busy="true"])::before { inline-size: 0.9em; block-size: 0.9em; }
+
+    /* .meter: --bg well, accent (or --c) fill */
+    :where(progress, meter) { background: var(--de-color-bg); }
+    :where(progress)::-webkit-progress-value { background: var(--de-color-accent); }
+    :where(progress)::-moz-progress-bar { background: var(--de-color-accent); }
+    :where(meter)::-webkit-meter-optimum-value,
+    :where(meter)::-webkit-meter-suboptimum-value,
+    :where(meter)::-webkit-meter-even-less-good-value { background: var(--c, var(--de-color-accent)); }
+    :where(meter)::-moz-meter-bar { background: var(--c, var(--de-color-accent)); }
+
+    /* .grid-bg: a faint 24px character-cell grid */
+    :where([data-pattern]) {
+      --de-pattern-ink: color-mix(in srgb, var(--de-color-fg) 6%, transparent);
+      background-color: var(--de-color-bg);
+    }
+    /* .scrim: a plain dim, no blur */
+    :where([data-scrim]) { backdrop-filter: none; }
+    /* .scroll: the border colour as the thumb */
+    :where([data-scroll]) { scrollbar-color: var(--de-color-line) transparent; }
+
+    /* .topbar brand, .rail rows, .statusbar */
+    :where([data-shell]) > :where(header) > :where(strong) { color: var(--de-color-accent); }
+    :where([data-shell]) > :where(nav) :where(a) { color: var(--de-color-fg); }
+    :where([data-shell]) > :where(nav) :where(a):where(:hover) {
+      color: var(--de-color-fg);
+      background: var(--de-state-hover-overlay);
+      text-decoration: none;
+    }
+    :where([data-shell]) > :where(nav) :where(a[aria-current]) {
+      background: var(--de-jjhub-selected);
+      color: var(--de-jjhub-fg-strong);
+    }
+    :where([data-shell]) > :where(footer) { color: var(--de-color-fg); }
+
+    /* .tab.active */
+    :where([role="tab"][aria-selected="true"]) { color: var(--de-color-accent); }
+
+    /* .crumb: ▸ between crumbs */
+    :where(nav[aria-label="breadcrumb"] li + li)::before { content: "▸"; color: var(--de-color-muted); }
+
+    /* .params: strong names, body-ink prose */
+    :where(dt) { color: var(--de-jjhub-fg-strong); }
+    :where(dd) { color: var(--de-color-fg); }
+  }
+}
+/* signature: a monospace terminal UI — [ bracketed ] buttons, ── box-drawing section rules, [x] (o) [on ] controls, hairline panels, and three ● lights on the terminal strip. */

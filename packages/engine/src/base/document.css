@@ -1,0 +1,57 @@
+/*
+  design-engine — base: document
+  -----------------------------------------------------------------------------
+  The scope anchor carries the document defaults: background, foreground,
+  base font, line-height, min-height. Wrapping and hyphenation defaults
+  keep long words and URLs from breaking layouts.
+*/
+
+@layer de.base {
+  /* The page is the outermost anchor: it fills the viewport and paints the
+     ground. A nested anchor is a column inside it, not a second page — it
+     inherits both. */
+  :where([data-engine]:not([data-engine] [data-engine])) {
+    min-block-size: 100dvh;
+    background-color: var(--de-color-bg);
+  }
+  :where([data-engine]) {
+    color: var(--de-color-fg);
+    font-family: var(--de-font-body);
+    font-size: var(--de-text-base);
+    line-height: var(--de-leading);
+    font-weight: var(--de-weight-body);
+    overflow-wrap: break-word;
+    font-variant-numeric: proportional-nums;
+  }
+
+  /* tabular figures wherever numbers line up */
+  :where([data-engine]) :where(table, time, data, meter, progress, output) {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/*
+  Nested regions. Inherited properties travel as RESOLVED values: a nested
+  <section data-theme="dark"> inherits the anchor's already-light `color`,
+  and a nested data-instance inherits its font-family, even though the
+  tokens underneath changed. So any element that starts a region re-reads
+  the document defaults from the tokens. Tokens then resolve there, on the
+  right side of light-dark() and with the region's own type.
+*/
+@layer de.base {
+  :where([data-engine] :is([data-instance], [data-palette], [data-theme])) {
+    color: var(--de-color-fg);
+    background-color: var(--de-color-bg);
+    accent-color: var(--de-color-accent);
+    caret-color: var(--de-color-accent);
+  }
+  :where([data-engine] :is([data-instance], [data-type])) {
+    font-family: var(--de-font-body);
+    font-size: var(--de-text-base);
+    line-height: var(--de-leading);
+    font-weight: var(--de-weight-body);
+  }
+  :where([data-engine] :is([data-density])) {
+    line-height: var(--de-leading);
+  }
+}

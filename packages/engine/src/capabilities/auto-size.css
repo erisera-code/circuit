@@ -1,0 +1,35 @@
+/*
+  design-engine — capabilities: auto-size transitions
+  -----------------------------------------------------------------------------
+  Animate height/width to and from `auto` (collapsibles, accordions, reveal).
+  Requires interpolate-size: allow-keywords on the root, then calc-size().
+  Verified syntax (MDN): interpolate-size: allow-keywords; block-size: calc-size(auto, size + 0);
+*/
+
+@layer de.capabilities {
+  /* enable keyword interpolation for the whole engine subtree */
+  @supports (interpolate-size: allow-keywords) {
+    :where([data-engine]) {
+      interpolate-size: allow-keywords;
+    }
+
+    /* a collapsible region: [data-collapsible] toggled via [data-open] */
+    :where([data-engine]) :where([data-collapsible]) {
+      block-size: 0;
+      overflow: hidden;
+      transition: block-size var(--de-dur) var(--de-ease);
+    }
+    :where([data-engine]) :where([data-collapsible][data-open]) {
+      block-size: calc-size(auto, size);
+    }
+    /* entering from zero */
+    :where([data-engine]) :where([data-collapsible][data-open]) {
+      @starting-style { block-size: 0; }
+    }
+
+    /* details/summary smooth open: the <details> body expands */
+    :where([data-engine]) :where(details) {
+      transition: block-size var(--de-dur) var(--de-ease);
+    }
+  }
+}

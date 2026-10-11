@@ -1,0 +1,625 @@
+/*
+  design-engine — components: panels (workbench compositions)
+  -----------------------------------------------------------------------------
+  The screen shapes a working application repeats — learned from the game
+  chrome that first spoke the vocabulary, written here so every instance
+  lays them out and restyles them, and an app needs no composition of its
+  own for them. The host's chassis still decides where a panel sits (it
+  fills whatever stage it is given); these rules decide what is inside.
+
+  Panel        <article role="dialog" aria-label="…">
+                 <header><h2>…</h2><div role="tablist">…</div><p role="status">…</p>
+                         <input type="search"><label><input type="checkbox">…</label><button aria-label="Close">✕</button></header>
+                 <div role="search">…filters…</div>                 (optional strip)
+                 <div>                                               (the body: columns)
+                   <section role="tabpanel">…rows…</section>         (browse column, scrolls; narrows when a middle column follows)
+                   <section aria-label="…"><h3>…</h3><div data-scroll>…</div></section>   (optional middle column)
+                   <aside><h3>…</h3><div data-scroll>…</div></aside> (side column: the pinned entry)
+                 </div>
+                 <section aria-label="…"><header>…</header><div data-scroll><table>…</table></div></section>   (optional tray under the body)
+                 <footer><p><kbd>↵</kbd> equip</p>…</footer>
+               </article>
+  Named rows   li[role=option] > i + button + strong + small + data + small + span(buttons)
+               glyph, star, name, meta, value, tags, actions — data-on when it is in use
+  Keyed rows   ul[data-rows] > li > small + strong + …buttons     kind, name, actions; data-empty
+  Card rows    ul[role=listbox][data-grid] > li[role=option] > i[data-kind=swatch] + span
+               a grid of small cards; data-redacted is a gap not yet filled
+  Pictures     [data-kind=thumb] on an <i> (bands of <b>) or a <canvas>
+  Track        section[data-track] > header(h3, small, span) + progress + ul > li[data-on]
+  Axis         section[data-axis] > header(button, span, button) + div(b, i[data-side]) + footer(data, data)
+               a signed meter between two poles; aria-pressed on the chosen pole
+  Note group   section[role=note] > small + div(h4 + ul > li) | h4 + ul | p[data-empty] | p[data-tone]
+*/
+
+@layer de.components {
+  :where([data-engine]) {
+    --de-panel-aside: 20rem;
+    --de-panel-browse: 24rem;
+  }
+
+  /* ---- the panel ---- */
+  :where([data-engine]) :where(article[role="dialog"]) {
+    display: flex;
+    flex-direction: column;
+    min-block-size: 0;
+    max-inline-size: none;
+    padding: 0;
+    row-gap: 0;
+    background: var(--de-color-surface);
+    border: var(--de-border-edge);
+    border-radius: var(--de-radius-sm);
+  }
+  :where([data-engine]) :where(article[role="dialog"]) > :where(header) {
+    display: flex;
+    align-items: center;
+    gap: var(--de-space-3);
+    row-gap: 0;
+    padding: var(--de-space-1) var(--de-space-3);
+    border-block-end: var(--de-border);
+    background: var(--de-color-surface-2);
+    font-size: var(--de-text-base);
+  }
+  :where([data-engine]) :where(article[role="dialog"]) > :where(header) > :where(h2) {
+    margin: 0;
+    font-size: var(--de-text-base);
+    font-weight: var(--de-weight-body);
+    text-transform: uppercase;
+    letter-spacing: 0.3em;
+    color: var(--de-color-accent);
+  }
+  :where([data-engine]) :where(article[role="dialog"]) > :where(header) > :where(p) {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    max-inline-size: none;
+    color: var(--de-color-faint);
+    font-size: inherit;
+  }
+  :where([data-engine]) :where(article[role="dialog"]) > :where(header) > :where(label) {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--de-space-1);
+    color: var(--de-color-muted);
+    font-size: var(--de-text-sm);
+    text-transform: none;
+    letter-spacing: inherit;
+  }
+  :where([data-engine]) :where(article[role="dialog"]) > :where(header) > :where(input) {
+    flex: 0 1 16rem;
+    inline-size: auto;
+    max-inline-size: none;
+  }
+  :where([data-engine]) :where(article[role="dialog"]) > :where([role="search"]),
+  :where([data-engine]) :where(article[role="dialog"]) :where([role="group"]) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--de-space-1);
+    padding: var(--de-space-1) var(--de-space-2);
+    border-block-end: var(--de-border);
+  }
+  :where([data-engine]) :where(article[role="dialog"]) > :where([role="search"]) > :where(input[type="search"]) {
+    flex: 1 1 auto;
+    inline-size: auto;
+    min-inline-size: 12rem;
+    max-inline-size: none;
+  }
+  :where([data-engine]) :where(article[role="dialog"]) > :where([role="search"]) :where(label) {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--de-space-1);
+    font-size: var(--de-text-xs);
+    color: var(--de-color-muted);
+    text-transform: none;
+    letter-spacing: inherit;
+  }
+
+  /* the body: columns that share the panel's height and scroll inside it */
+  /* The body is the div that holds the panel's regions; a stray div (a legend
+     row, a helper) is not, so it keeps its own size. */
+  :where([data-engine]) :where(article[role="dialog"]) > :where(div:not([role]):has(> section, > aside, > [role="tabpanel"])) {
+    flex: 1 1 auto;
+    display: flex;
+    min-block-size: 0;
+  }
+  :where([data-engine]) :where(article[role="dialog"]) > :where(div:not([role])) > :where(section[role="tabpanel"]) {
+    flex: 1 1 auto;
+    display: block;
+    min-inline-size: 0;
+    min-block-size: 0;
+    overflow: auto;
+    padding: 0;
+    animation: none;
+  }
+  :where([data-engine]) :where(article[role="dialog"]) > :where(div:not([role])) > :where(section[role="tabpanel"]:has(+ section)) {
+    flex: 1 1 var(--de-panel-browse);
+    max-inline-size: calc(var(--de-panel-browse) * 1.25);
+    border-inline-end: var(--de-border);
+  }
+  :where([data-engine]) :where(article[role="dialog"]) > :where(div:not([role])) > :where(section:not([role])) {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    min-inline-size: 0;
+    min-block-size: 0;
+    padding: 0;
+    row-gap: 0;
+  }
+  :where([data-engine]) :where(article[role="dialog"]) > :where(div:not([role])) > :where(aside) {
+    flex: 0 0 var(--de-panel-aside);
+    inline-size: var(--de-panel-aside);
+    max-inline-size: none;
+    display: flex;
+    flex-direction: column;
+    min-block-size: 0;
+    padding: 0;
+    row-gap: 0;
+    border: 0;
+    border-inline-start: var(--de-border);
+    background: none;
+    font-size: inherit;
+  }
+  :where([data-engine]) :where(article[role="dialog"]) > :where(div:not([role])) > :where(section:not([role]), aside) > :where(h3) {
+    margin: 0;
+    padding: var(--de-space-1) var(--de-space-2);
+    border-block-end: var(--de-border);
+    font-size: var(--de-text-xs);
+    font-weight: var(--de-weight-body);
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--de-color-faint);
+  }
+  :where([data-engine]) :where(article[role="dialog"]) > :where(div:not([role])) > :where(section:not([role]), aside) > :where([data-scroll]) {
+    flex: 1 1 auto;
+    min-block-size: 0;
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--de-space-2);
+    padding: var(--de-space-2);
+  }
+  /* the pinned entry: title, facts, prose, notes */
+  :where([data-engine]) :where(article[role="dialog"]) :where(aside) > :where([data-scroll]) > :where(h3) {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: var(--de-text-base);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--de-color-accent);
+  }
+  :where([data-engine]) :where(article[role="dialog"]) :where(aside) > :where([data-scroll]) > :where(p) {
+    margin: 0;
+    max-inline-size: none;
+    font-size: var(--de-text-sm);
+    color: var(--de-color-muted);
+  }
+  :where([data-engine]) :where(article[role="dialog"]) :where(aside) > :where([data-scroll]) > :where(p[data-tone="ok"]) { color: var(--de-color-ok); }
+  :where([data-engine]) :where(article[role="dialog"]) :where(aside) > :where([data-scroll]) > :where(p[data-tone="warn"]) { color: var(--de-color-warn); }
+  :where([data-engine]) :where(article[role="dialog"]) :where(aside) > :where([data-scroll]) > :where(small, p[data-empty]) {
+    display: block;
+    font-size: var(--de-text-xs);
+    color: var(--de-color-muted);
+    padding: 0;
+    text-align: start;
+    justify-items: start;
+  }
+  :where([data-engine]) :where(article[role="dialog"]) :where(aside) > :where([data-scroll]) :where(dl) {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--de-space-1);
+    max-inline-size: none;
+    font-size: var(--de-text-xs);
+    color: var(--de-color-muted);
+  }
+  :where([data-engine]) :where(article[role="dialog"]) :where(aside) :where(dl) > :where(div) > :where(dt, dd) { display: inline; margin: 0; padding: 0; }
+  :where([data-engine]) :where(article[role="dialog"]) :where(aside) :where(dl) > :where(div) > :where(dt) { color: var(--de-color-faint); font-weight: var(--de-weight-body); }
+  :where([data-engine]) :where(article[role="dialog"]) :where(aside) :where(dd[data-tone="ok"]) { color: var(--de-color-ok); }
+  :where([data-engine]) :where(article[role="dialog"]) :where(aside) :where(dd[data-tone="danger"]) { color: var(--de-color-danger); }
+  :where([data-engine]) :where(article[role="dialog"]) :where(aside) > :where([data-scroll]) > :where(p:has(> [data-chip], > button)) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--de-space-1);
+    font-size: var(--de-text-base);
+    color: var(--de-color-fg);
+  }
+
+  /* a tray under the body: a comparison table, a log */
+  :where([data-engine]) :where(article[role="dialog"]) > :where(section[aria-label]) {
+    display: flex;
+    flex-direction: column;
+    max-block-size: 46%;
+    padding: 0;
+    row-gap: 0;
+    border: 0;
+    border-block-start: var(--de-border-edge);
+    background: var(--de-color-surface-2);
+    max-inline-size: none;
+  }
+  :where([data-engine]) :where(article[role="dialog"]) > :where(section[aria-label]) > :where(header) {
+    display: flex;
+    align-items: center;
+    gap: var(--de-space-2);
+    row-gap: 0;
+    padding: var(--de-space-1) var(--de-space-2);
+    border-block-end: var(--de-border);
+  }
+  :where([data-engine]) :where(article[role="dialog"]) > :where(section[aria-label]) > :where(header) > :where(h3) {
+    margin: 0;
+    font-size: var(--de-text-xs);
+    font-weight: var(--de-weight-body);
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--de-color-muted);
+  }
+  :where([data-engine]) :where(article[role="dialog"]) > :where(section[aria-label]) > :where(header) > :where(small) { color: var(--de-color-faint); font-size: inherit; }
+  :where([data-engine]) :where(article[role="dialog"]) > :where(section[aria-label]) > :where(header) > :where(button) { margin-inline-start: auto; }
+  :where([data-engine]) :where(article[role="dialog"]) > :where(section[aria-label]) > :where([data-scroll]) { overflow: auto; min-block-size: 0; padding: 0; }
+  :where([data-engine]) :where(article[role="dialog"]) :where(table) { inline-size: 100%; max-inline-size: none; border: 0; font-size: var(--de-text-xs); }
+  :where([data-engine]) :where(article[role="dialog"]) :where(th, td) { padding: 1px var(--de-space-2); text-align: start; border-block-end: var(--de-border); white-space: nowrap; }
+  :where([data-engine]) :where(article[role="dialog"]) :where(th) { color: var(--de-color-faint); font-weight: var(--de-weight-body); text-transform: uppercase; letter-spacing: 0.12em; }
+  :where([data-engine]) :where(article[role="dialog"]) :where(th[scope="row"]) { inline-size: 12em; text-transform: none; letter-spacing: inherit; }
+  :where([data-engine]) :where(article[role="dialog"]) :where(th[aria-current="true"]) { color: var(--de-color-accent); }
+  :where([data-engine]) :where(article[role="dialog"]) :where(td) > :where(span) { padding-inline-start: var(--de-space-1); }
+  :where([data-engine]) :where(article[role="dialog"]) :where(td) > :where(span[data-tone="ok"]) { color: var(--de-color-ok); }
+  :where([data-engine]) :where(article[role="dialog"]) :where(td) > :where(span[data-tone="danger"]) { color: var(--de-color-danger); }
+
+  /* the foot: key hints */
+  :where([data-engine]) :where(article[role="dialog"]) > :where(footer) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--de-space-3);
+    row-gap: var(--de-space-1);
+    padding: var(--de-space-1) var(--de-space-3);
+    border: 0;
+    border-block-start: var(--de-border);
+    background: var(--de-color-surface-2);
+    font-size: var(--de-text-xs);
+    color: var(--de-color-faint);
+    max-inline-size: none;
+  }
+  :where([data-engine]) :where(article[role="dialog"]) > :where(footer) > :where(p) { margin: 0; max-inline-size: none; font-size: inherit; }
+  :where([data-engine]) :where(article[role="dialog"]) > :where(footer) > :where(p[data-tone="ok"]) { color: var(--de-color-ok); }
+  :where([data-engine]) :where(article[role="dialog"]) > :where(footer) :where(kbd) { color: var(--de-color-muted); }
+
+  /* lists inside a panel are flush; the panel's own rules space them */
+  :where([data-engine]) :where(article[role="dialog"]) :where([role="listbox"]) { border: 0; padding: 0; max-inline-size: none; }
+  :where([data-engine]) :where(article[role="dialog"]) :where([role="listbox"] > li[role="option"]) { align-items: stretch; }
+  :where([data-engine]) :where(article[role="dialog"]) :where([role="listbox"] > li[role="option"][data-redacted]) { opacity: 0.4; }
+
+  /* ---- named rows: glyph, star, name, meta, value, tags, actions ---- */
+  :where([data-engine]) :where([role="listbox"] > li[role="option"]:has(> strong)) {
+    align-items: center;
+    gap: var(--de-space-2);
+    padding: var(--de-space-1) var(--de-space-2);
+  }
+  :where([data-engine]) :where([role="listbox"] > li[role="option"]:has(> strong)) > :where(i) {
+    flex: none;
+    inline-size: 1.25em;
+    text-align: center;
+    font-style: normal;
+  }
+  :where([data-engine]) :where([role="listbox"] > li[role="option"]:has(> strong)) > :where(strong) {
+    flex: 0 1 14em;
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: var(--de-weight-body);
+  }
+  :where([data-engine]) :where([role="listbox"] > li[role="option"][data-on]) > :where(strong) { color: var(--de-color-accent); }
+  :where([data-engine]) :where([role="listbox"] > li[role="option"]:has(> strong)) > :where(small) {
+    flex: 0 1 8em;
+    min-inline-size: 0;
+    margin-inline-start: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: var(--de-text-xs);
+    color: var(--de-color-muted);
+  }
+  :where([data-engine]) :where([role="listbox"] > li[role="option"]:has(> strong)) > :where(small:last-of-type:not(:first-of-type)) {
+    flex: 1 1 auto;
+    color: var(--de-color-faint);
+  }
+  :where([data-engine]) :where([role="listbox"] > li[role="option"]:has(> strong)) > :where(data) {
+    flex: 0 0 5em;
+    padding: 0;
+    border: 0;
+    background: none;
+    text-align: end;
+    font-size: var(--de-text-xs);
+    color: var(--de-color-muted);
+  }
+  :where([data-engine]) :where([role="listbox"] > li[role="option"]) > :where(span:has(> button)) {
+    display: flex;
+    gap: 2px;
+    margin-inline-start: auto;
+  }
+
+  /* ---- keyed rows: kind, name, actions ---- */
+  :where([data-engine]) :where(ul[data-rows]) {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    max-inline-size: none;
+  }
+  :where([data-engine]) :where(ul[data-rows]) > :where(li) {
+    display: flex;
+    align-items: center;
+    gap: var(--de-space-1);
+    padding: 2px var(--de-space-1);
+    border: var(--de-border);
+    border-radius: var(--de-radius-sm);
+    background: var(--de-color-surface-2);
+  }
+  :where([data-engine]) :where(ul[data-rows]) > :where(li) > :where(small) {
+    flex: 0 0 5em;
+    font-size: var(--de-text-xs);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--de-color-faint);
+  }
+  :where([data-engine]) :where(ul[data-rows]) > :where(li) > :where(strong) {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: var(--de-text-sm);
+    font-weight: var(--de-weight-body);
+  }
+  :where([data-engine]) :where(ul[data-rows]) > :where(li) > :where(span) { color: var(--de-color-faint); }
+  :where([data-engine]) :where(ul[data-rows]) > :where(li) > :where(input) { flex: 0 1 12em; }
+  :where([data-engine]) :where(ul[data-rows]) > :where(li) > :where(button) { font-size: var(--de-text-xs); padding: 0 var(--de-space-1); min-block-size: 0; }
+  :where([data-engine]) :where(ul[data-rows]) > :where(li[data-empty]) > :where(strong) { color: var(--de-color-faint); }
+
+  /* ---- card rows and pictures ---- */
+  :where([data-engine]) :where([role="listbox"][data-grid]) {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr));
+    align-content: start;
+    gap: var(--de-space-1);
+    padding: var(--de-space-2);
+    border: 0;
+  }
+  :where([data-engine]) :where([role="listbox"][data-grid]) > :where(li[role="option"]) {
+    align-items: center;
+    gap: var(--de-space-1);
+    padding: 2px var(--de-space-1);
+    border: var(--de-border);
+    border-radius: var(--de-radius-sm);
+    background: var(--de-color-surface-2);
+    max-inline-size: none;
+  }
+  :where([data-engine]) :where([role="listbox"][data-grid]) > :where(li[role="option"][aria-selected="true"]) {
+    border-color: var(--de-color-accent);
+    background: var(--de-color-surface-2);
+  }
+  :where([data-engine]) :where([role="listbox"][data-grid]) > :where(li[role="option"]) > :where(span) {
+    font-size: var(--de-text-xs);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  :where([data-engine]) :where(i[data-kind="swatch"]) {
+    display: block;
+    flex: none;
+    inline-size: 1em;
+    block-size: 1em;
+    border: 1px solid var(--de-color-bg);
+    image-rendering: pixelated;
+  }
+  :where([data-engine]) :where([data-kind="thumb"]) {
+    display: block;
+    flex: none;
+    inline-size: 4rem;
+    block-size: 4rem;
+    border: var(--de-border);
+    background: var(--de-color-bg);
+    image-rendering: pixelated;
+  }
+  :where([data-engine]) :where(i[data-kind="thumb"]) { display: grid; grid-template-rows: 1fr 1fr 2fr; }
+  :where([data-engine]) :where(i[data-kind="thumb"]) > :where(b) { display: block; background: var(--de-color-line); }
+  :where([data-engine]) :where(i[data-kind="thumb"]) > :where(b[data-any]) {
+    background: repeating-linear-gradient(45deg, var(--de-color-line) 0 4px, var(--de-color-surface-2) 4px 8px);
+  }
+
+  /* ---- track: a meter with its unlocks ---- */
+  :where([data-engine]) :where(section[data-track]) {
+    display: flex;
+    flex-direction: column;
+    gap: var(--de-space-1);
+    padding: var(--de-space-2);
+    border: 0;
+    border-block-end: var(--de-border);
+    max-inline-size: none;
+  }
+  :where([data-engine]) :where(section[data-track]) > :where(header) {
+    display: flex;
+    align-items: baseline;
+    gap: var(--de-space-2);
+    row-gap: 0;
+    padding: 0;
+    border: 0;
+  }
+  :where([data-engine]) :where(section[data-track]) > :where(header) > :where(h3) {
+    margin: 0;
+    font-size: var(--de-text-base);
+    font-weight: var(--de-weight-body);
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--de-color-accent);
+  }
+  :where([data-engine]) :where(section[data-track]) > :where(header) > :where(small) { font-size: var(--de-text-xs); color: var(--de-color-faint); }
+  :where([data-engine]) :where(section[data-track]) > :where(header) > :where(span) { margin-inline-start: auto; color: var(--de-color-muted); }
+  :where([data-engine]) :where(section[data-track]) > :where(progress) {
+    display: block;
+    inline-size: 100%;
+    block-size: 6px;
+    appearance: none;
+    border: var(--de-border);
+    background: var(--de-color-bg);
+    overflow: hidden;
+    color: var(--c, var(--de-color-accent));
+  }
+  :where([data-engine]) :where(section[data-track]) > :where(progress)::-webkit-progress-bar { background: transparent; }
+  :where([data-engine]) :where(section[data-track]) > :where(progress)::-webkit-progress-value { background: var(--c, var(--de-color-accent)); }
+  :where([data-engine]) :where(section[data-track]) > :where(progress)::-moz-progress-bar { background: var(--c, var(--de-color-accent)); }
+  :where([data-engine]) :where(section[data-track]) > :where(ul) {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--de-space-1);
+    max-inline-size: none;
+  }
+  :where([data-engine]) :where(section[data-track]) > :where(ul) > :where(li) {
+    padding: 1px var(--de-space-1);
+    border: var(--de-border);
+    border-radius: var(--de-radius-sm);
+    font-size: var(--de-text-xs);
+    color: var(--de-color-faint);
+  }
+  :where([data-engine]) :where(section[data-track]) > :where(ul) > :where(li[data-on]) { color: var(--de-color-ok); border-color: var(--de-color-ok); }
+
+  /* ---- axis: a signed meter between two poles ---- */
+  :where([data-engine]) :where(section[data-axis]) {
+    display: flex;
+    flex-direction: column;
+    gap: var(--de-space-1);
+    padding: var(--de-space-2);
+    border: 0;
+    border-block-end: var(--de-border);
+    max-inline-size: none;
+  }
+  :where([data-engine]) :where(section[data-axis]) > :where(header) {
+    display: flex;
+    align-items: baseline;
+    gap: var(--de-space-2);
+    row-gap: 0;
+    padding: 0;
+    border: 0;
+  }
+  :where([data-engine]) :where(section[data-axis]) > :where(header) > :where(span) {
+    flex: 1 1 auto;
+    text-align: center;
+    font-size: var(--de-text-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--de-color-faint);
+  }
+  :where([data-engine]) :where(section[data-axis]) > :where(header) > :where(button) {
+    border: 0;
+    padding: 0;
+    min-block-size: 0;
+    background: none;
+    letter-spacing: 0.1em;
+    color: var(--de-color-muted);
+  }
+  :where([data-engine]) :where(section[data-axis]) > :where(header) > :where(button:hover) { background: none; color: var(--de-color-fg); }
+  :where([data-engine]) :where(section[data-axis]) > :where(header) > :where(button[aria-pressed="true"]) { color: var(--de-color-accent); }
+  :where([data-engine]) :where(section[data-axis]) > :where(header) > :where(button[data-side="neg"]) { text-align: end; }
+  :where([data-engine]) :where(section[data-axis]) > :where(div) {
+    position: relative;
+    block-size: 10px;
+    border: var(--de-border);
+    background: var(--de-color-bg);
+  }
+  :where([data-engine]) :where(section[data-axis]) > :where(div) > :where(b) {
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 50%;
+    inline-size: 1px;
+    background: var(--de-color-edge);
+  }
+  :where([data-engine]) :where(section[data-axis]) > :where(div) > :where(i) {
+    position: absolute;
+    inset-block: -2px;
+    inline-size: 3px;
+    translate: -1px 0;
+    background: var(--de-color-muted);
+  }
+  :where([data-engine]) :where(section[data-axis]) > :where(div) > :where(i[data-side="pos"]) { background: var(--de-color-accent); }
+  :where([data-engine]) :where(section[data-axis]) > :where(div) > :where(i[data-side="neg"]) { background: var(--de-color-accent-2); }
+  :where([data-engine]) :where(section[data-axis]) > :where(footer) {
+    display: flex;
+    align-items: baseline;
+    padding: 0;
+    border: 0;
+    background: none;
+    font-size: var(--de-text-xs);
+  }
+  :where([data-engine]) :where(section[data-axis]) > :where(footer) > :where(data) { padding: 0; border: 0; background: none; color: var(--de-color-muted); }
+  :where([data-engine]) :where(section[data-axis]) > :where(footer) > :where(data:last-child) { margin-inline-start: auto; }
+  :where([data-engine]) :where(section[data-axis]) :where(data[data-tone="ok"]) { color: var(--de-color-ok); }
+  :where([data-engine]) :where(section[data-axis]) :where(data[data-tone="warn"]) { color: var(--de-color-warn); }
+  :where([data-engine]) :where(section[data-axis]) :where(data[data-tone="danger"]) { color: var(--de-color-danger); }
+  :where([data-engine]) :where(section[data-axis]) :where(data) > :where(b) { font-weight: var(--de-weight-body); color: var(--de-color-faint); }
+
+  /* ---- note group: leads and items, boxed ---- */
+  :where([data-engine]) :where(section[role="note"]) {
+    display: flex;
+    flex-direction: column;
+    gap: var(--de-space-2);
+    padding: var(--de-space-2);
+    border: var(--de-border);
+    border-radius: var(--de-radius-sm);
+    background: var(--de-color-surface-2);
+    font-size: var(--de-text-xs);
+    max-inline-size: none;
+  }
+  :where([data-engine]) :where(section[role="note"]) > :where(small) { color: var(--de-color-muted); }
+  :where([data-engine]) :where(section[role="note"]) > :where(div) { display: flex; flex-direction: column; gap: 2px; }
+  :where([data-engine]) :where(section[role="note"]) :where(h4) {
+    margin: 0;
+    padding: 0;
+    font-size: var(--de-text-xs);
+    font-weight: var(--de-weight-body);
+    letter-spacing: 0.1em;
+    text-transform: none;
+    color: var(--de-color-accent-2);
+  }
+  :where([data-engine]) :where(section[role="note"]) :where(h4)::before { content: "▸ "; }
+  :where([data-engine]) :where(section[role="note"]) :where(ul) {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--de-space-1);
+    max-inline-size: none;
+  }
+  :where([data-engine]) :where(section[role="note"]) :where(ul) > :where(li) { padding: 0 0 0 var(--de-space-3); color: var(--de-color-muted); max-inline-size: none; }
+  :where([data-engine]) :where(section[role="note"]) :where(ul) > :where(li) > :where(b) { color: var(--de-color-fg); font-weight: var(--de-weight-body); }
+  :where([data-engine]) :where(section[role="note"]) :where(ul) > :where(li) > :where(i) { color: var(--de-color-faint); font-style: normal; }
+  /* An empty line inside any panel is a quiet muted line, not the page-level dashed empty state. */
+  :where([data-engine]) :where(article[role="dialog"]) :where(p[data-empty]) {
+    display: block;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    color: var(--de-color-muted);
+    max-inline-size: none;
+  }
+  :where([data-engine]) :where(section[role="note"]) :where(p[data-empty]) {
+    margin: 0;
+    padding: 0 0 0 var(--de-space-3);
+    justify-items: start;
+    text-align: start;
+    color: var(--de-color-faint);
+  }
+  :where([data-engine]) :where(section[role="note"]) :where(p[data-tone="warn"]) { margin: 0; color: var(--de-color-warn); }
+  :where([data-engine]) :where(section[role="note"]) :where(p[data-tone="warn"])::before { content: "! "; }
+}

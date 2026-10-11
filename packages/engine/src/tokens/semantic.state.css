@@ -1,0 +1,36 @@
+/*
+  design-engine — tokens: semantic (state)
+  -----------------------------------------------------------------------------
+  Interaction-state tokens: hover/focus/active/disabled. Centralized so a
+  component only needs var(--de-state-hover) instead of inventing its own.
+  Derived from the accent + fg so they stay in-step with the instance.
+*/
+
+@layer de.tokens {
+  :where([data-engine]:not([data-engine] [data-engine])) {
+    --de-state-hover-overlay:  color-mix(in oklab, var(--de-color-fg) 6%, transparent);
+    --de-state-active-overlay: color-mix(in oklab, var(--de-color-fg) 12%, transparent);
+    --de-state-focus-ring:      var(--de-color-accent);
+    --de-state-focus-ring-soft: color-mix(in oklab, var(--de-color-accent) 30%, transparent);
+
+    /* z-index scale (named, never magic numbers in modules) */
+    --de-z-base: 0;
+    --de-z-sticky: 10;
+    --de-z-overlay: 100;
+    --de-z-popover: 200;
+    --de-z-toast: 300;
+    --de-z-modal: 400;
+
+    /* overlay backdrop */
+    --de-overlay-bg: color-mix(in oklab, var(--de-color-fg) 35%, transparent);
+  }
+
+  @supports at-rule(@function) {
+    :where([data-engine]:not([data-engine] [data-engine])) {
+      --de-state-hover-overlay:   --de-alpha(var(--de-color-fg), 0.06);
+      --de-state-active-overlay:  --de-alpha(var(--de-color-fg), 0.12);
+      --de-state-focus-ring-soft: --de-alpha(var(--de-color-accent), 0.3);
+      --de-overlay-bg:            --de-alpha(var(--de-color-fg), 0.35);
+    }
+  }
+}

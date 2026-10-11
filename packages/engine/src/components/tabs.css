@@ -1,0 +1,62 @@
+/*
+  design-engine — components: tabs
+  -----------------------------------------------------------------------------
+  Tabs inferred from [role="tablist"] containing [role="tab"], paired with
+  [role="tabpanel"]. The active tab is [aria-selected="true"]. Keyboard
+  behavior is the author's (or a tiny JS helper); styling is pure CSS.
+  Active-tab underline animates via a CSS gradient on the tablist.
+*/
+
+@layer de.components {
+  :where([data-engine]) :where([role="tablist"]) {
+    display: flex;
+    gap: var(--de-space-1);
+    border-block-end: var(--de-border);
+    max-inline-size: none;
+  }
+
+  :where([data-engine]) :where([role="tab"]) {
+    appearance: none;
+    display: inline-flex;
+    align-items: center;
+    padding: var(--de-space-2) var(--de-space-3);
+    font-size: var(--de-text-sm);
+    font-weight: 550;
+    color: var(--de-color-muted);
+    background: none;
+    border: 1px solid transparent;
+    border-block-end: 2px solid transparent;
+    border-radius: var(--de-radius-sm) var(--de-radius-sm) 0 0;
+    cursor: pointer;
+    transition: color var(--de-transition), border-color var(--de-transition);
+  }
+
+  :where([data-engine]) :where([role="tab"]:hover) {
+    color: var(--de-color-fg);
+  }
+
+  :where([data-engine]) :where([role="tab"][aria-selected="true"]) {
+    color: var(--de-color-accent);
+    border-block-end-color: var(--de-color-accent);
+  }
+
+  :where([data-engine]) :where([role="tab"]:focus-visible) {
+    outline: 2px solid var(--de-color-accent);
+    outline-offset: -2px;
+  }
+
+  /* hide non-selected panels */
+  :where([data-engine]) :where([role="tabpanel"][hidden]) {
+    display: none;
+  }
+
+  :where([data-engine]) :where([role="tabpanel"]) {
+    padding-block: var(--de-space-3);
+    animation: de-tab-fade var(--de-dur) var(--de-ease);
+  }
+
+  @keyframes de-tab-fade {
+    from { opacity: 0; transform: translateY(var(--de-lift)); }
+    to   { opacity: 1; transform: none; }
+  }
+}

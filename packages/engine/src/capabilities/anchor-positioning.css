@@ -1,0 +1,33 @@
+/*
+  design-engine — capabilities: anchor positioning
+  -----------------------------------------------------------------------------
+  Anchor an element to another via anchor-name + position-anchor + anchor().
+  Verified syntax (MDN/W3C 2025):
+    anchor-name: --name;
+    position-anchor: --name;
+    position-area: block-end;
+    anchor(--name top);
+  Used by tooltips, popovers, and dropdowns. Tooltips fall back to a
+  data-attribute hover when anchor positioning is unsupported.
+*/
+
+@layer de.capabilities {
+  @supports (anchor-name: --x) {
+    /* wire the tooltip anchor to its invoker */
+    :where([data-engine]) :where([data-anchor]) {
+      anchor-name: var(--de-anchor-name, --de-anchor);
+    }
+    :where([data-engine]) :where([role="tooltip"], [data-tooltip]) {
+      position-anchor: var(--de-anchor-name, --de-anchor);
+      position-area: var(--de-anchor-area, block-end);
+      margin: var(--de-space-1);
+    }
+
+    /* an anchored dropdown that flips when it would overflow */
+    :where([data-engine]) :where([data-popover][data-anchored]) {
+      position-anchor: var(--de-anchor-name, --de-anchor);
+      position-area: block-end;
+      position-try-fallbacks: flip-block;
+    }
+  }
+}

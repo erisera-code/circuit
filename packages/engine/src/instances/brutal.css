@@ -1,0 +1,270 @@
+/*
+  design-engine — instance: brutal
+  -----------------------------------------------------------------------------
+  Raw structural grid: monospace labels, heavy black hairlines, stark
+  black + off-white + one electric accent, hard offset shadows, sharp corners.
+  Signature: an exposed grid that looks engineered, not decorated.
+
+  The acid yellow (--de-color-accent) is a FILL, never text on paper: it is
+  always printed with black ink on it. Where the core wants the accent as
+  text (links, the link button, the selected tab) this design routes it to
+  --de-color-accent-2, a mustard dark enough to read on white and a deeper
+  yellow on black.
+
+  Facets: palette / type / shape / layout / fx — see docs/authoring-an-instance.md.
+*/
+
+/* ===== palette ===== */
+@layer de.instances.palette {
+  :where([data-engine], [data-engine] *):where([data-instance="brutal"]:not([data-palette]), [data-palette="brutal"]) {
+    --de-color-bg:        light-dark(oklch(97% 0.002 0), oklch(9% 0 0));
+    --de-color-surface:   light-dark(oklch(99% 0 0),     oklch(13% 0 0));
+    --de-color-surface-2: light-dark(oklch(94% 0 0),     oklch(18% 0 0));
+    --de-color-fg:        light-dark(oklch(14% 0 0),     oklch(92% 0 0));
+    --de-color-muted:     light-dark(oklch(38% 0 0),     oklch(68% 0 0));
+    --de-color-faint:     light-dark(oklch(50% 0 0),     oklch(62% 0 0));
+    --de-color-line:      light-dark(oklch(12% 0 0),     oklch(88% 0 0));
+    --de-color-edge:      light-dark(oklch(14% 0 0),     oklch(92% 0 0));
+    --de-color-accent:    light-dark(oklch(88% 0.2 95),  oklch(78% 0.2 95));
+    --de-color-accent-2:  light-dark(oklch(46% 0.12 95), oklch(72% 0.18 95));
+    --de-color-accent-fg: oklch(14% 0 0); /* one black */
+  }
+}
+
+/* ===== type ===== */
+@layer de.instances.type {
+  :where([data-engine], [data-engine] *):where([data-instance="brutal"]:not([data-type]), [data-type="brutal"]) {
+    --de-font-body: var(--de-font-system);
+    --de-font-display: var(--de-font-mono);
+    --de-font-code: var(--de-font-mono);
+    --de-text-base: 1rem;
+    --de-leading: 1.5;
+    --de-measure: 68ch;
+    --de-weight-display: 900;
+  }
+
+  @scope (:where([data-engine], [data-engine] *):where([data-instance="brutal"]:not([data-type]), [data-type="brutal"])) to ([data-instance], [data-type]) {
+    :where(:scope) > :where(header) > :where(h1) {
+      font-weight: 900;
+      font-size: clamp(2.5rem, 9vw, 5.5rem);
+      letter-spacing: -0.04em;
+      line-height: 0.9;
+      text-transform: uppercase;
+    }
+    :where(:scope) > :where(header) :where(small) {
+      font-size: var(--de-text-xs);
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      font-weight: 700;
+    }
+    :where(section) > :where(h2) {
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: -0.02em;
+    }
+    :where(li) > :where(article) :where(h3) {
+      font-size: var(--de-text-lg);
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: -0.01em;
+    }
+    :where(blockquote) :where(p) { font-weight: 700; }
+    :where(th) { text-transform: uppercase; letter-spacing: 0.06em; font-size: var(--de-text-xs); }
+    :where(button) {
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    /* notices carry a mono "// tag" before their text */
+    :where(aside[role="note"], aside[role="status"], aside[role="alert"], [data-banner])::before {
+      font-family: var(--de-font-mono);
+      font-size: var(--de-text-xs);
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+  }
+}
+
+/* ===== shape ===== */
+@layer de.instances.shape {
+  :where([data-engine], [data-engine] *):where([data-instance="brutal"]:not([data-shape]), [data-shape="brutal"]) {
+    --de-radius-sm: 0;
+    --de-radius-md: 0;
+    --de-radius-lg: 0;
+    --de-radius-full: 0;
+    --de-border-w: 3px;
+    --de-shadow-opacity: 1;
+    --de-shadow-1: 4px 4px 0 var(--de-color-fg);
+    --de-shadow-2: 6px 6px 0 var(--de-color-fg);
+    /* every card is a cell of the exposed grid: its own 3px rule, no shadow */
+    --de-card-border: 3px solid var(--de-color-fg);
+    --de-card-shadow: none;
+    --de-button-border: 3px solid var(--de-color-fg);
+    --de-input-border: 3px solid var(--de-color-fg);
+    --de-input-radius: 0;
+    --de-button-radius: 0;
+  }
+
+  @scope (:where([data-engine], [data-engine] *):where([data-instance="brutal"]:not([data-shape]), [data-shape="brutal"])) to ([data-instance], [data-shape]) {
+    :where(:scope) > :where(header) { border-block-end: 3px solid var(--de-color-fg); }
+    /* the materials grid: each cell rules itself; neighbours share one rule */
+    :where(li) > :where(article) { border-radius: 0; box-shadow: none; }
+    :where(ul:has(> li > article)) > :where(li) + :where(li) > :where(article) { border-inline-start: 0; }
+    /* blockquote: the black block with the hard accent offset — no side rail;
+       the accent lives in the cite and links (fx) */
+    :where(blockquote) {
+      border: none;
+      box-shadow: 6px 6px 0 var(--de-color-accent);
+    }
+    /* callout: black-ruled, the tone carried by its tag, not a tinted box */
+    :where(aside[role="note"], aside[role="status"], aside[role="alert"]) { border-block: 3px solid var(--de-color-fg); }
+    /* banner: a bordered strip with the hard shadow */
+    :where([data-banner]) {
+      border: 3px solid var(--de-color-fg);
+      box-shadow: 4px 4px 0 var(--de-color-accent);
+    }
+    :where(table) { border-collapse: collapse; border: 3px solid var(--de-color-fg); }
+    :where(th, td) { border: 1px solid var(--de-color-fg); }
+    :where(pre) { border: 3px solid var(--de-color-fg); box-shadow: 4px 4px 0 var(--de-color-accent); }
+    :where(button) { box-shadow: 4px 4px 0 var(--de-color-fg); }
+    :where(button):where(:active) { box-shadow: none; }
+    :where(input, select, textarea):where(:focus-visible) {
+      outline: 3px solid var(--de-color-accent-2);
+      outline-offset: 2px;
+    }
+  }
+}
+
+/* ===== layout ===== */
+@layer de.instances.layout {
+  @scope (:where([data-engine], [data-engine] *):where([data-instance="brutal"]:not([data-layout]), [data-layout="brutal"])) to ([data-instance], [data-layout]) {
+    :where(:scope) > :where(header) {
+      padding-block-end: var(--de-space-4);
+      padding-block-end: var(--de-space-5);
+    }
+
+    /* section headings: label + heading on one baseline row */
+    :where(section) > :where(h2) {
+      display: flex;
+      align-items: baseline;
+      gap: var(--de-space-3);
+      flex-wrap: wrap;
+      padding-block: var(--de-space-5) var(--de-space-3);
+    }
+
+    /* the exposed grid: materials list as a rigid 3-column bordered grid */
+    :where(ul:has(> li > article)) {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0;
+      list-style: none;
+      padding: 0;
+      padding-block: var(--de-space-4);
+    }
+    :where(ul:has(> li > article)) > :where(li) { display: block; margin: 0; }
+    :where(li) > :where(article) {
+      padding: var(--de-space-4);
+      container-type: normal;
+    }
+    :where(blockquote) { padding: var(--de-space-4) var(--de-space-5); }
+    :where(th, td) { padding: var(--de-space-2) var(--de-space-3); }
+
+    /* the bordered banner is a panel: inset it; its tag sits first on the row */
+    :where([data-banner]) { --de-inset: var(--de-space-4); }
+    :where(aside[role="note"], aside[role="status"], aside[role="alert"])::before { display: block; }
+
+    /* a framed table: edge cells carry the panel inset (the cell padding
+       shorthand above would otherwise clobber the core's edge rules) */
+    :where(th:first-child, td:first-child) { padding-inline-start: max(var(--de-space-3), var(--de-inset)); }
+    :where(th:last-child, td:last-child) { padding-inline-end: max(var(--de-space-3), var(--de-inset)); }
+    :where(table > :first-child > tr:first-child > :is(th, td)) { padding-block-start: calc(var(--de-space-2) + max(var(--de-space-1), var(--de-inset))); }
+    :where(table > :last-child > tr:last-child > :is(th, td)) { padding-block-end: calc(var(--de-space-2) + max(var(--de-space-1), var(--de-inset))); }
+
+  }
+}
+
+/* ===== fx ===== */
+@layer de.instances.fx {
+  @scope (:where([data-engine], [data-engine] *):where([data-instance="brutal"]:not([data-fx]), [data-fx="brutal"])) to ([data-instance], [data-fx]) {
+    :where(:scope) {
+      /* the inverted block is the page's stock inverted: black on paper, paper on black */
+      --de-brutal-block: light-dark(oklch(14% 0 0), oklch(97% 0.002 0));
+      --de-brutal-block-ink: light-dark(oklch(97% 0.002 0), oklch(14% 0 0));
+      /* the accent as it reads ON the inverted block: acid on black, mustard on paper */
+      --de-brutal-block-accent: light-dark(oklch(88% 0.2 95), oklch(44% 0.12 95));
+    }
+
+    /* monospace "// id" label before each section heading: black ink on the acid fill */
+    :where(section) > :where(h2)::before {
+      content: "// " attr(id);
+      font-size: var(--de-text-xs);
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      font-family: var(--de-font-mono);
+      color: var(--de-color-accent-fg);
+      background: var(--de-color-accent);
+      padding: 0.15em 0.5em;
+    }
+    :where(section:not([id])) > :where(h2)::before { content: "// §"; }
+
+    /* notices: the mono tag names the tone; only the tag is coloured */
+    :where(aside[role="note"], aside[role="status"], aside[role="alert"], [data-banner])::before { content: "// notice"; color: var(--de-color-muted); }
+    :where(aside[role="note"], [data-banner][data-tone="warn"])::before { content: "// note"; color: var(--de-color-warn); }
+    :where(aside[role="status"], [data-banner][data-tone="ok"])::before { content: "// ok"; color: var(--de-color-ok); }
+    :where(aside[role="alert"], [data-banner][data-tone="danger"])::before { content: "// alert"; color: var(--de-color-danger); }
+    :where([data-banner]) { background: var(--de-color-surface); }
+
+    /* surfaces: stark inversions */
+    :where(li) > :where(article) { background: var(--de-color-surface); transform: none; transition: none; }
+    :where(li) > :where(article):where(:hover) { background: var(--de-color-accent); color: var(--de-color-accent-fg); }
+    :where(blockquote) { background: var(--de-brutal-block); color: var(--de-brutal-block-ink); }
+    :where(blockquote) :where(cite) { color: var(--de-brutal-block-accent); }
+    :where(blockquote) :where(footer) { color: var(--de-brutal-block-ink); }
+    :where(blockquote) :where(a) { color: var(--de-brutal-block-accent); }
+    :where(thead) { background: var(--de-color-fg); color: var(--de-color-bg); }
+    :where(input, select, textarea) { background: var(--de-color-surface); }
+
+    /* code: inverted block — the terminal keeps its own dark window. The block
+       inverts the page, so its syntax inks invert with it: the dark-side
+       colours read on the ink, the light-side ones on the paper block. */
+    :where(pre:not([data-terminal]):not(:has(> samp))) {
+      background: var(--de-brutal-block);
+      color: var(--de-brutal-block-ink);
+      --de-sx-kw:    light-dark(oklch(78% 0.16 350), oklch(52% 0.2 350));
+      --de-sx-str:   light-dark(oklch(78% 0.15 150), oklch(50% 0.14 150));
+      --de-sx-fn:    light-dark(oklch(76% 0.14 230), oklch(48% 0.16 250));
+      --de-sx-cm:    light-dark(oklch(73% 0.02 250), oklch(48% 0.02 250));
+      --de-sx-num:   light-dark(oklch(78% 0.14 300), oklch(50% 0.18 300));
+      --de-sx-tag:   light-dark(oklch(80% 0.13 70),  oklch(52% 0.15 55));
+      --de-sx-attr:  light-dark(oklch(78% 0.11 200), oklch(48% 0.12 200));
+      --de-sx-punct: light-dark(oklch(70% 0 0),      oklch(48% 0 0));
+      --de-sx-type:  light-dark(oklch(78% 0.12 290), oklch(50% 0.16 290));
+      --de-sx-bool:  light-dark(oklch(76% 0.15 25),  oklch(50% 0.18 25));
+    }
+
+    /* the accent as TEXT is always the mustard, never the acid */
+    :where(p, li, dd, dt, td, th, figcaption, summary, small) :where(a) { color: var(--de-color-accent-2); }
+    :where(a):where(:hover) { color: var(--de-color-fg); }
+    :where(button[data-variant="link"]) { color: var(--de-color-accent-2); }
+    :where(button[data-variant="link"]):where(:hover) { color: var(--de-color-fg); }
+    :where([role="tab"][aria-selected="true"]) { color: var(--de-color-accent-2); }
+
+    /* buttons: press into the page; the CTA is acid with black ink, and
+       inverts to ink on hover; the danger button prints paper on the red */
+    :where(button) { transition: none; }
+    :where(button):where(:active) { transform: translate(4px, 4px); }
+    :where(form) > :where(p:last-child) > :where(button:last-child),
+    :where(form) > :where(button:last-child) {
+      background: var(--de-color-accent);
+      color: var(--de-color-accent-fg);
+    }
+    :where(form) > :where(p:last-child) > :where(button:last-child):where(:hover),
+    :where(form) > :where(button:last-child):where(:hover) {
+      background: var(--de-color-fg);
+      color: var(--de-color-bg);
+    }
+    :where(button[data-variant="danger"]) { color: var(--de-color-bg); }
+  }
+}
+/* signature: an exposed black-grid system with monospace labels, hard offset shadows, one electric accent. */

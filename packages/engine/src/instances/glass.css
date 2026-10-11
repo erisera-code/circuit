@@ -1,0 +1,288 @@
+/*
+  design-engine — instance: glass
+  -----------------------------------------------------------------------------
+  Glassmorphism / frosted spatial UI. Translucent frosted surfaces float over
+  a vivid multi-color gradient-mesh backdrop; blur + saturate diffuse the mesh
+  through every panel. The main article is a single centered frosted card;
+  the materials list becomes a grid of glowing translucent tiles. Headings
+  are light and wide, blockquotes are translucent pills, code is a frosted
+  darker tile, and every surface carries a 1px translucent-white top edge
+  for the "glass sheen". Selected with data-instance="glass".
+
+  Facets: palette / type / shape / layout / fx — see docs/authoring-an-instance.md.
+*/
+
+/* ===== palette ===== */
+@layer de.instances.palette {
+  :where([data-engine], [data-engine] *):where([data-instance="glass"]:not([data-palette]), [data-palette="glass"]) {
+    /* light glass: pale vivid backdrop, dark ink on frosted white;
+       dark glass: deep violet backdrop, pale ink on smoked panels */
+    --de-color-bg:        light-dark(oklch(96% 0.03 280),        oklch(16% 0.03 280));
+    --de-color-surface:   light-dark(oklch(99.7% 0.006 280 / 0.84), oklch(22% 0.03 280 / 0.6));
+    --de-color-surface-2: light-dark(oklch(99% 0.02 280 / 0.45), oklch(26% 0.04 280 / 0.45));
+    --de-color-fg:        light-dark(oklch(24% 0.04 280),        oklch(96% 0.01 280));
+    --de-color-muted:     light-dark(oklch(40% 0.04 280),        oklch(78% 0.02 280));
+    --de-color-faint:     light-dark(oklch(55% 0.04 280),        oklch(70% 0.03 280));
+    /* light: a faint violet shadow line (white hairlines vanish on white frost); dark: the white hairline */
+    --de-color-line:      light-dark(oklch(30% 0.06 280 / 0.16), oklch(100% 0 0 / 0.18));
+    /* control boundary: solid enough for 3:1 against the frost on either side */
+    --de-color-edge:      light-dark(oklch(52% 0.05 280),        oklch(100% 0 0 / 0.42));
+    /* light accents sit at L 45-48% so links, tabs and badges read on white frost; dark keeps the pastel glow */
+    --de-color-accent:    light-dark(oklch(45% 0.18 300),        oklch(78% 0.16 300));
+    --de-color-accent-2:  light-dark(oklch(48% 0.12 200),        oklch(80% 0.15 200));
+    --de-color-accent-fg: light-dark(oklch(98% 0.01 300),        oklch(18% 0.04 300));
+    --de-color-danger:    light-dark(oklch(50% 0.19 25),         oklch(68% 0.19 25));
+    --de-color-warn:      light-dark(oklch(50% 0.12 70),         oklch(78% 0.15 70));
+    --de-color-ok:        light-dark(oklch(48% 0.14 155),        oklch(70% 0.16 155));
+
+    --de-overlay-bg: color-mix(in oklab, var(--de-color-fg) 30%, transparent);
+    --de-state-focus-ring: var(--de-color-accent);
+  }
+}
+
+/* ===== type ===== */
+@layer de.instances.type {
+  :where([data-engine], [data-engine] *):where([data-instance="glass"]:not([data-type]), [data-type="glass"]) {
+    --de-font-body: var(--de-font-system);
+    --de-font-display: var(--de-font-system);
+    --de-font-code: var(--de-font-mono);
+    --de-text-base: 1.0625rem;
+    --de-leading: 1.65;
+    --de-measure: 64ch;
+  }
+
+  @scope (:where([data-engine], [data-engine] *):where([data-instance="glass"]:not([data-type]), [data-type="glass"])) to ([data-instance], [data-type]) {
+    /* light, wide display headings */
+    :where(h1, h2, h3) {
+      font-weight: 300;
+      letter-spacing: 0.02em;
+      color: var(--de-color-fg);
+    }
+    :where(h1) {
+      font-size: clamp(2.2rem, 5vw, 3.4rem);
+      font-weight: 300;
+      letter-spacing: 0.03em;
+    }
+  }
+}
+
+/* ===== shape ===== */
+@layer de.instances.shape {
+  :where([data-engine], [data-engine] *):where([data-instance="glass"]:not([data-shape]), [data-shape="glass"]) {
+    --de-radius-sm: 0.5rem;
+    --de-radius-md: 0.75rem;
+    --de-radius-lg: 1rem;
+    --de-radius-full: 9999px;
+    /* every panel is inset: the core applies this as padding */
+    --de-inset: var(--de-space-5);
+
+    --de-border-w: 1px;
+    --de-shadow-opacity: 0.22;
+    /* light: tinted violet shade; dark: plain black, a touch denser */
+    --de-shadow-1: 0 4px 16px light-dark(oklch(30% 0.08 280 / var(--de-shadow-opacity)), oklch(0% 0 0 / var(--de-shadow-opacity)));
+    --de-shadow-2: 0 18px 50px light-dark(oklch(30% 0.10 280 / calc(var(--de-shadow-opacity) + 0.1)), oklch(0% 0 0 / calc(var(--de-shadow-opacity) + 0.15)));
+
+    /* inputs: subtly translucent chips (fainter on dark so ink and placeholder clear the composite) */
+    --de-input-bg: light-dark(oklch(100% 0 0 / 0.18), oklch(100% 0 0 / 0.08));
+    --de-input-border: var(--de-border-edge);
+    --de-input-radius: var(--de-radius-md);
+  }
+
+  @scope (:where([data-engine], [data-engine] *):where([data-instance="glass"]:not([data-shape]), [data-shape="glass"])) to ([data-instance], [data-shape]) {
+    /* main article: a single centered frosted card */
+    :where(main > article:not(li > article)) {
+      border: 1px solid var(--de-color-line);
+      border-radius: var(--de-radius-lg);
+      box-shadow: var(--de-shadow-2);
+    }
+
+    /* panels: hairline translucent edge, medium radius */
+    :where(section, aside, fieldset, table, blockquote) {
+      border: 1px solid var(--de-color-line);
+      border-radius: var(--de-radius-md);
+      box-shadow: var(--de-shadow-1);
+    }
+    :where(pre):where(:not([data-terminal], :has(> samp))) {
+      border: 1px solid var(--de-color-line);
+      border-radius: var(--de-radius-md);
+      box-shadow: var(--de-shadow-1);
+    }
+
+    /* materials tiles */
+    :where(li > article) {
+      border: 1px solid var(--de-color-line);
+      border-radius: var(--de-radius-lg);
+      box-shadow: var(--de-shadow-1);
+    }
+
+    /* blockquote: a frosted panel like every other surface — no side rule */
+    :where(blockquote) {
+      border-radius: var(--de-radius-md);
+      border-inline-start: 1px solid var(--de-color-line); /* same hairline as the other three edges */
+    }
+
+    /* inline code: a soft chip */
+    :where(code:not(pre code)) {
+      border: 1px solid var(--de-color-line);
+      border-radius: var(--de-radius-sm);
+    }
+
+    /* primary CTA: glassy pill */
+    :where(form > button:last-child, menu button) {
+      border: 1px solid oklch(100% 0 0 / 0.4);
+      border-radius: var(--de-radius-full);
+      box-shadow: var(--de-shadow-1);
+    }
+
+    /* images: soft radius, frosted frame */
+    :where(figure img) {
+      border-radius: var(--de-radius-md);
+      box-shadow: var(--de-shadow-1);
+    }
+  }
+}
+
+/* ===== layout ===== */
+@layer de.instances.layout {
+  @scope (:where([data-engine], [data-engine] *):where([data-instance="glass"]:not([data-layout]), [data-layout="glass"])) to ([data-instance], [data-layout]) {
+    /* main article: generous frosted card */
+    :where(main > article:not(li > article)) {
+      padding: var(--de-space-6);
+      padding-block: var(--de-space-6);
+    }
+
+    /* the materials list → frosted tile grid */
+    :where(ul:has(> li > article)) {
+      display: grid;
+      list-style: none;
+      padding: 0;
+      padding-block: var(--de-space-5);
+      gap: var(--de-space-4);
+      grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr));
+      max-inline-size: none;
+    }
+    :where(ul:has(> li > article)) > :where(li) {
+      display: flex;
+    }
+    :where(li > article) {
+      flex: 1 1 auto;
+      width: 100%;
+      padding: var(--de-space-5);
+      container-type: normal;
+    }
+
+    /* blockquote pill: snug padding, flush margins */
+    :where(blockquote) {
+      padding: var(--de-space-3) var(--de-space-5);
+    }
+
+    /* inline code chip */
+    :where(code:not(pre code)) {
+      padding: 0.1em 0.4em;
+    }
+
+    /* a framed table: edge cells carry the panel inset (the cell padding
+       shorthand above would otherwise clobber the core's edge rules) */
+    :where(th:first-child, td:first-child) { padding-inline-start: max(var(--de-space-3), var(--de-inset)); }
+    :where(th:last-child, td:last-child) { padding-inline-end: max(var(--de-space-3), var(--de-inset)); }
+    :where(table > :first-child > tr:first-child > :is(th, td)) { padding-block-start: calc(var(--de-space-2) + max(var(--de-space-1), var(--de-inset))); }
+    :where(table > :last-child > tr:last-child > :is(th, td)) { padding-block-end: calc(var(--de-space-2) + max(var(--de-space-1), var(--de-inset))); }
+
+  }
+}
+
+/* ===== fx ===== */
+@layer de.instances.fx {
+  @scope (:where([data-engine], [data-engine] *):where([data-instance="glass"]:not([data-fx]), [data-fx="glass"])) to ([data-instance], [data-fx]) {
+    /* vivid gradient-mesh backdrop (fixed behind everything) + frost knobs */
+    :where(:scope) {
+      --de-blur: 18px;
+      --de-saturate: 1.5;
+      --de-glass-edge: inset 0 1px 0 light-dark(oklch(100% 0 0 / 0.7), oklch(100% 0 0 / 0.18));
+      --de-glass-glow: 0 8px 30px light-dark(oklch(70% 0.16 300 / 0.28), oklch(78% 0.16 300 / 0.32));
+
+      background-color: var(--de-color-bg);
+      background-image:
+        /* blobs scale with the viewport so a wide window is still covered */
+        radial-gradient(circle max(48rem, 55vw) at 8% 6%, oklch(72% 0.18 300 / 0.85), transparent 60%),
+        radial-gradient(circle max(40rem, 45vw) at 94% 14%, oklch(80% 0.15 200 / 0.8), transparent 60%),
+        radial-gradient(circle max(46rem, 52vw) at 78% 92%, oklch(78% 0.17 350 / 0.8), transparent 60%),
+        radial-gradient(circle max(42rem, 48vw) at 16% 88%, oklch(82% 0.16 80 / 0.7), transparent 60%);
+      background-attachment: fixed;
+      background-size: 100vw 100vh;
+      background-repeat: no-repeat;
+    }
+
+    /* backdrop-filter gated; solid-color fallback otherwise */
+    @supports (backdrop-filter: blur(1px)) {
+      :where(article, section, aside, pre, table, fieldset, blockquote) {
+        backdrop-filter: blur(var(--de-blur)) saturate(var(--de-saturate));
+        -webkit-backdrop-filter: blur(var(--de-blur)) saturate(var(--de-saturate));
+      }
+    }
+    @supports not (backdrop-filter: blur(1px)) {
+      :where(article, section, aside, table, fieldset, blockquote), :where(pre):where(:not([data-terminal], :has(> samp))) {
+        background: var(--de-color-bg);
+      }
+    }
+
+    /* main article: frosted surface with the glass-edge sheen */
+    :where(main > article:not(li > article)) {
+      background: var(--de-color-surface);
+      box-shadow: var(--de-shadow-2), var(--de-glass-edge);
+    }
+
+    /* translucent surfaces with glass-edge sheen */
+    :where(section, aside, fieldset, table, blockquote) {
+      background: var(--de-color-surface);
+      box-shadow: var(--de-shadow-1), var(--de-glass-edge);
+    }
+    /* (the terminal keeps its own dark tile in both schemes) */
+    :where(pre):where(:not([data-terminal], :has(> samp))) {
+      background: var(--de-color-surface-2);
+      box-shadow: var(--de-shadow-1), var(--de-glass-edge);
+    }
+
+    /* materials tiles: glowing frosted panels that lift + intensify blur on hover */
+    :where(li > article) {
+      background: var(--de-color-surface);
+      box-shadow: var(--de-shadow-1), var(--de-glass-edge), var(--de-glass-glow);
+      transform: translateY(0);
+      transition:
+        transform var(--de-transition),
+        box-shadow var(--de-transition),
+        border-color var(--de-transition),
+        backdrop-filter var(--de-transition);
+    }
+    :where(li > article):where(:hover) {
+      transform: translateY(-6px);
+      border-color: light-dark(oklch(30% 0.06 280 / 0.3), oklch(100% 0 0 / 0.8));
+      box-shadow: var(--de-shadow-2), var(--de-glass-edge), var(--de-glass-glow);
+      backdrop-filter: blur(calc(var(--de-blur) + 6px)) saturate(var(--de-saturate));
+      -webkit-backdrop-filter: blur(calc(var(--de-blur) + 6px)) saturate(var(--de-saturate));
+    }
+
+    /* inline code: frosted chip */
+    :where(code:not(pre code)) {
+      background: var(--de-color-surface-2);
+      box-shadow: var(--de-glass-edge);
+    }
+
+    /* primary CTA: glassy accent pill */
+    :where(form > button:last-child, menu button) {
+      background: var(--de-color-accent);
+      color: var(--de-color-accent-fg);
+      box-shadow: var(--de-shadow-1), var(--de-glass-edge);
+    }
+    :where(form > button:last-child, menu button):where(:hover) {
+      background: var(--de-color-accent-2);
+      transform: translateY(-2px);
+    }
+
+    /* inputs: sheen on the translucent chips */
+    :where(input, select, textarea) {
+      box-shadow: var(--de-glass-edge);
+    }
+  }
+}
+/* signature: frosted-glass panels floating over a vivid violet-cyan-pink-amber gradient mesh, every surface blurred and edge-sheened. */

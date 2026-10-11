@@ -1,0 +1,76 @@
+/*
+  design-engine — tokens: semantic (color)
+  -----------------------------------------------------------------------------
+  Tier 2 semantic color tokens — what base/structure/components consume.
+  Each token is ONE `light-dark()` pair. Which side renders is decided by the
+  `color-scheme` of the element that USES the token (tokens are deliberately
+  unregistered so the pair travels down the tree unresolved): the OS
+  preference by default, `data-theme` on the anchor or on any nested region.
+  That single mechanism replaces the old three-way duplication (light block,
+  @media dark block, [data-theme=dark] block) in every instance.
+
+  Derived tints prefer relative color syntax; color-mix() is the fallback.
+  With @function support the tints are expressed through the engine's own
+  --de-alpha() (see foundation/functions.css).
+*/
+
+@layer de.tokens {
+  :where([data-engine]:not([data-engine] [data-engine])) {
+    --de-color-bg:        light-dark(var(--de-gray-0), var(--de-gray-8));
+    --de-color-surface:   light-dark(var(--de-gray-1), var(--de-gray-7));
+    --de-color-surface-2: light-dark(var(--de-gray-2), var(--de-gray-6));
+    --de-color-fg:        light-dark(var(--de-gray-7), var(--de-gray-1));
+    --de-color-muted:     light-dark(var(--de-gray-5), oklch(72% 0.015 90));
+    --de-color-faint:     light-dark(oklch(52% 0.015 90), oklch(66% 0.015 90));
+    --de-color-line:      light-dark(var(--de-gray-3), var(--de-gray-6));
+    --de-color-accent:    light-dark(var(--de-accent-5), var(--de-accent-3));
+    --de-color-accent-2:  light-dark(var(--de-accent-7), var(--de-accent-3));
+    --de-color-accent-fg: light-dark(var(--de-gray-0), var(--de-gray-8));
+    --de-color-danger:    light-dark(var(--de-red-5),   var(--de-red-3));
+    --de-color-warn:      light-dark(var(--de-amber-5), var(--de-amber-3));
+    --de-color-ok:        light-dark(var(--de-green-5), var(--de-green-3));
+
+    /* --de-color-line is a decorative hairline (dividers, card edges) and may
+       sit at ~1.5:1. --de-color-edge is the boundary of a CONTROL (inputs,
+       buttons, chips, checkboxes) and clears WCAG 1.4.11's 3:1. */
+    --de-color-edge:      light-dark(oklch(58% 0.015 90), oklch(56% 0.02 90));
+
+    /* ---- borders & elevation ---- */
+    --de-border-w: 1px;
+    --de-border: var(--de-border-w) solid var(--de-color-line);
+    --de-border-edge: var(--de-border-w) solid var(--de-color-edge);
+    --de-shadow-opacity: 0.08;
+    /* light-dark() only takes colors, so the dark side is expressed as a
+       stronger ink rather than a second opacity number */
+    --de-shadow-ink: light-dark(oklch(0% 0 0 / var(--de-shadow-opacity)), oklch(0% 0 0 / calc(var(--de-shadow-opacity) * 3)));
+    --de-shadow-1: 0 1px 2px var(--de-shadow-ink);
+    --de-shadow-2: 0 6px 20px var(--de-shadow-ink);
+
+    /* ---- derived tints: color-mix fallback, relative-color preferred ---- */
+    --de-color-accent-soft: color-mix(in oklab, var(--de-color-accent) 18%, transparent);
+    --de-color-fg-soft:     color-mix(in oklab, var(--de-color-fg) 8%, transparent);
+  }
+
+  @supports (color: oklch(from red l c h)) {
+    :where([data-engine]:not([data-engine] [data-engine])) {
+      --de-color-accent-soft: oklch(from var(--de-color-accent) calc(l + 0.2) calc(c * 0.6) h / 0.18);
+      --de-color-fg-soft:     oklch(from var(--de-color-fg) l c h / 0.08);
+    }
+  }
+
+  /* accent-fg auto-derivation: pick black/white for the accent (progressive) */
+  @supports (color: contrast-color(red)) {
+    :where([data-engine]:not([data-engine] [data-engine])) {
+      --de-color-accent-fg: contrast-color(var(--de-color-accent));
+    }
+  }
+
+  /* with custom functions, the same tints read as intent */
+  @supports at-rule(@function) {
+    :where([data-engine]:not([data-engine] [data-engine])) {
+      --de-color-fg-soft: --de-alpha(var(--de-color-fg), 0.08);
+      --de-shadow-1: --de-shadow(1px, 2px);
+      --de-shadow-2: --de-shadow(6px, 20px);
+    }
+  }
+}

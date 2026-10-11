@@ -1,0 +1,48 @@
+/*
+  design-engine — components: skeleton
+  -----------------------------------------------------------------------------
+  A loading placeholder inferred from [data-skeleton] on a block-level
+  element — no inner markup needed, the element's own box is the shape:
+    <div data-skeleton style="inline-size: 12rem; block-size: 1rem"></div>
+  data-skeleton="text" reads as a line of type; "avatar" reads as a disc;
+  the bare attribute is a plain rounded block. A highlight sweeps across a
+  flat base tone — no colour cycling, so it reads as "loading", not "alive".
+  Presentational only: pair it with aria-hidden or aria-busy on a real
+  container, per how the empty/spinner states already document that split.
+*/
+
+@layer de.components {
+  :where([data-engine]) :where([data-skeleton]) {
+    display: block;
+    inline-size: 100%;
+    block-size: 1em;
+    border-radius: var(--de-radius-sm);
+    background-color: var(--de-color-surface-2);
+    background-image: linear-gradient(
+      90deg,
+      transparent 0%,
+      var(--de-color-faint) 50%,
+      transparent 100%
+    );
+    background-size: 50% 100%;
+    background-repeat: no-repeat;
+    background-position: -50% 0;
+    animation: de-skeleton-sweep calc(var(--de-dur-slow) * 4) linear infinite;
+  }
+  :where([data-engine]) :where([data-skeleton="text"]) {
+    block-size: 0.8em;
+    border-radius: var(--de-radius-full);
+  }
+  :where([data-engine]) :where([data-skeleton="text"]:last-child) {
+    inline-size: 65%;
+  }
+  :where([data-engine]) :where([data-skeleton="avatar"]) {
+    inline-size: var(--de-avatar-size, 2rem);
+    block-size: var(--de-avatar-size, 2rem);
+    border-radius: 50%;
+  }
+  @keyframes de-skeleton-sweep {
+    from { background-position: -50% 0; }
+    to { background-position: 150% 0; }
+  }
+}

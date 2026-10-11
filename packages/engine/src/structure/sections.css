@@ -1,0 +1,65 @@
+/*
+  design-engine — structure: the page column
+  -----------------------------------------------------------------------------
+  PLACEMENT BINDING starts here. Every direct child of the scope anchor —
+  masthead, main, footer, aside — sits in ONE centered column: the reading
+  measure plus fluid gutters. That is what keeps a display title and the
+  body text on the same axis at any viewport, instead of a left-hugging
+  masthead over a centered column. <main> may opt into a wider column with
+  [data-wide]; the anchor gets generous block padding so nothing touches the
+  viewport edge.
+*/
+
+@layer de.structure {
+  :where([data-engine]) {
+    padding-block: var(--de-space-6);
+  }
+
+  /* room between the top-level regions (padding, never margin) */
+  :where([data-engine]) > :where(main) {
+    padding-block-start: var(--de-space-6);
+  }
+  :where([data-engine]) > :where(main + aside, main + section) {
+    padding-block-start: var(--de-space-6);
+  }
+  :where([data-engine]) > :where(main) {
+    padding-block-end: var(--de-space-6);
+  }
+
+  /* the column: any top-level region */
+  :where([data-engine]) > :where(header, main, footer, aside, nav, section, article, form, figure) {
+    inline-size: min(100% - var(--de-content-pad) * 2, var(--de-measure));
+    margin-inline: auto;
+  }
+
+  /* a wide layout: main (or the anchor itself) opts in */
+  :where([data-engine]) > :where(main[data-wide], [data-wide]),
+  :where([data-engine][data-wide]) > :where(main) {
+    inline-size: min(100% - var(--de-content-pad) * 2, 90rem);
+  }
+
+  /* main nested deeper than the anchor still centers itself */
+  :where([data-engine] main:not([data-engine] > main)) {
+    inline-size: min(100% - var(--de-content-pad) * 2, var(--de-measure));
+    margin-inline: auto;
+  }
+
+  /* masthead: the lede and its nav breathe */
+  :where([data-engine]) > :where(header) {
+    row-gap: var(--de-space-3);
+    padding-block-end: var(--de-space-4);
+  }
+
+  /* sections: more room between titled blocks than within them */
+  :where([data-engine]) :where(section + section) {
+    padding-block-start: var(--de-space-5);
+  }
+
+  /* footer: quiet */
+  :where([data-engine]) > :where(footer) {
+    padding-block-start: var(--de-space-4);
+    border-block-start: 1px solid var(--de-color-line);
+    color: var(--de-color-muted);
+    font-size: var(--de-text-sm);
+  }
+}

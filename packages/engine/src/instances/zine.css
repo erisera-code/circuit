@@ -1,0 +1,330 @@
+/*
+  design-engine — instance: zine
+  -----------------------------------------------------------------------------
+  Hand-made, loud, slightly off-kilter. Risograph spot colors, halftone,
+  rotated paper scraps, marker highlighter swipes. Signature: a punk collage.
+
+  Two grades of each spot colour: the semantic token (--de-color-accent,
+  --de-color-accent-2, --de-color-warn) is the ink at reading strength — used
+  wherever it is TEXT or carries text, so it clears 4.5:1 on paper — and the
+  loud riso version lives in private --de-zine-* tokens for fills that carry
+  no text: card shadows, the highlighter swipe, the h2 marker rule.
+
+  Facets: palette / type / shape / layout / fx — see docs/authoring-an-instance.md.
+*/
+
+/* ===== palette ===== */
+@layer de.instances.palette {
+  :where([data-engine], [data-engine] *):where([data-instance="zine"]:not([data-palette]), [data-palette="zine"]) {
+    /* spot colors on off-white paper; dark side is the same inks on black stock */
+    --de-color-bg:        light-dark(oklch(97% 0.008 75),   oklch(16% 0.004 0));
+    --de-color-surface:   light-dark(oklch(99.5% 0.002 75), oklch(20% 0.006 0));
+    --de-color-surface-2: light-dark(oklch(95% 0.01 75),    oklch(26% 0.01 0));
+    --de-color-fg:        light-dark(oklch(20% 0.02 0),     oklch(90% 0.01 75));
+    --de-color-muted:     light-dark(oklch(35% 0.02 0),     oklch(70% 0.01 0));
+    --de-color-faint:     light-dark(oklch(50% 0.02 0),     oklch(62% 0.01 0));
+    --de-color-line:      light-dark(oklch(20% 0.02 0),     oklch(85% 0.01 0));
+    --de-color-edge:      light-dark(oklch(20% 0.02 0),     oklch(85% 0.01 0));
+    /* magenta and electric blue at reading strength (text and text-bearing fills) */
+    --de-color-accent:    light-dark(oklch(50% 0.2 7),      oklch(68% 0.24 7));
+    --de-color-accent-2:  light-dark(oklch(50% 0.17 250),   oklch(65% 0.2 250));
+    --de-color-accent-fg: light-dark(oklch(99% 0.004 75),   oklch(16% 0.004 0));
+    /* the highlighter as a tone: mustard when it is text on paper, yellow on black stock */
+    --de-color-warn:      light-dark(oklch(50% 0.13 95),    oklch(85% 0.2 95));
+  }
+}
+
+/* ===== type ===== */
+@layer de.instances.type {
+  :where([data-engine], [data-engine] *):where([data-instance="zine"]:not([data-type]), [data-type="zine"]) {
+    --de-font-body: var(--de-font-system);
+    --de-font-display: var(--de-font-system);
+    --de-font-code: var(--de-font-mono);
+    --de-text-base: 1.05rem;
+    --de-leading: 1.6;
+    --de-measure: 66ch;
+  }
+
+  @scope (:where([data-engine], [data-engine] *):where([data-instance="zine"]:not([data-type]), [data-type="zine"])) to ([data-instance], [data-type]) {
+    /* masthead: oversized, tight, shouted */
+    :where(:scope) > :where(header) > :where(h1) {
+      font-weight: 900;
+      font-size: clamp(2.4rem, 7vw, 4.5rem);
+      letter-spacing: -0.03em;
+      line-height: 0.95;
+      text-transform: uppercase;
+    }
+    :where(:scope) > :where(header) :where(small) {
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-size: var(--de-text-xs);
+    }
+    :where(section) > :where(h2) {
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: -0.01em;
+    }
+    :where(li) > :where(article) :where(h3) {
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: -0.01em;
+    }
+    :where(blockquote) :where(p) { font-weight: 800; }
+    :where(button) {
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    /* notices shout too */
+    :where([data-banner]) { font-weight: 700; }
+  }
+}
+
+/* ===== shape ===== */
+@layer de.instances.shape {
+  :where([data-engine], [data-engine] *):where([data-instance="zine"]:not([data-shape]), [data-shape="zine"]) {
+    /* the loud riso inks, for fills that carry no text */
+    --de-zine-magenta: oklch(62% 0.24 7);
+    --de-zine-blue: oklch(58% 0.2 250);
+    --de-zine-highlighter: oklch(85% 0.2 95);
+
+    --de-radius-sm: 0;
+    --de-radius-md: 0;
+    --de-radius-lg: 4px;
+    --de-shadow-opacity: 1;
+
+    /* paper scraps: thin ink border, spot-color offset shadow */
+    --de-card-bg: var(--de-color-surface);
+    --de-card-border: 2px solid var(--de-color-fg);
+    --de-card-radius: 2px;
+    --de-card-shadow: 5px 5px 0 var(--de-zine-magenta);
+
+    /* buttons and inputs: bordered, sharp */
+    --de-button-border: 2px solid var(--de-color-fg);
+    --de-button-radius: 0;
+    --de-input-border: 2px solid var(--de-color-fg);
+    --de-input-radius: 0;
+  }
+
+  @scope (:where([data-engine], [data-engine] *):where([data-instance="zine"]:not([data-shape]), [data-shape="zine"])) to ([data-instance], [data-shape]) {
+    /* the second scrap gets the other spot color; hover hardens to ink */
+    :where(li:nth-child(2)) > :where(article) { box-shadow: 5px 5px 0 var(--de-zine-blue); }
+    :where(li) > :where(article):where(:hover) { box-shadow: 6px 6px 0 var(--de-color-fg); }
+
+    /* blockquote: torn-paper dashed edge */
+    :where(blockquote) {
+      border: 3px dashed var(--de-color-fg);
+      box-shadow: 6px 6px 0 var(--de-zine-magenta);
+    }
+
+    /* callout: a torn scrap, perforated in its tone colour, taped over the page */
+    :where(aside[role="note"], aside[role="status"], aside[role="alert"]) {
+      border-width: 3px;
+      border-style: dashed;
+      box-shadow: 4px 4px 0 var(--de-zine-highlighter);
+    }
+
+    /* banner: a marker swipe has no rule */
+    :where([data-banner]) { border: 0; }
+
+    /* code: taped-on label */
+    :where(pre) {
+      border: 2px solid var(--de-color-fg);
+      box-shadow: 4px 4px 0 var(--de-zine-highlighter);
+    }
+
+    /* buttons: hard shadow that collapses on press */
+    :where(button) { box-shadow: 3px 3px 0 var(--de-color-fg); }
+    :where(button):where(:active) { box-shadow: none; }
+
+    /* table: thick grid */
+    :where(table) { border-collapse: collapse; border: 2px solid var(--de-color-fg); }
+    :where(th, td) { border: 1px solid var(--de-color-fg); }
+  }
+}
+
+/* ===== layout ===== */
+@layer de.instances.layout {
+  @scope (:where([data-engine], [data-engine] *):where([data-instance="zine"]:not([data-layout]), [data-layout="zine"])) to ([data-instance], [data-layout]) {
+    /* sticker tag sizing */
+    :where(:scope) > :where(header) :where(small) { padding: 0.1em 0.5em; }
+
+    /* materials list: a scattered collage, wide enough scraps to read */
+    :where(ul:has(> li > article)) {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+      gap: var(--de-space-4);
+      list-style: none;
+      padding: 0;
+      padding-block: var(--de-space-5);
+    }
+    :where(ul:has(> li > article)) > :where(li) { display: block; }
+    :where(li) > :where(article) {
+      padding: var(--de-space-4);
+      container-type: normal;
+    }
+
+    :where(blockquote) { padding: var(--de-space-4) var(--de-space-5); }
+    :where(th, td) { padding: var(--de-space-2) var(--de-space-3); }
+
+    /* the scrap and the swipe are panels: inset them */
+    :where(aside[role="note"], aside[role="status"], aside[role="alert"], [data-banner]) { --de-inset: var(--de-space-4); }
+
+    /* a framed table: edge cells carry the panel inset (the cell padding
+       shorthand above would otherwise clobber the core's edge rules) */
+    :where(th:first-child, td:first-child) { padding-inline-start: max(var(--de-space-3), var(--de-inset)); }
+    :where(th:last-child, td:last-child) { padding-inline-end: max(var(--de-space-3), var(--de-inset)); }
+    :where(table > :first-child > tr:first-child > :is(th, td)) { padding-block-start: calc(var(--de-space-2) + max(var(--de-space-1), var(--de-inset))); }
+    :where(table > :last-child > tr:last-child > :is(th, td)) { padding-block-end: calc(var(--de-space-2) + max(var(--de-space-1), var(--de-inset))); }
+
+  }
+}
+
+/* ===== fx ===== */
+@layer de.instances.fx {
+  @scope (:where([data-engine], [data-engine] *):where([data-instance="zine"]:not([data-fx]), [data-fx="zine"])) to ([data-instance], [data-fx]) {
+    /* halftone paper texture over the whole region, on solid stock */
+    :where(:scope) {
+      --de-zine-magenta: oklch(62% 0.24 7);
+      --de-zine-blue: oklch(58% 0.2 250);
+      --de-zine-highlighter: oklch(85% 0.2 95);
+      --de-zine-ink: oklch(20% 0.02 0);
+      /* the inked block is the page's stock inverted: black on paper, paper on black */
+      --de-zine-block: light-dark(oklch(20% 0.02 0), oklch(97% 0.008 75));
+      --de-zine-block-ink: light-dark(oklch(97% 0.008 75), oklch(20% 0.02 0));
+      background-color: var(--de-color-bg);
+      background-image: radial-gradient(oklch(20% 0.02 0 / 0.04) 1px, transparent 1px);
+      background-size: 4px 4px;
+    }
+
+    /* masthead: highlighter swipe behind the h1 */
+    :where(:scope) > :where(header) > :where(h1) {
+      position: relative;
+      display: inline-block;
+    }
+    :where(:scope) > :where(header) > :where(h1)::after {
+      content: "";
+      position: absolute;
+      inset: 55% -0.1em auto -0.1em;
+      block-size: 0.42em;
+      background: var(--de-zine-highlighter);
+      z-index: -1;
+      transform: rotate(-1.5deg);
+    }
+
+    /* rotated sticker tag */
+    :where(:scope) > :where(header) :where(small) {
+      display: inline-block;
+      transform: rotate(-2deg);
+      background: var(--de-color-accent);
+      color: var(--de-color-accent-fg);
+    }
+
+    /* section headings: ✶ glyph + marker underline */
+    :where(section) > :where(h2) {
+      position: relative;
+      display: inline-block;
+    }
+    :where(section) > :where(h2)::before {
+      content: "✶";
+      color: var(--de-zine-blue);
+      padding-inline-end: 0.3em;
+      display: inline-block;
+      transform: rotate(12deg);
+    }
+    :where(section) > :where(h2)::after {
+      content: "";
+      position: absolute;
+      inset: 85% -0.1em auto -0.1em;
+      block-size: 0.3em;
+      background: var(--de-zine-blue);
+      z-index: -1;
+      transform: rotate(0.8deg);
+    }
+
+    /* paper scraps: each one dropped at its own angle (fallback: fixed per position) */
+    :where(li:nth-child(1)) > :where(article) { transform: rotate(-2deg); }
+    :where(li:nth-child(2)) > :where(article) { transform: rotate(1.5deg); }
+    :where(li:nth-child(3)) > :where(article) { transform: rotate(-1deg); }
+
+    /* with sibling-index() the angle is derived from position: alternating
+       sign, decaying magnitude → -2°, +1.5°, -1°, +0.5°, … on the li (the
+       sibling) rather than on its only-child article */
+    @supports (top: calc(sibling-index() * 1px)) {
+      :where(ul:has(> li > article)) > :where(li) {
+        transform: rotate(calc((1 - 2 * mod(sibling-index(), 2)) * (2deg - (sibling-index() - 1) * 0.5deg)));
+        transition: transform var(--de-transition);
+      }
+      :where(ul:has(> li > article)) > :where(li):where(:hover) { transform: none; }
+      :where(li) > :where(article) { transform: none; }
+    }
+    /* hover: settle flat and lift (source order keeps this above the @supports base) */
+    :where(li) > :where(article):where(:hover) { transform: rotate(0) translateY(-3px); }
+
+    /* blockquote: spot-color box, slightly askew */
+    :where(blockquote) {
+      background: var(--de-color-accent-2);
+      color: var(--de-color-accent-fg);
+      transform: rotate(-0.6deg);
+    }
+    :where(blockquote) :where(cite) { color: var(--de-color-accent-fg); opacity: 0.9; }
+    :where(blockquote) :where(footer) { color: var(--de-color-accent-fg); }
+
+    /* callout: a white scrap taped on at a slight angle */
+    :where(aside[role="note"], aside[role="status"], aside[role="alert"]) {
+      background: var(--de-color-surface);
+      transform: rotate(0.4deg);
+    }
+
+    /* banner: one marker swipe across the page — highlighter by default, the
+       spot colours for alert/ok — with ragged ends; ink is always black on
+       the yellow, paper on the spot colours */
+    :where([data-banner]) {
+      background: var(--de-zine-highlighter);
+      color: var(--de-zine-ink);
+      clip-path: polygon(0 7%, 100% 0, 99.6% 93%, 0.4% 100%);
+    }
+    /* buttons on a spot-colour strip are paper: page ink on page colour */
+    :where([data-banner]) :where(button) { background: var(--de-color-bg); color: var(--de-color-fg); border-color: var(--de-color-fg); box-shadow: 3px 3px 0 var(--de-color-fg); }
+    :where([data-banner][role="alert"], [data-banner][data-tone="danger"]) {
+      background: var(--de-color-accent);
+      color: var(--de-color-accent-fg);
+    }
+    :where([data-banner][role="status"], [data-banner][data-tone="ok"]) {
+      background: var(--de-color-ok);
+      color: var(--de-color-accent-fg);
+    }
+
+    /* code: inked block — the terminal keeps its own dark window. The block
+       inverts the page, so its syntax inks invert with it: the dark-side
+       colours read on the ink, the light-side ones on the paper block. */
+    :where(pre:not([data-terminal]):not(:has(> samp))) {
+      background: var(--de-zine-block);
+      color: var(--de-zine-block-ink);
+      --de-sx-kw:    light-dark(oklch(78% 0.16 350), oklch(52% 0.2 350));
+      --de-sx-str:   light-dark(oklch(78% 0.15 150), oklch(50% 0.14 150));
+      --de-sx-fn:    light-dark(oklch(76% 0.14 230), oklch(48% 0.16 250));
+      --de-sx-cm:    light-dark(oklch(73% 0.02 250), oklch(48% 0.02 250));
+      --de-sx-num:   light-dark(oklch(78% 0.14 300), oklch(50% 0.18 300));
+      --de-sx-tag:   light-dark(oklch(80% 0.13 70),  oklch(52% 0.15 55));
+      --de-sx-attr:  light-dark(oklch(78% 0.11 200), oklch(48% 0.12 200));
+      --de-sx-punct: light-dark(oklch(70% 0.01 0),   oklch(48% 0.02 0));
+      --de-sx-type:  light-dark(oklch(78% 0.12 290), oklch(50% 0.16 290));
+      --de-sx-bool:  light-dark(oklch(76% 0.15 25),  oklch(50% 0.18 25));
+    }
+
+    /* buttons: press into the page; the CTA is a solid spot-color block */
+    :where(button):where(:active) { transform: translate(3px, 3px); }
+    :where(form) > :where(p:last-child) > :where(button:last-child),
+    :where(form) > :where(button:last-child) {
+      background: var(--de-color-accent);
+      color: var(--de-color-accent-fg);
+    }
+
+    /* inputs on paper, inked table head */
+    :where(input, select, textarea) { background: var(--de-color-surface); }
+    :where(thead) { background: var(--de-color-fg); color: var(--de-color-bg); }
+  }
+}
+/* signature: a loud risograph collage — rotated scraps, marker swipes, spot colors, halftone. */

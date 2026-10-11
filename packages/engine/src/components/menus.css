@@ -1,0 +1,63 @@
+/*
+  design-engine — components: menus
+  -----------------------------------------------------------------------------
+  A menu inferred from [role="menu"] containing [role="menuitem"]. Items are
+  full-width, hover-highlighted, with a focus ring. Separators via <hr>.
+  Works standalone or inside a popover.
+*/
+
+@layer de.components {
+  :where([data-engine]) :where([role="menu"]) {
+    display: grid;
+    gap: 1px;
+    padding: var(--de-space-1);
+    min-inline-size: 12rem;
+  }
+
+  :where([data-engine]) :where([role="menuitem"], [role="menuitemcheckbox"], [role="menuitemradio"]) {
+    display: flex;
+    align-items: center;
+    gap: var(--de-space-2);
+    padding: var(--de-space-2) var(--de-space-3);
+    font-size: var(--de-text-sm);
+    color: var(--de-color-fg);
+    background: none;
+    border: none;
+    border-radius: var(--de-radius-sm);
+    cursor: pointer;
+    text-decoration: none;
+    transition: background var(--de-transition), color var(--de-transition);
+  }
+
+  /* a keyboard cursor on a menu is the same knob a listbox row carries
+     (data-cursor), and reads like the hover it stands in for */
+  :where([data-engine]) :where([role="menuitem"]:hover, [role="menuitemcheckbox"]:hover, [role="menuitemradio"]:hover, [role="menuitem"][data-cursor]) {
+    background: var(--de-state-hover-overlay);
+  }
+
+  :where([data-engine]) :where([role="menuitem"]:focus-visible) {
+    outline: none;
+    background: var(--de-state-active-overlay);
+  }
+
+  /* a menuitem with a shortcut hint (kbd) pushes it to the end */
+  :where([data-engine]) :where([role="menuitem"] :where(kbd, .shortcut)) {
+    margin-inline-start: auto;
+    font-size: var(--de-text-xs);
+    color: var(--de-color-muted);
+  }
+
+  /* separators — the line is a background clipped to the content box, not a
+     border, so its breathing room is real padding (block-size stays the
+     line's own thickness; the menu's 1px item gap alone isn't enough room
+     for a separator to read as intentional, and padding centers it exactly
+     where a margin would have sat, without using one) */
+  :where([data-engine]) :where([role="menu"] hr, [role="menu"] .menu-separator) {
+    box-sizing: content-box; /* block-size must set the line's own 1px, not get eaten by the padding under the engine's global border-box */
+    block-size: var(--de-border-w);
+    padding-block: var(--de-space-1);
+    border: none;
+    background-color: var(--de-color-line);
+    background-clip: content-box;
+  }
+}

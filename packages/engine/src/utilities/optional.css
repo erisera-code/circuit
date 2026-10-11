@@ -1,0 +1,45 @@
+/*
+  design-engine — utilities (opt-in) + the opt-OUT escape hatch
+  -----------------------------------------------------------------------------
+  Minimal, opt-in helpers. These are the ONLY place classes appear, and they
+  are intentionally tiny. The engine's philosophy is class-free; these exist
+  for the 20% of cases where structural inference can't express intent.
+  Override-safe via the last layer + :where() zero-specificity.
+
+  [data-engine-off] opts a nested subtree back OUT of the engine. It has to
+  live in the LAST engine layer: `all: revert` rolls every property back to
+  the user/UA origin for declarations that lose to it, and only declarations
+  in LOWER layers lose — so every engine rule is undone while the host's own
+  (unlayered) styles inside that subtree still win. `all` leaves custom
+  properties alone, which is harmless: nothing in the subtree reads them.
+*/
+
+@layer de.utilities {
+  /* layout helpers (class twins of the de-* custom elements) */
+  :where([data-engine] .stack) { display: grid; gap: var(--de-stack-gap, var(--de-space-3)); }
+  :where([data-engine] .cluster) { display: flex; flex-wrap: wrap; gap: var(--de-cluster-gap, var(--de-space-2)); align-items: center; }
+  :where([data-engine] .grid) { display: grid; gap: var(--de-grid-gap); grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--de-grid-min)), 1fr)); }
+  :where([data-engine] .bleed) { inline-size: calc(100% + var(--de-content-pad) * 2); margin-inline: calc(var(--de-content-pad) * -1); }
+  :where([data-engine] .center) { margin-inline: auto; }
+
+  /* text helpers */
+  :where([data-engine] .text-muted) { color: var(--de-color-muted); }
+  :where([data-engine] .text-accent) { color: var(--de-color-accent); }
+  :where([data-engine] .text-center) { text-align: center; }
+  :where([data-engine] .visually-hidden) {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /* a width measure opt-out */
+  :where([data-engine] .wide) { max-inline-size: none; }
+
+  /* opt a subtree out of the engine entirely */
+  :where([data-engine] [data-engine-off], [data-engine] [data-engine-off] *) {
+    all: revert;
+  }
+}

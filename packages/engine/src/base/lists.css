@@ -1,0 +1,44 @@
+/*
+  design-engine — base: lists
+  -----------------------------------------------------------------------------
+  Bare list defaults. Lists keep native markers and indent; item spacing is
+  padding (never margin). Structural contexts strip markers (nav, card grid)
+  in structure/. Custom counter styles live in capabilities/counters-markers.
+*/
+
+@layer de.base {
+  :where([data-engine]) :where(ul, ol) {
+    padding-inline-start: var(--de-space-5);
+    max-inline-size: var(--de-measure);
+  }
+
+  :where([data-engine]) :where(li + li) {
+    padding-block-start: var(--de-space-1);
+  }
+
+  :where([data-engine]) :where(li)::marker {
+    color: var(--de-color-muted);
+  }
+
+  /* nested lists: no extra outer space */
+  :where([data-engine]) :where(li > ul, li > ol) {
+    padding-block-start: var(--de-space-1);
+  }
+
+  /* definition lists read as a key/value set */
+  :where([data-engine]) :where(dl) {
+    max-inline-size: var(--de-measure);
+    display: grid;
+    gap: var(--de-space-1);
+  }
+  :where([data-engine]) :where(dt) {
+    font-weight: var(--de-weight-strong);
+  }
+  :where([data-engine]) :where(dt:not(:first-child)) {
+    padding-block-start: var(--de-space-2);
+  }
+  :where([data-engine]) :where(dd) {
+    padding-inline-start: var(--de-space-4);
+    color: var(--de-color-muted);
+  }
+}

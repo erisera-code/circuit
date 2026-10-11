@@ -1,0 +1,34 @@
+/*
+  design-engine — components: popovers
+  -----------------------------------------------------------------------------
+  Native Popover API styling. A [popover] element (or data-popover) becomes a
+  floating panel; its invoker is a button[popovertarget]. Entry/exit motion
+  lives in capabilities/entry-transitions.css. The :popover-open state and
+  light-dismiss are native.
+*/
+
+@layer de.components {
+  :where([data-engine]) :where([popover], [data-popover]) {
+    margin: auto;
+    border: var(--de-border);
+    border-radius: var(--de-radius-lg);
+    background: var(--de-color-surface);
+    color: var(--de-color-fg);
+    padding: var(--de-space-4);
+    box-shadow: var(--de-shadow-2);
+    inline-size: fit-content;
+    max-inline-size: min(90vw, 24rem);
+  }
+
+  /* popovers are light-dismiss panels: no dimmed backdrop (that is the
+     dialog's job), only a transparent one so the top layer still works */
+  :where([data-engine] :is([popover], [data-popover]))::backdrop {
+    background: transparent;
+  }
+
+  /* a menu-style popover: list of actions */
+  :where([data-engine]) :where([popover][role="menu"], [data-popover][role="menu"]) {
+    padding: var(--de-space-1);
+    min-inline-size: 12rem;
+  }
+}

@@ -1,0 +1,37 @@
+/*
+  design-engine — layer spine
+  -----------------------------------------------------------------------------
+  Declared once, up front. Order = cascade priority at equal specificity:
+  later layers win. Every engine selector is wrapped in :where() so the
+  engine contributes ZERO specificity — a host's unlayered styles beat every
+  engine layer, and host styles inside a layer beat the engine at equal
+  weight without specificity wars.
+
+    de.reset              normalize / box model / true defaults
+    de.properties         @property registrations, scope anchor, capability flags
+    de.tokens             raw primitives + semantic tokens
+    de.modes              color-scheme, density, contrast, motion, responsive
+    de.base               element defaults: document, type, lists, media, forms…
+    de.structure          hierarchy / placement-aware bindings
+    de.components         inferred components: buttons, cards, dialogs, tabs…
+    de.capabilities       progressive: anchor, motion, view-transitions, knobs
+    de.instances.palette  facet: color tokens (light-dark pairs)
+    de.instances.type     facet: font/size/leading tokens + text treatment
+    de.instances.shape    facet: radius / border / shadow tokens
+    de.instances.layout   facet: how the tree is arranged (scoped rules)
+    de.instances.fx       facet: decoration, texture, motion (scoped rules)
+    de.instances          legacy / whole-instance overrides (after all facets)
+    de.experimental       opt-in, separate entry: volatile syntax
+    de.utilities          opt-in helpers + motion swap + data-engine-off
+
+  Instances are split into FACET sublayers. A facet is a (sublayer, attribute)
+  pair: `de.instances.palette` is selected by data-palette (or the
+  data-instance preset), `de.instances.layout` by data-layout, and so on.
+  Sublayer order settles conflicts between facets deterministically — fx
+  always beats layout beats shape beats type beats palette. Anything placed
+  directly in `de.instances` (no sublayer) ranks after all facets.
+
+  Keep this statement free of inline comments: bundlers split it otherwise.
+*/
+
+@layer de.reset, de.properties, de.tokens, de.modes, de.base, de.structure, de.components, de.capabilities, de.instances.palette, de.instances.type, de.instances.shape, de.instances.layout, de.instances.fx, de.instances, de.experimental, de.utilities;

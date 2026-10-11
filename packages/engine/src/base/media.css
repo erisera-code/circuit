@@ -1,0 +1,28 @@
+/*
+  design-engine — base: media & figures
+  -----------------------------------------------------------------------------
+  Figures, captions, and inline media. Media carries the small radius token
+  only; a figure is a grid so the caption sits at a fixed gap without margins.
+*/
+
+@layer de.base {
+  :where([data-engine]) :where(figure) {
+    display: grid;
+    gap: var(--de-space-2);
+    max-inline-size: 100%;
+  }
+
+  :where([data-engine]) :where(figcaption) {
+    font-size: var(--de-text-sm);
+    color: var(--de-color-muted);
+  }
+
+  :where([data-engine]) :where(figure img, figure video) {
+    border-radius: var(--de-radius-sm);
+    inline-size: 100%;
+  }
+
+  :where([data-engine]) :where(video) {
+    background: var(--de-color-surface);
+  }
+}

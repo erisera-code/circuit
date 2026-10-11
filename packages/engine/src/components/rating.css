@@ -1,0 +1,40 @@
+/*
+  design-engine — components: rating
+  -----------------------------------------------------------------------------
+  A read-only star rating inferred from [data-rating] carrying a 0–5 value
+  in --de-rating-value, with a real label for anything that can't see the
+  fill (the fraction is visual-only — an aria-label carries the number):
+    <div role="img" aria-label="4 out of 5 stars" data-rating
+         style="--de-rating-value: 4"></div>
+  Two stacked glyph strings: a faint full row underneath, an accent row on
+  top clipped to the value's share of the width — never colour cycling,
+  never a filled/unfilled pair of *different* icons.
+*/
+
+@layer de.components {
+  :where([data-engine]) :where([data-rating]) {
+    --de-rating-pct: calc(var(--de-rating-value, 0) / 5 * 100%);
+    position: relative;
+    display: inline-block;
+    font-size: 1.15rem;
+    line-height: 1;
+    letter-spacing: 0.12em;
+    font-family: var(--de-font-display);
+  }
+  :where([data-engine]) :where([data-rating])::before {
+    content: "★★★★★";
+    display: block;
+    color: var(--de-color-faint);
+  }
+  :where([data-engine]) :where([data-rating])::after {
+    content: "★★★★★";
+    display: block;
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    inline-size: var(--de-rating-pct);
+    overflow: hidden;
+    white-space: nowrap;
+    color: var(--de-color-accent);
+  }
+}

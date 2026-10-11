@@ -1,0 +1,33 @@
+/*
+  design-engine — tokens: primitives (type)
+  -----------------------------------------------------------------------------
+  Font stacks + a fluid type scale built on clamp(). Instances (the type
+  facet) remap --de-font-* and --de-text-base / --de-leading.
+*/
+
+@layer de.tokens {
+  :where([data-engine]:not([data-engine] [data-engine])) {
+    /* font stacks */
+    --de-font-system: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --de-font-serif:  ui-serif, Georgia, Cambria, "Times New Roman", serif;
+    --de-font-mono:   ui-monospace, "SFMono-Regular", "Cascadia Code", Menlo, Consolas, monospace;
+
+    /* fluid modular scale */
+    --de-text-xs:   0.75rem;
+    --de-text-sm:   0.875rem;
+    --de-text-base: 1rem;
+    --de-text-lg:   1.25rem;
+    --de-text-xl:   clamp(1.5rem, 1rem + 2vw, 2.25rem);
+    --de-text-2xl:  clamp(2rem, 1rem + 4vw, 3.5rem);
+
+    /* leading */
+    --de-leading: 1.6;
+    --de-leading-tight: 1.2;
+    --de-leading-display: 1.1;
+
+    /* weight (variable-font aware) */
+    --de-weight-body: 400;
+    --de-weight-strong: 650;
+    --de-weight-display: 650;
+  }
+}

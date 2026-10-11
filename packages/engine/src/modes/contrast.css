@@ -1,0 +1,21 @@
+/*
+  design-engine — modes: contrast
+  -----------------------------------------------------------------------------
+  data-contrast="more|less" forces higher or lower contrast independent of
+  the OS prefers-contrast setting, on the anchor or any nested region.
+*/
+
+@layer de.modes {
+  :where([data-engine][data-contrast="more"], [data-engine] [data-contrast="more"]) {
+    --de-color-line: var(--de-color-fg);
+    --de-border-w: 1.5px;
+    --de-color-muted: var(--de-color-fg);
+    --de-color-faint: var(--de-color-muted);
+  }
+
+  :where([data-engine][data-contrast="less"], [data-engine] [data-contrast="less"]) {
+    --de-color-line: var(--de-color-faint);
+    --de-border-w: 1px;
+    --de-color-muted: var(--de-color-faint);
+  }
+}

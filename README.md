@@ -144,6 +144,30 @@ tier: 28 Radix-based components (`./react` export), the `--ds-*` token layer
 The repo-root `showcase/index.html` is the live spec/demo page — open it
 directly, or serve the repo root with any static file server.
 
+`@erisera-code/circuit-engine` (in `packages/engine/`) is the class-free
+design engine: it styles bare semantic HTML by element and tree position,
+and a design is an *instance* — `circuit`, `jjhub`, `noitroidvania`, `snake`
+and nine others — chosen with one attribute on `<html>`. Markup that speaks
+its grammar (elements, ARIA roles and labels, a handful of `data-*` knobs;
+see [`element-binding-map.md`](packages/engine/docs/element-binding-map.md))
+is dressed by any of them unchanged. For a new app that is the whole setup:
+
+```html
+<link rel="stylesheet" href="engine.css">
+<html data-engine data-instance="circuit" data-theme="dark">
+```
+
+[`examples/starter/index.html`](packages/engine/examples/starter/index.html)
+is a page in that grammar with an instance switcher. An *existing* app with
+its own stylesheets can try an instance over its markup without a rebuild
+through the `./mount` export (`mountSkin`, `skinFromParam`): the native
+sheets are silenced and their geometry kept as a chassis, so the app keeps
+its arrangement under the new look — this is how impressive-snake,
+noitroidvania and jjhub mount it behind `?skin=`. Build with `npm run build
+-w @erisera-code/circuit-engine` (→ `dist/engine.css`, `dist/core.css`,
+`dist/instances/*`); the garden at `packages/engine/examples/index.html`
+shows every component under every instance.
+
 ## Hue registry
 
 Nine erisera products, one color wheel, zero collisions. The three existing closed products (nominos, nominos-core, the blog) each reserve their hue plus a ±20° buffer; every new OSS theme sits outside all buffers.

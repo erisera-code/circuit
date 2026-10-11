@@ -1,0 +1,1383 @@
+/*
+  design-engine — instance: snake
+  -----------------------------------------------------------------------------
+  The Impressive Snake HUD, translated: a deep navy board under translucent
+  panels (a 3px blur behind each), 1px cool edges that turn hot on hover, a
+  4px corner, and neon signal colours — ok green, charge cyan, warn amber,
+  bad red — that each mean one thing and never carry it alone: a glyph or a
+  word goes with them (▸ ✓ ! ✕ on callouts, ○ ● ◐ ⊗ on dots). Labels are nine
+  pixels, tracked .16em and uppercase, in the dim ink. Sheet titles are 18px
+  tracked .22em with the --edge-hot gradient hairline underneath; the same
+  rule sits under the masthead's wordmark and under every section title.
+  Fills are gradients that run from a dark mix of the colour up to the colour
+  (the quota meter). Buttons are key caps: a raised face on the heavier rim
+  with a 2px bottom edge; primary is charge-filled with dark ink. Rows light
+  to the second panel on hover and take a 2px charge mark under the cursor;
+  the terminal wears three neon lights. Selected with data-instance="snake".
+
+  Dark-first: the palette prefers the dark side regardless of OS; the light
+  side of every pair is a derived pale-navy paper inversion (navy ink on a
+  cool paper, the same signal hues darkened for contrast) for an author who
+  forces the light theme on the root or a region.
+
+  Translated from impressive-snake/src/ds (tokens.js, primitives.js) and
+  docs/design-system.md — same idiom, the engine's tokens and bindings.
+  --bg/--panel/--panel-2/--edge/--ink/--dim/--dimmer become the semantic
+  colour set; --inset/--well/--raised/--edge-2/--edge-hot/--burn/--burn-2/
+  --bone are private --de-snake-* tokens on the facets that read them.
+
+  Facets: palette / type / shape / layout / fx — see docs/authoring-an-instance.md.
+*/
+
+/* ===== palette ===== */
+@layer de.instances.palette {
+  :where([data-engine], [data-engine] *):where([data-instance="snake"]:not([data-palette]), [data-palette="snake"]) {
+    /* --bg, then the two translucent panels: the board reads through them */
+    --de-color-bg:        light-dark(oklch(96.5% 0.010 262),        oklch(12.8% 0.013 264));
+    --de-color-surface:   light-dark(oklch(99.7% 0.003 262 / 0.95), oklch(16.0% 0.020 266 / 0.90));
+    --de-color-surface-2: light-dark(oklch(94.5% 0.014 262 / 0.94), oklch(19.2% 0.028 265 / 0.94));
+    /* --ink / --dim / --dimmer: first, second, third — nothing actionable in the third */
+    --de-color-fg:        light-dark(oklch(22.0% 0.045 268),        oklch(93.5% 0.031 272));
+    --de-color-muted:     light-dark(oklch(44.0% 0.050 268),        oklch(74.0% 0.055 269));
+    --de-color-faint:     light-dark(oklch(50.0% 0.045 268),        oklch(64.0% 0.050 268));
+    /* --edge: the default line, and most of the elevation this system has */
+    --de-color-line:      light-dark(oklch(84.0% 0.035 265),        oklch(31.2% 0.055 265));
+    /* the boundary of a control (input, button, chip): the same cool line, lit enough to clear 3:1 on the board */
+    --de-color-edge:      light-dark(oklch(57.0% 0.060 266),        oklch(52.0% 0.075 266));
+    /* --charge is the live colour (cast, chosen, focused); --circuit the machinery */
+    --de-color-accent:    light-dark(oklch(47.0% 0.125 217),        oklch(83.1% 0.132 217));
+    --de-color-accent-2:  light-dark(oklch(50.0% 0.190 290),        oklch(64.0% 0.209 290));
+    /* a charge-filled primary takes the board colour as its ink */
+    --de-color-accent-fg: light-dark(oklch(99.0% 0.006 262),        oklch(12.8% 0.013 264));
+    /* --ok / --warn / --bad: goal, cost, refusal */
+    --de-color-ok:        light-dark(oklch(50.0% 0.140 158),        oklch(85.3% 0.168 158));
+    --de-color-warn:      light-dark(oklch(49.0% 0.120 85),         oklch(86.3% 0.149 85));
+    --de-color-danger:    light-dark(oklch(52.0% 0.200 20),         oklch(67.6% 0.213 20));
+    /* --scrim: the pause screen's wash (its radial gradient cannot ride in a colour token) */
+    --de-overlay-bg:      light-dark(oklch(96.5% 0.010 262 / 0.85), oklch(11.4% 0.013 258 / 0.92));
+    /* state: a hovered row is the second panel; focus is the charge colour */
+    --de-state-hover-overlay:   var(--de-color-surface-2);
+    --de-state-focus-ring:      var(--de-color-accent);
+    --de-state-focus-ring-soft: color-mix(in oklab, var(--de-color-accent) 40%, transparent);
+    --de-color-accent-soft:     color-mix(in oklab, var(--de-color-accent) 12%, transparent);
+
+    /* --cat-1…6: the six signal hues as an ordered ramp (ok, charge, warn, burn, circuit, bone) */
+    --de-cat-1: var(--de-color-ok);
+    --de-cat-2: var(--de-color-accent);
+    --de-cat-3: var(--de-color-warn);
+    --de-cat-4: light-dark(oklch(52.0% 0.170 46), oklch(72.5% 0.182 46));
+    --de-cat-5: var(--de-color-accent-2);
+    --de-cat-6: light-dark(oklch(46.0% 0.040 85), oklch(80.8% 0.037 85));
+
+    /* --sx-*: ten hues for a code block, tints that sit beside the ink */
+    --de-sx-kw:    light-dark(oklch(50.0% 0.150 293), oklch(77.1% 0.129 293));
+    --de-sx-str:   light-dark(oklch(52.0% 0.110 165), oklch(85.9% 0.085 165));
+    --de-sx-fn:    light-dark(oklch(50.0% 0.120 216), oklch(86.4% 0.106 216));
+    --de-sx-cm:    light-dark(oklch(50.0% 0.045 266), oklch(66.0% 0.055 266));
+    --de-sx-num:   light-dark(oklch(50.0% 0.120 76),  oklch(90.2% 0.084 76));
+    --de-sx-tag:   light-dark(oklch(54.0% 0.170 14),  oklch(76.8% 0.139 14));
+    --de-sx-attr:  light-dark(oklch(49.0% 0.120 91),  oklch(87.4% 0.112 91));
+    --de-sx-punct: light-dark(oklch(50.0% 0.040 271), oklch(68.2% 0.046 271));
+    --de-sx-type:  light-dark(oklch(52.0% 0.100 164), oklch(80.8% 0.085 164));
+    --de-sx-bool:  light-dark(oklch(54.0% 0.150 19),  oklch(84.3% 0.087 19));
+  }
+  /* dark-first: the board is navy unless the author forces a theme */
+  :where([data-engine], [data-engine] *):where([data-instance="snake"]:not([data-palette]), [data-palette="snake"]):where(:not([data-theme])) {
+    color-scheme: dark;
+  }
+}
+
+/* ===== type ===== */
+@layer de.instances.type {
+  :where([data-engine], [data-engine] *):where([data-instance="snake"]:not([data-type]), [data-type="snake"]) {
+    /* one family: the platform's monospace */
+    --de-font-body: var(--de-font-mono);
+    --de-font-display: var(--de-font-mono);
+    --de-font-code: var(--de-font-mono);
+    /* --fs-label 9 / --fs-sm 10 / --fs 12 / --fs-lg 18 / --fs-xl 19 */
+    --de-text-xs:   0.5625rem;
+    --de-text-sm:   0.625rem;
+    --de-text-base: 0.75rem;
+    --de-text-lg:   0.875rem;
+    --de-text-xl:   1.125rem;
+    --de-text-2xl:  1.1875rem;
+    --de-leading: 1.35;
+    --de-leading-tight: 1.35;
+    --de-leading-display: 1.35;
+    --de-measure: 88ch;
+    --de-weight-body: 400;
+    --de-weight-strong: 700;
+    --de-weight-display: 700;
+  }
+
+  @scope (:where([data-engine], [data-engine] *):where([data-instance="snake"]:not([data-type]), [data-type="snake"])) to ([data-instance], [data-type]) {
+    :where(:scope) {
+      /* --fs-md 11: the control and body-copy size inside components */
+      --de-snake-text-md: 0.6875rem;
+      font-variant-numeric: tabular-nums;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* the wordmark: the sheet title treatment on the masthead */
+    :where(:scope) > :where(header) > :where(h1) {
+      font-size: var(--de-text-xl);
+      font-weight: var(--de-weight-display);
+      text-transform: uppercase;
+      letter-spacing: 0.22em;
+      line-height: var(--de-leading);
+    }
+    :where(:scope) > :where(header) :where(small) {
+      font-size: var(--de-text-xs);
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+    }
+    /* section titles are sheet titles: 18px, 700, tracked .22em */
+    :where(section, main > aside > nav) > :where(h2),
+    :where(article:not(li > article)) > :where(header) > :where(h2) {
+      font-size: var(--de-text-xl);
+      font-weight: var(--de-weight-display);
+      text-transform: uppercase;
+      letter-spacing: 0.22em;
+      line-height: var(--de-leading);
+    }
+    :where(h3, h4, h5, h6) {
+      font-size: var(--de-text-base);
+      font-weight: var(--de-weight-display);
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+    }
+    /* the dialog's title */
+    :where(dialog) :where(h3) { letter-spacing: 0.22em; font-size: var(--de-text-lg); }
+
+    /* .ss-label: nine pixels, tracked .16em, uppercase — on every label-shaped thing */
+    :where(th, caption, legend, dt, figcaption, [data-empty] > strong, nav[aria-label="pagination"] small, [data-shell] > footer, dialog[data-palette] > footer),
+    :where(label:has(> input:not([type="checkbox"], [type="radio"]), > select, > textarea)),
+    :where([data-board]) > :where(section) > :where(h3, h4),
+    :where(li) > :where(article) > :where(h3, h4) {
+      font-size: var(--de-text-xs);
+      font-weight: var(--de-weight-body);
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+    }
+    :where(dt) { font-weight: var(--de-weight-strong); }
+    :where(label:has(> input[type="checkbox"], > input[type="radio"])) {
+      text-transform: none;
+      letter-spacing: inherit;
+      font-size: var(--de-text-base);
+    }
+    :where(label) > :where(small) {
+      text-transform: none;
+      letter-spacing: inherit;
+      font-size: var(--de-text-sm);
+    }
+    /* controls do not inherit their label's caps */
+    :where(input, select, textarea) {
+      text-transform: none;
+      letter-spacing: inherit;
+      font-size: var(--de-snake-text-md);
+    }
+
+    /* .ss-btn: 11px, .1em, uppercase; the two inline kinds stay body-cased */
+    :where(button, [role="tab"], nav[aria-label="pagination"] a) {
+      font-size: var(--de-snake-text-md);
+      font-weight: var(--de-weight-body);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      line-height: var(--de-leading);
+    }
+    :where([role="tab"]) { font-size: var(--de-text-sm); letter-spacing: 0.12em; }
+    :where(button[data-variant="link"], [role="menuitem"], [data-chip] > button, [data-toast] > button[aria-label], figcaption > button, [role="option"] button) {
+      text-transform: none;
+      letter-spacing: inherit;
+    }
+    :where([role="menuitem"]) { font-size: var(--de-snake-text-md); }
+    :where(button[data-icon], button[data-theme-toggle]) { letter-spacing: 0; font-size: var(--de-text-base); }
+    :where([role="option"]) :where(button) { font-size: var(--de-text-sm); letter-spacing: 0.08em; }
+    :where(figcaption) > :where(button) { font-size: var(--de-text-xs); letter-spacing: 0.1em; text-transform: uppercase; }
+
+    /* .ss-badge: a nine-pixel verdict; .ss-chip: a ten-pixel noun */
+    :where(data):where(:not([data-chip] > data)) {
+      font-size: var(--de-text-xs);
+      font-weight: var(--de-weight-body);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      line-height: 1.7;
+    }
+    :where([data-chip]) { font-size: var(--de-text-sm); letter-spacing: 0.02em; }
+    :where([data-chip]) > :where(data) { font-size: inherit; }
+    :where([data-avatar]) {
+      font-size: var(--de-text-sm);
+      font-weight: var(--de-weight-strong);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    :where(kbd):where(:not(pre > kbd)) { font-size: var(--de-text-xs); letter-spacing: 0.04em; }
+    :where(small) { font-size: var(--de-text-sm); }
+    :where(code):where(:not(pre code)) { font-size: 0.95em; }
+    :where(pre, table, [role="tooltip"], [popover], [data-banner], [data-toast], [data-empty], [role="note"], [role="status"], [role="alert"]) { font-size: var(--de-snake-text-md); }
+    :where([data-banner]) { letter-spacing: 0.06em; }
+    :where([data-toast]) { letter-spacing: 0.05em; }
+    :where(blockquote > p) { font-size: var(--de-text-base); }
+    :where(blockquote) :where(cite) {
+      font-size: var(--de-text-xs);
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      font-style: normal;
+    }
+    /* .ss-disclosure: 11px, tracked .12em */
+    :where(details > summary) {
+      font-size: var(--de-snake-text-md);
+      font-weight: var(--de-weight-body);
+      letter-spacing: 0.12em;
+    }
+    /* .ss-crumb: ten-pixel tracked caps */
+    :where(nav[aria-label="breadcrumb"] li) {
+      font-size: var(--de-text-sm);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: var(--de-weight-body);
+    }
+    /* the masthead's nav and the status bars read at the small size */
+    :where(:scope) > :where(header) > :where(nav) {
+      font-size: var(--de-text-sm);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+    :where(:scope) > :where(footer) { font-size: var(--de-text-sm); letter-spacing: 0.06em; }
+    :where([data-shell]) > :where(footer) { letter-spacing: 0.12em; }
+    /* links: the dotted underline this interface already writes */
+    :where(p, li, dd, dt, td, th, figcaption, blockquote, summary, small) :where(a) {
+      text-decoration: underline dotted;
+      text-underline-offset: 0.2em;
+    }
+  }
+}
+
+/* ===== shape ===== */
+@layer de.instances.shape {
+  :where([data-engine], [data-engine] *):where([data-instance="snake"]:not([data-shape]), [data-shape="snake"]) {
+    /* --r-xs 2 / --r 4 / --r-lg 5: a notch, a panel, a sheet */
+    --de-radius-sm: 2px;
+    --de-radius-md: 4px;
+    --de-radius-lg: 5px;
+    --de-radius-full: 999px;
+    --de-border-w: 1px;
+    /* panels are translucent, not lifted: no shadow, a 3px blur behind them */
+    --de-shadow-opacity: 0;
+    --de-shadow-1: none;
+    --de-shadow-2: none;
+    --de-blur: 3px;
+    /* every panel is inset one comfortable step */
+    --de-inset: var(--de-space-3);
+
+    /* .ss-card: the translucent panel on the default edge, 4px corner, flat */
+    --de-card-bg: var(--de-color-surface);
+    --de-card-border: 1px solid var(--de-color-line);
+    --de-card-radius: var(--de-radius-md);
+    --de-card-shadow: none;
+
+    /* .ss-btn: a raised face on the heavier rim; primary is charge-filled with dark ink */
+    --de-button-bg: var(--de-snake-raised);
+    --de-button-fg: var(--de-color-fg);
+    --de-button-border: 1px solid var(--de-color-edge);
+    --de-button-radius: var(--de-radius-md);
+    --de-button-primary-bg: var(--de-color-accent);
+    --de-button-primary-fg: var(--de-color-accent-fg);
+
+    /* .ss-field: a well you type into */
+    --de-input-bg: var(--de-snake-inset);
+    --de-input-fg: var(--de-color-fg);
+    --de-input-border: var(--de-border-edge);
+    --de-input-radius: var(--de-radius-sm);
+
+    --de-callout-bg: var(--de-snake-inset);
+    --de-callout-border: 1px solid var(--de-color-line);
+    --de-callout-radius: var(--de-radius-sm);
+
+    /* .ss-code: code is a thing you look into */
+    --de-code-bg: var(--de-snake-inset);
+    --de-code-radius: var(--de-radius-md);
+  }
+
+  @scope (:where([data-engine], [data-engine] *):where([data-instance="snake"]:not([data-shape]), [data-shape="snake"])) to ([data-instance], [data-shape]) {
+    /* --inset / --well / --raised: three opaque steps down into a panel; --edge-2 / --edge-hot: the rim and the lit line */
+    :where(:scope) {
+      --de-snake-inset:    light-dark(oklch(97.5% 0.008 262), oklch(15.9% 0.023 263));
+      --de-snake-well:     light-dark(oklch(91.5% 0.018 262), oklch(21.8% 0.036 262));
+      --de-snake-raised:   light-dark(oklch(99.2% 0.005 262), oklch(22.7% 0.038 263));
+      --de-snake-edge-2:   light-dark(oklch(79.0% 0.042 265), oklch(35.2% 0.063 265));
+      --de-snake-edge-hot: light-dark(oklch(65.0% 0.085 266), oklch(44.2% 0.087 266));
+      /* the one box-shadow: the cursor's mark, not a lift */
+      --de-snake-mark: inset 0 0 0 1px var(--de-color-accent);
+    }
+
+    /* focus is the charge colour: a 1px ring, offset off the border */
+    :where(:focus-visible) {
+      outline: 1px solid var(--de-color-accent);
+      outline-offset: 1px;
+    }
+    :where(input:not([type="checkbox"], [type="radio"]), select, textarea):where(:focus-visible) {
+      outline: none;
+      border-color: var(--de-color-accent);
+      box-shadow: 0 0 0 1px var(--de-state-focus-ring-soft);
+    }
+    :where(input:not([type="checkbox"], [type="radio"]), select, textarea):where(:hover) { border-color: var(--de-snake-edge-hot); }
+    :where(input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="true"]) { border-color: var(--de-color-danger); }
+    :where(textarea) { resize: vertical; }
+
+    /* .ss-btn: the key-cap construction — the bottom edge one pixel heavier */
+    :where(button):where(:not([data-variant="link"], [data-chip] > button, [data-toast] > button[aria-label], [role="menuitem"])) {
+      border-block-end-width: 2px;
+    }
+    :where(button):where(:hover:not(:disabled)) { border-color: var(--de-snake-edge-hot); }
+    :where(form > button:last-child, form > *:last-child button, menu button) { border-color: color-mix(in oklab, var(--de-color-accent) 55%, var(--de-snake-edge-2)); }
+    :where(form > button:last-child, form > *:last-child button, menu button):where(:hover:not(:disabled)) { border-color: var(--de-color-accent); }
+    :where(button[data-variant="ghost"]) { border-color: transparent; }
+    :where(button[data-variant="ghost"]):where(:hover:not(:disabled)) { border-color: var(--de-snake-edge-hot); }
+    :where(button[data-variant="danger"]) { border-color: color-mix(in oklab, var(--de-color-danger) 40%, var(--de-snake-edge-2)); }
+    :where(button[data-variant="danger"]):where(:hover:not(:disabled)) { border-color: var(--de-color-danger); }
+    :where(button[aria-pressed="true"]) {
+      border-color: var(--de-color-accent);
+      box-shadow: inset 0 -2px 0 var(--de-color-accent);
+    }
+    :where([role="group"]:has(> button)) > :where(button:not(:first-child)) { border-inline-start-width: 0; }
+
+    /* masthead and footer: a panel, and a status bar */
+    :where(:scope) > :where(header) {
+      border: 1px solid var(--de-color-line);
+      border-radius: var(--de-radius-md);
+    }
+    :where(:scope) > :where(footer) { border-block-start: 1px solid var(--de-color-line); }
+
+    /* the archive column: a panel with a titled head */
+    :where(main) > :where(aside) > :where(nav) {
+      border: 1px solid var(--de-color-line);
+      border-radius: var(--de-radius-md);
+    }
+
+    /* cards: the default edge; a hovered card takes the hot line */
+    :where(li) > :where(article) {
+      border: 1px solid var(--de-color-line);
+      border-radius: var(--de-radius-md);
+      box-shadow: none;
+    }
+    :where(li) > :where(article):where(:hover) { border-color: var(--de-snake-edge-hot); }
+
+    /* .ss-callout: the tone on the whole edge of the translucent panel, the glyph in the gutter (fx) — no rail */
+    :where([role="note"], [role="status"], [role="alert"]):where(:not([data-banner], [data-toast], small, data, article[role="dialog"] > header > *)),
+    :where(aside):where(:not(main > aside, article > header aside, [data-shell] > aside)) {
+      border: 1px solid var(--de-color-accent);
+      border-radius: var(--de-radius-sm);
+    }
+    :where([role="status"]):where(:not([data-banner], [data-toast], data, article[role="dialog"] > header > *)) { border-color: var(--de-color-ok); }
+    :where([role="alert"]):where(:not([data-banner], [data-toast], small)) { border-color: var(--de-color-danger); }
+    :where(aside[data-tone="warn"], [role="note"][data-tone="warn"]) { border-color: var(--de-color-warn); }
+    /* quotations: a panel on the default edge, the core's neutral hairline indent — no tone */
+    :where(blockquote) {
+      border: 1px solid var(--de-color-line);
+      border-radius: var(--de-radius-sm);
+    }
+
+    /* .ss-banner: the tone on the whole edge */
+    :where([data-banner]) {
+      border: 1px solid var(--de-color-accent);
+      border-radius: var(--de-radius-sm);
+    }
+    :where([data-banner][role="status"], [data-banner][data-tone="ok"]) { border-color: var(--de-color-ok); }
+    :where([data-banner][data-tone="warn"]) { border-color: var(--de-color-warn); }
+    :where([data-banner][role="alert"], [data-banner][data-tone="danger"]) { border-color: var(--de-color-danger); }
+
+    /* .ss-toast: 1px tone border all round, the chip corner, no shadow */
+    :where([data-toast]) {
+      border: 1px solid var(--de-color-line);
+      border-radius: var(--de-radius-sm);
+      box-shadow: none;
+    }
+    :where([data-toast][role="status"], [data-toast][data-tone="ok"]) { border-color: var(--de-color-ok); }
+    :where([data-toast][data-tone="warn"]) { border-color: var(--de-color-warn); }
+    :where([data-toast][role="alert"], [data-toast][data-tone="danger"]) { border-color: var(--de-color-danger); }
+
+    /* overlays take the lit edge (tokens only on dialog and popover) */
+    :where(dialog, [popover]) { --de-border: 1px solid var(--de-snake-edge-hot); }
+    :where(dialog) > :where(article) > :where(header) { border-block-end: 1px solid var(--de-color-line); }
+    :where(dialog[data-palette]) :where(li[role="option"]) {
+      border: 1px solid transparent;
+      border-radius: var(--de-radius-sm);
+    }
+    :where(dialog[data-palette]) :where(li[role="option"]:hover) { border-color: var(--de-color-line); }
+    :where(dialog[data-palette]) :where(li[role="option"][aria-selected="true"]) {
+      border-color: var(--de-snake-edge-hot);
+      box-shadow: var(--de-snake-mark);
+    }
+    :where([role="tooltip"], [data-tooltip]) {
+      border: 1px solid var(--de-snake-edge-hot);
+      border-radius: var(--de-radius-md);
+      box-shadow: none;
+    }
+    :where([role="menu"]) {
+      border: 1px solid var(--de-snake-edge-hot);
+      border-radius: var(--de-radius-sm);
+    }
+    :where([role="menuitem"]) { border-radius: 0; }
+    :where([role="menu"]) > :where(hr) { border-block-start: 1px solid var(--de-color-line); }
+
+    /* .ss-tabs: the chosen one lit from underneath by a charge rule */
+    :where([role="tablist"]) { border-block-end: 1px solid var(--de-color-line); }
+    :where([role="tab"]) {
+      border: 1px solid var(--de-color-line);
+      border-block-end: 0;
+      border-radius: var(--de-radius-sm) var(--de-radius-sm) 0 0;
+    }
+    :where([role="tab"]:hover) { border-color: var(--de-snake-edge-hot); }
+    :where([role="tab"][aria-selected="true"]) {
+      border-color: var(--de-snake-edge-hot);
+      box-shadow: inset 0 -2px 0 var(--de-color-accent);
+    }
+
+    /* .ss-row: a transparent edge that lights on hover; the mark under the cursor */
+    :where(ul[role="listbox"], ol[role="listbox"]):where(:not(dialog > ul)) { border: 0; border-block-start: 1px solid var(--de-snake-edge-hot); }
+    :where([role="listbox"] > li[role="option"]):where(:not(dialog[data-palette] li)) {
+      border: 1px solid transparent;
+      border-radius: var(--de-radius-sm);
+    }
+    :where([role="listbox"] > li[role="option"]:hover):where(:not(dialog[data-palette] li)) { border-color: var(--de-color-line); }
+    :where([role="listbox"] > li[role="option"][aria-selected="true"]):where(:not(dialog[data-palette] li)) { border-color: var(--de-snake-edge-hot); }
+    :where([role="listbox"] > li[role="option"][data-cursor]):where(:not(dialog[data-palette] li)) {
+      border-color: var(--de-snake-edge-hot);
+      box-shadow: var(--de-snake-mark);
+    }
+
+    /* .ss-badge on the default edge; a toned badge is a .ss-stat: a set-in box */
+    :where(data):where(:not([data-chip] > data, [data-dot])) {
+      border: 1px solid var(--de-color-line);
+      border-radius: var(--de-radius-sm);
+    }
+    :where(data[data-tone]):where(:not([data-chip] > data, [data-dot])) { border-radius: var(--de-radius-md); }
+    :where(data[data-dot]) { border: 0; }
+    :where([data-chip]) { border: 1px solid var(--de-color-edge); border-radius: var(--de-radius-sm); }
+    :where([data-chip][data-tone]) { border-color: color-mix(in oklab, currentColor 45%, transparent); }
+
+    /* .ss-key kbd: the pause screen's key cap — the heavier rim and a 2px bottom */
+    :where(kbd):where(:not(pre > kbd)) {
+      border: 1px solid var(--de-snake-edge-2);
+      border-block-end-width: 2px;
+      border-radius: var(--de-radius-sm);
+    }
+    :where(code):where(:not(pre code)) { border-radius: var(--de-radius-sm); }
+
+    /* .ss-avatar: a bordered square; .ss-swatch: a 15×11 notch */
+    :where([data-avatar]) {
+      border-radius: var(--de-radius-sm);
+      border: 1px solid color-mix(in oklab, currentColor 60%, transparent);
+    }
+    :where([data-swatch])::before {
+      border-radius: var(--de-radius-sm);
+      border-color: color-mix(in oklab, var(--c, var(--de-color-line)) 70%, transparent);
+    }
+
+    /* .ss-empty: the dashed rim on the undiscovered hatch */
+    :where([data-empty]) {
+      border: 1px dashed var(--de-snake-edge-2);
+      border-radius: var(--de-radius-md);
+    }
+
+    /* .ss-meter: a 5px track with the chip corner */
+    :where(progress, meter) { border: 0; border-radius: var(--de-radius-sm); }
+
+    /* .ss-code / .ss-term: framed on the edge; the terminal on the lit edge */
+    :where(pre) { border: 1px solid var(--de-color-line); border-radius: var(--de-radius-md); }
+    :where(figure) { border: 1px solid var(--de-color-line); border-radius: var(--de-radius-md); }
+    :where(figure) > :where(figcaption) { border-block-start: 1px solid var(--de-color-line); }
+    :where(figure:has(> pre)) > :where(figcaption) {
+      border-block-start: 0;
+      border-block-end: 1px solid var(--de-color-line);
+    }
+    :where(figure:has(> pre)) > :where(pre) { border: 0; border-radius: 0; }
+    :where(figure) > :where(img) { border-radius: var(--de-radius-sm) var(--de-radius-sm) 0 0; }
+    :where(pre[data-terminal], pre:has(> samp)) { border-color: var(--de-snake-edge-hot); overflow: hidden; }
+
+    /* .ss-table: the lit line under the head, the default edge under each row */
+    :where(thead th) { border-block-end: 1px solid var(--de-snake-edge-hot); }
+    :where(td) { border-block-end: 1px solid var(--de-color-line); }
+    :where(tfoot td) { border-block-start: 1px solid var(--de-snake-edge-hot); }
+
+    /* .ss-disclosure: no rules, the glyph carries it; .ss-param: a rule under each */
+    :where(details) { border-block: 0; }
+    :where(dl) { border-block-start: 1px solid var(--de-color-line); }
+    :where(dd) { border-block-end: 1px solid var(--de-color-line); }
+
+    /* .ss-pager: a rule above, bare links */
+    :where(nav[aria-label="pagination"]) { border-block-start: 1px solid var(--de-color-line); }
+    :where(nav[aria-label="pagination"]) > :where(a[rel="prev"], a[rel="next"]) { border: 0; border-radius: 0; }
+
+    /* .ss-board__col: set-in columns with a ruled head; .ss-shell: ruled strips */
+    :where([data-board]) > :where(section) { border: 1px solid var(--de-color-line); border-radius: var(--de-radius-md); }
+    :where([data-board]) > :where(section) > :where(h3, h4) { border-block-end: 1px solid var(--de-color-line); }
+    :where([data-shell]) { border: 1px solid var(--de-color-line); border-radius: var(--de-radius-md); overflow: hidden; }
+    :where([data-shell]) > :where(nav) :where(a) { border-radius: var(--de-radius-sm); }
+
+    /* .ss-scroll: a well, not a frame; the stage keeps its dashed rim */
+    :where([data-scroll]) { border: 1px solid var(--de-color-line); border-radius: var(--de-radius-md); }
+    :where([data-stage]) { border-color: var(--de-snake-edge-2); border-radius: var(--de-radius-md); }
+
+    /* .ss-sep: a 1px lit line (fx paints the gradient into it) */
+    :where(hr) { border: 0; border-block-start: 1px solid var(--de-snake-edge-hot); }
+  }
+}
+
+/* ===== layout ===== */
+@layer de.instances.layout {
+  @scope (:where([data-engine], [data-engine] *):where([data-instance="snake"]:not([data-layout]), [data-layout="snake"])) to ([data-instance], [data-layout]) {
+    /* --gap 6px on the density unit; a tight rhythm; 220px rail */
+    :where(:scope) {
+      --de-snake-gap: calc(var(--de-space-unit) * 1.5);
+      --de-flow: var(--de-space-2);
+      --de-grid-gap: var(--de-snake-gap);
+      --de-grid-min: 14rem;
+      --de-shell-aside: 13.75rem;
+      --de-content-pad: clamp(0.75rem, 3vw, 2rem);
+      /* .ss-btn 5px 11px / .ss-field 5px 8px / .ss-card head and body pad themselves */
+      --de-button-pad: calc(var(--de-space-unit) * 1.25) calc(var(--de-space-unit) * 2.75);
+      --de-input-pad: calc(var(--de-space-unit) * 1.25) var(--de-space-2);
+      --de-card-pad: 0;
+      padding-block: var(--de-space-4);
+    }
+    :where(:scope) > :where(main) { padding-block: var(--de-space-4); }
+    :where(:scope) > :where(main + aside, main + section) { padding-block-start: var(--de-space-4); }
+
+    /* prose containers are not panels here: no inset of their own */
+    :where(section:not([data-board] > section, [data-banner]), article:not(li > article), form:not(dialog > form), table) { padding: 0; }
+    :where(main) > :where(aside) { padding: 0; }
+    :where(:scope) > :where(header) > :where(nav) { padding: 0; }
+    :where(nav[aria-label="breadcrumb"]) { padding: 0; }
+
+    /* masthead: a panel with the wordmark, its rule, the lede and the nav */
+    :where(:scope) > :where(header) {
+      padding: var(--de-space-3) var(--de-space-4);
+      row-gap: var(--de-space-2);
+    }
+    :where(:scope) > :where(header) > :where(h1) {
+      display: grid;
+      row-gap: var(--de-space-2);
+      max-inline-size: none;
+    }
+    :where(:scope) > :where(header) > :where(nav) { gap: var(--de-space-1) var(--de-space-3); }
+    /* footer: a status bar */
+    :where(:scope) > :where(footer) { padding: var(--de-space-1) var(--de-space-3); }
+
+    /* the archive column: a head strip, then rows */
+    :where(main) > :where(aside) > :where(nav) {
+      display: grid;
+      row-gap: var(--de-space-2);
+      padding: var(--de-space-3);
+    }
+    :where(main) > :where(aside) > :where(nav) > :where(h2) {
+      display: grid;
+      row-gap: var(--de-space-2);
+      padding: 0;
+    }
+    :where(main) > :where(aside) > :where(nav) > :where(p) { margin-block-start: 0; }
+    :where(main) > :where(aside) > :where(nav) > :where(ol) { padding-inline-start: var(--de-space-4); }
+
+    /* section titles: the title, then the gradient rule under it */
+    :where(section) > :where(h2),
+    :where(article:not(li > article)) > :where(header) > :where(h2) {
+      display: grid;
+      row-gap: var(--de-space-2);
+      max-inline-size: none;
+    }
+    :where(section) > :where(h2:not(:first-child)) { padding-block-start: calc(var(--de-flow) * 3); }
+    :where(article:not(li > article)) > :where(header) { row-gap: var(--de-space-2); padding-block-end: var(--de-space-3); }
+
+    /* .ss-card: a head strip and a padded body */
+    :where(li) > :where(article) {
+      padding: 0;
+      row-gap: 0;
+      container-type: normal;
+    }
+    :where(li) > :where(article) > :where(h3, h4) {
+      padding: calc(var(--de-space-unit) * 1.5) calc(var(--de-space-unit) * 2.25) var(--de-space-1);
+      display: flex;
+      align-items: baseline;
+      gap: var(--de-snake-gap);
+    }
+    :where(li) > :where(article) > :where(p) {
+      padding: var(--de-space-1) calc(var(--de-space-unit) * 2.25) var(--de-space-2);
+      margin-block-start: 0;
+    }
+    :where(li) > :where(article) > :where(p + p) { padding-block-start: 0; }
+
+    /* .ss-callout: glyph column + body column */
+    :where([role="note"], [role="status"], [role="alert"]):where(:not([data-banner], [data-toast], small, data, article[role="dialog"] > header > *)),
+    :where(aside):where(:not(main > aside, article > header aside, [data-shell] > aside)) {
+      grid-template-columns: max-content minmax(0, 1fr);
+      column-gap: var(--de-space-2);
+      row-gap: calc(var(--de-space-unit) * 0.5);
+      padding: calc(var(--de-space-unit) * 1.5) calc(var(--de-space-unit) * 2.25);
+      max-inline-size: 72ch;
+    }
+    :where([role="note"], [role="status"], [role="alert"]):where(:not([data-banner], [data-toast], small, data, article[role="dialog"] > header > *)) > :where(*),
+    :where(aside):where(:not(main > aside, article > header aside, [data-shell] > aside)) > :where(*) { grid-column: 2; }
+    :where(blockquote) {
+      padding: var(--de-space-2) calc(var(--de-space-unit) * 2.25);
+      padding-inline-start: calc(var(--de-space-unit) * 2.25);
+      gap: var(--de-space-1);
+    }
+
+    /* .ss-banner: one strip, actions at the far end */
+    :where([data-banner]) {
+      padding: calc(var(--de-space-unit) * 1.25) calc(var(--de-space-unit) * 2.25);
+      gap: var(--de-space-1) var(--de-snake-gap);
+    }
+    /* .ss-toast: glyph, message, dismiss */
+    :where([data-toasts]) { gap: calc(var(--de-space-unit) * 0.75); }
+    :where([data-toast]) {
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      padding: var(--de-space-2) var(--de-space-3);
+      gap: calc(var(--de-space-unit) * 0.5) var(--de-space-2);
+      align-items: center;
+    }
+    :where([data-toast]) > :where(p) { grid-column: 2; }
+    :where([data-toast]) > :where(button[aria-label]) { grid-column: 3; }
+    /* .ss-empty: centred on the hatch */
+    :where([data-empty]) {
+      padding: var(--de-space-5) var(--de-space-3);
+      justify-items: center;
+      text-align: center;
+      gap: var(--de-space-1);
+    }
+
+    /* .ss-palette: the › bar, 3px-padded rows, the help line */
+    :where(dialog[data-palette]) > :where(form) { display: flex; align-items: center; }
+    :where(dialog[data-palette]) > :where(form)::before { flex: none; padding-inline-start: calc(var(--de-space-unit) * 2.5); }
+    :where(dialog[data-palette]) :where(input[type="search"]) {
+      flex: 1 1 auto;
+      min-inline-size: 0;
+      padding: var(--de-space-2);
+    }
+    :where(dialog[data-palette]) > :where(ul[role="listbox"]) { padding: calc(var(--de-space-unit) * 0.75); }
+    :where(dialog[data-palette]) :where(li[role="option"]) {
+      padding: var(--de-space-1) var(--de-space-2);
+      gap: var(--de-snake-gap);
+    }
+    :where(dialog[data-palette]) > :where(footer) {
+      padding: var(--de-space-1) calc(var(--de-space-unit) * 2.5);
+      gap: var(--de-space-3);
+    }
+    /* the dialog's head strip */
+    :where(dialog) > :where(article) > :where(header) {
+      padding: 0 0 var(--de-space-2);
+      row-gap: 0;
+    }
+
+    /* .ss-tooltip / .ss-menu / .ss-tabs */
+    :where([role="tooltip"], [data-tooltip]) { padding: var(--de-snake-gap) var(--de-space-2); }
+    :where([role="menu"]) {
+      padding: calc(var(--de-space-unit) * 0.75) 0;
+      gap: 0;
+      min-inline-size: 10rem;
+    }
+    :where([role="menuitem"]) { padding: var(--de-space-1) calc(var(--de-space-unit) * 2.5); }
+    :where([role="menu"]) > :where(hr) { padding-block: calc(var(--de-space-unit) * 0.75); }
+    :where([role="tablist"]) { gap: calc(var(--de-space-unit) * 0.5); }
+    :where([role="tab"]) { padding: var(--de-space-1) calc(var(--de-space-unit) * 2.25); }
+
+    /* .ss-list / .ss-row: 2px-gapped rows in a 2px-padded list */
+    :where(ul[role="listbox"], ol[role="listbox"]):where(:not(dialog > ul)) {
+      display: grid;
+      gap: calc(var(--de-space-unit) * 0.5);
+      padding: calc(var(--de-space-unit) * 0.5);
+    }
+    :where([role="listbox"] > li[role="option"]):where(:not(dialog[data-palette] li)) {
+      padding: var(--de-space-1) var(--de-snake-gap);
+      gap: var(--de-space-2);
+    }
+    :where([role="listbox"] > li[role="option"]) :where(button) { padding: calc(var(--de-space-unit) * 0.25) calc(var(--de-space-unit) * 1.25); }
+
+    /* .ss-btn / .ss-btn-icon / .ss-btngroup */
+    :where(button) { min-block-size: 0; gap: calc(var(--de-space-unit) * 1.25); }
+    :where(button[data-icon], button[data-theme-toggle]) {
+      inline-size: calc(var(--de-space-unit) * 5.5);
+      block-size: calc(var(--de-space-unit) * 5.5);
+      padding: 0;
+    }
+    :where([role="group"]:has(> button)) { gap: 0; }
+    :where(form > p:last-child:has(> button)) { gap: calc(var(--de-space-unit) * 1.25); padding-block-start: var(--de-space-2); }
+
+    /* .ss-field: label, control, hint at a 3px rhythm */
+    :where(label:has(> input:not([type="checkbox"], [type="radio"]), > select, > textarea)) { gap: calc(var(--de-space-unit) * 0.75); }
+    :where(textarea) { min-block-size: 3.375rem; }
+    :where(fieldset) {
+      padding: var(--de-space-2) 0 0;
+      row-gap: var(--de-space-2);
+    }
+    :where(label:has(> input[type="checkbox"], > input[type="radio"])) { gap: calc(var(--de-space-unit) * 1.25); }
+    /* .ss-meter: 5px tall */
+    :where(progress, meter) { block-size: calc(var(--de-space-unit) * 1.25); }
+
+    /* .ss-badge / .ss-chip / .ss-avatar / .ss-swatch */
+    :where(data):where(:not([data-chip] > data, [data-dot])) { padding: 0 calc(var(--de-space-unit) * 1.25); }
+    :where(data[data-tone]):where(:not([data-chip] > data, [data-dot])) { padding: calc(var(--de-space-unit) * 0.5) var(--de-space-2); }
+    :where(data[data-dot]) { padding: 0; }
+    :where([data-chip]) {
+      padding: calc(var(--de-space-unit) * 0.5) calc(var(--de-space-unit) * 1.75);
+      gap: calc(var(--de-space-unit) * 1.25);
+      line-height: 1.5;
+    }
+    :where([data-avatar]) { --de-avatar-size: 1.375rem; }
+    :where([data-avatar="sm"]) { --de-avatar-size: 1rem; }
+    :where([data-avatar="lg"]) { --de-avatar-size: 2rem; }
+    :where([data-swatch]) { gap: calc(var(--de-space-unit) * 1.25); }
+    :where([data-swatch])::before {
+      inline-size: calc(var(--de-space-unit) * 3.75);
+      block-size: calc(var(--de-space-unit) * 2.75);
+    }
+    :where(kbd):where(:not(pre > kbd)) { padding: calc(var(--de-space-unit) * 0.25) calc(var(--de-space-unit) * 1.25); }
+    :where(code):where(:not(pre code)) { padding-inline: var(--de-space-1); }
+
+    /* .ss-table: 8px cells, the caption a strip */
+    :where(th) { padding: var(--de-space-1) var(--de-space-2); }
+    :where(td) { padding: calc(var(--de-space-unit) * 0.75) var(--de-space-2); }
+    :where(caption) { padding: calc(var(--de-space-unit) * 0.75) var(--de-space-2); }
+
+    /* .ss-param: stacked rows, ruled */
+    :where(dl) { gap: 0; }
+    :where(dt) { padding: calc(var(--de-space-unit) * 1.25) 0 calc(var(--de-space-unit) * 0.5); }
+    :where(dt:not(:first-child)) { padding-block-start: calc(var(--de-space-unit) * 1.25); }
+    :where(dd) { padding: 0 0 calc(var(--de-space-unit) * 1.25); }
+
+    /* .ss-disclosure: a glyph and a 7px gap; the body indented under the glyph */
+    :where(details > summary) {
+      padding-block: calc(var(--de-space-unit) * 0.5);
+      gap: calc(var(--de-space-unit) * 1.75);
+      align-items: center;
+    }
+    :where(details > :not(summary)) {
+      padding-block: calc(var(--de-space-unit) * 1.5) var(--de-space-1);
+      padding-inline-start: calc(1ch + var(--de-space-unit) * 1.75);
+    }
+
+    /* .ss-code: a caption strip and a padded block; .ss-term: room for the window strip */
+    :where(figure) { gap: 0; padding: 0; }
+    :where(figure) > :where(figcaption) { padding: calc(var(--de-space-unit) * 0.75) var(--de-space-2); gap: var(--de-snake-gap); }
+    :where(pre) {
+      padding: var(--de-space-2) calc(var(--de-space-unit) * 2.5);
+      line-height: 1.5;
+    }
+    :where(pre[data-terminal], pre:has(> samp)) {
+      padding-block-start: calc(var(--de-space-2) + var(--de-space-1) * 2 + var(--de-text-xs) * 1.6);
+      gap: 0;
+    }
+    :where(pre[data-terminal], pre:has(> samp))::before {
+      padding: var(--de-space-1) var(--de-space-2);
+      padding-inline-start: calc(var(--de-space-2) + 3.6em);
+      line-height: 1.6;
+    }
+
+    /* .ss-pager: two bare links either side of a rule */
+    :where(nav[aria-label="pagination"]) {
+      padding: var(--de-space-2) 0 0;
+      gap: var(--de-snake-gap);
+      justify-content: space-between;
+      align-items: center;
+    }
+    :where(nav[aria-label="pagination"]) > :where(a[rel="prev"], a[rel="next"]) {
+      flex: 0 1 auto;
+      display: inline-flex;
+      align-items: baseline;
+      gap: var(--de-snake-gap);
+      padding: 0;
+    }
+
+    /* .ss-board: 220px columns, 6px apart, a head strip and a 6px card stack */
+    :where([data-board]) {
+      gap: var(--de-snake-gap);
+      padding: var(--de-snake-gap);
+      grid-auto-columns: minmax(13.75rem, 1fr);
+    }
+    :where([data-board]) > :where(section) { padding: 0; row-gap: 0; }
+    :where([data-board]) > :where(section) > :where(h3, h4) {
+      padding: calc(var(--de-space-unit) * 1.25) var(--de-space-2);
+      align-items: center;
+    }
+    :where([data-board]) > :where(section) > :where(ul) {
+      padding: var(--de-snake-gap);
+      gap: var(--de-snake-gap);
+    }
+    :where([data-board]) :where(li) > :where(article) > :where(h3, h4) { padding-block-end: 0; }
+
+    /* .ss-shell: top strip, rail, main, status */
+    :where([data-shell]) > :where(header) {
+      padding: calc(var(--de-space-unit) * 1.25) calc(var(--de-space-unit) * 2.5);
+      gap: var(--de-snake-gap);
+    }
+    :where([data-shell]) > :where(header) > :where(button:last-child) { margin-inline-start: auto; }
+    :where([data-shell]) > :where(nav, aside) { padding: calc(var(--de-space-unit) * 0.5); }
+    :where([data-shell]) > :where(nav) :where(ul) { gap: calc(var(--de-space-unit) * 0.5); }
+    :where([data-shell]) > :where(nav) :where(a) { padding: var(--de-space-1) var(--de-snake-gap); }
+    :where([data-shell]) > :where(main) { padding: var(--de-space-2) var(--de-space-3); }
+    :where([data-shell]) > :where(footer) {
+      padding: calc(var(--de-space-unit) * 0.75) calc(var(--de-space-unit) * 2.5);
+      gap: var(--de-space-3);
+    }
+    :where([data-scroll]) { padding: var(--de-space-1) var(--de-space-2); }
+  }
+}
+
+/* ===== fx ===== */
+@layer de.instances.fx {
+  /* the toast's slide-in: three pixels over the one duration */
+  @keyframes de-snake-toast-in {
+    from { opacity: 0; transform: translateY(-3px); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  @scope (:where([data-engine], [data-engine] *):where([data-instance="snake"]:not([data-fx]), [data-fx="snake"])) to ([data-instance], [data-fx]) {
+    :where(:scope) {
+      --de-snake-inset:    light-dark(oklch(97.5% 0.008 262), oklch(15.9% 0.023 263));
+      --de-snake-well:     light-dark(oklch(91.5% 0.018 262), oklch(21.8% 0.036 262));
+      --de-snake-raised:   light-dark(oklch(99.2% 0.005 262), oklch(22.7% 0.038 263));
+      --de-snake-edge-2:   light-dark(oklch(79.0% 0.042 265), oklch(35.2% 0.063 265));
+      --de-snake-edge-hot: light-dark(oklch(65.0% 0.085 266), oklch(44.2% 0.087 266));
+      /* --burn / --burn-2 / --bone: destruction, its highlight, equipment */
+      --de-snake-burn:     light-dark(oklch(52.0% 0.170 46),  oklch(72.5% 0.182 46));
+      --de-snake-burn-2:   light-dark(oklch(50.0% 0.120 87),  oklch(87.3% 0.147 87));
+      --de-snake-bone:     light-dark(oklch(46.0% 0.040 85),  oklch(80.8% 0.037 85));
+      --de-snake-mark: inset 0 0 0 1px var(--de-color-accent);
+      /* .ss-sheet__rule: the lit edge fading to nothing */
+      --de-snake-rule: linear-gradient(90deg, var(--de-snake-edge-hot), transparent);
+      /* the tinted ink a toned thing reads in: the tone into the ink */
+      --de-snake-tint: 30%;
+
+      /* one duration, one easing */
+      --de-dur-instant: 200ms;
+      --de-dur-fast: 200ms;
+      --de-dur: 200ms;
+      --de-dur-slow: 200ms;
+      --de-ease: ease;
+      --de-ease-in: ease;
+      --de-ease-out: ease;
+      --de-ease-spring: ease;
+      --de-transition: var(--de-dur) var(--de-ease);
+      --de-lift: 0px;
+      --de-travel: 3px;
+
+      /* .ss-grid: the board's cell texture under everything */
+      color: var(--de-color-fg);
+      background-color: var(--de-color-bg);
+      background-image:
+        linear-gradient(color-mix(in oklab, var(--de-color-line) 55%, transparent) 1px, transparent 1px),
+        linear-gradient(90deg, color-mix(in oklab, var(--de-color-line) 55%, transparent) 1px, transparent 1px);
+      background-size: var(--de-space-4) var(--de-space-4);
+    }
+    /* the motion mode zeroes durations in an earlier layer; restate its switch here */
+    :where(:scope):where([data-motion="reduced"], [data-motion="reduced"] *) {
+      --de-dur-instant: 0s;
+      --de-dur-fast: 0s;
+      --de-dur: 0s;
+      --de-dur-slow: 0s;
+    }
+
+    :where(*)::selection {
+      background: var(--de-color-accent);
+      color: var(--de-color-accent-fg);
+    }
+    :where(pre, [data-scroll], [data-board], [data-shell] > main, dialog[data-palette] > ul) {
+      scrollbar-width: thin;
+      scrollbar-color: var(--de-color-line) transparent;
+    }
+    :where(li)::marker { color: var(--de-color-faint); }
+
+    /* links are the charge colour, lightened toward the ink on hover */
+    :where(a) { color: var(--de-color-accent); }
+    :where(a):where(:hover) { color: color-mix(in oklab, var(--de-color-accent) 70%, var(--de-color-fg)); }
+    :where(nav) :where(a) { color: var(--de-color-muted); }
+    :where(nav) :where(a):where(:hover) { color: var(--de-color-fg); }
+
+    /* masthead: a translucent panel; the wordmark with its rule; the lede in the dim ink */
+    :where(:scope) > :where(header) {
+      background: var(--de-color-surface);
+      backdrop-filter: blur(var(--de-blur));
+    }
+    :where(:scope) > :where(header) > :where(h1)::after {
+      content: "";
+      display: block;
+      block-size: 1px;
+      background: var(--de-snake-rule);
+    }
+    :where(:scope) > :where(header) :where(small) { color: var(--de-color-muted); }
+    :where(:scope) > :where(header) > :where(p:not(:first-child)) { color: var(--de-color-muted); }
+    :where(:scope) > :where(footer) {
+      background: var(--de-color-surface-2);
+      color: var(--de-color-muted);
+    }
+
+    /* the archive column: a panel; the section titles carry the rule */
+    :where(main) > :where(aside) > :where(nav) {
+      background: var(--de-color-surface);
+      backdrop-filter: blur(var(--de-blur));
+    }
+    :where(section) > :where(h2)::after,
+    :where(main) > :where(aside) > :where(nav) > :where(h2)::after,
+    :where(article:not(li > article)) > :where(header) > :where(h2)::after {
+      content: "";
+      display: block;
+      block-size: 1px;
+      background: var(--de-snake-rule);
+    }
+    :where(h3, h4, h5, h6) { color: var(--de-color-fg); }
+
+    /* .ss-label: glyphs and labels are drawn in --dim */
+    :where(th, caption, legend, figcaption, [data-empty] > strong, nav[aria-label="pagination"] small),
+    :where(label:has(> input:not([type="checkbox"], [type="radio"]), > select, > textarea)),
+    :where([data-board]) > :where(section) > :where(h3, h4),
+    :where(li) > :where(article) > :where(h3, h4) { color: var(--de-color-muted); }
+    :where(label:has(> input[type="checkbox"], > input[type="radio"])) { color: var(--de-color-fg); }
+    :where(label:has(> [aria-invalid="true"], > :user-invalid)) { color: var(--de-color-danger); }
+    :where(label) > :where(small) { color: var(--de-color-faint); }
+    :where(label) > :where(small[role="alert"]) { color: color-mix(in oklab, var(--de-color-danger) 60%, var(--de-color-fg)); }
+    :where(label) > :where(small[role="alert"])::before { content: "✕ "; color: var(--de-color-danger); }
+
+    /* inline code on the well; blocks and figures set into --inset */
+    :where(code):where(:not(pre code)) {
+      background: var(--de-snake-well);
+      color: var(--de-color-fg);
+    }
+    :where(pre) { background: var(--de-snake-inset); }
+    :where(pre) :where(code) { background: transparent; color: inherit; }
+    :where(kbd):where(:not(pre > kbd)) {
+      background: var(--de-snake-raised);
+      color: var(--de-color-fg);
+    }
+
+    /* .ss-card: the translucent panel with the board behind it; hover to the second panel */
+    :where(li) > :where(article) {
+      background: var(--de-color-surface);
+      backdrop-filter: blur(var(--de-blur));
+      transform: none;
+      transition: border-color var(--de-transition), background var(--de-transition);
+    }
+    :where(li) > :where(article):where(:hover) { background: var(--de-color-surface-2); }
+
+    /* .ss-callout: ▸ ✓ ! ✕ in the gutter, the neutral inset panel — tone
+       carried by the edge (shape layer) and the glyph only, no colour wash */
+    :where([role="note"], [role="status"], [role="alert"]):where(:not([data-banner], [data-toast], small, data, article[role="dialog"] > header > *)),
+    :where(aside):where(:not(main > aside, article > header aside, [data-shell] > aside)) {
+      background: var(--de-snake-inset);
+    }
+    :where([role="note"], [role="status"], [role="alert"]):where(:not([data-banner], [data-toast], small, data, article[role="dialog"] > header > *))::before,
+    :where(aside):where(:not(main > aside, article > header aside, [data-shell] > aside))::before {
+      content: "▸";
+      grid-column: 1;
+      grid-row: 1;
+      inline-size: 1ch;
+      text-align: center;
+      color: var(--de-color-accent);
+    }
+    :where([role="status"]):where(:not([data-banner], [data-toast], data, article[role="dialog"] > header > *))::before { content: "✓"; color: var(--de-color-ok); }
+    :where([role="alert"]):where(:not([data-banner], [data-toast], small))::before { content: "✕"; color: var(--de-color-danger); }
+    :where(aside[data-tone="warn"], [role="note"][data-tone="warn"])::before { content: "!"; color: var(--de-color-warn); }
+    :where(blockquote) { background: var(--de-snake-inset); }
+    :where(blockquote) :where(cite) { color: var(--de-snake-bone); }
+
+    /* .ss-banner: the second panel (matches toast), a glyph first — tone
+       carried by the edge and glyph only, ink stays plain fg */
+    :where([data-banner]) {
+      background: var(--de-color-surface-2);
+    }
+    :where([data-banner])::before {
+      content: "▸";
+      flex: none;
+      inline-size: 1ch;
+      text-align: center;
+      color: var(--de-color-accent);
+    }
+    :where([data-banner][role="status"], [data-banner][data-tone="ok"])::before { content: "✓"; color: var(--de-color-ok); }
+    :where([data-banner][data-tone="warn"])::before { content: "!"; color: var(--de-color-warn); }
+    :where([data-banner][role="alert"], [data-banner][data-tone="danger"])::before { content: "✕"; color: var(--de-color-danger); }
+
+    /* .ss-toast: the second panel, the tone on the edge and in a tint of the ink, a 3px slide */
+    :where([data-toast]) {
+      background: var(--de-color-surface-2);
+      backdrop-filter: blur(var(--de-blur));
+      animation: de-snake-toast-in var(--de-dur) var(--de-ease) both;
+    }
+    :where([data-toast])::before {
+      content: "▸";
+      grid-column: 1;
+      grid-row: 1;
+      inline-size: 1ch;
+      text-align: center;
+      color: var(--de-color-muted);
+    }
+    :where([data-toast][role="status"], [data-toast][data-tone="ok"]) { color: color-mix(in oklab, var(--de-color-ok) var(--de-snake-tint), var(--de-color-fg)); }
+    :where([data-toast][role="status"], [data-toast][data-tone="ok"])::before { content: "✓"; color: var(--de-color-ok); }
+    :where([data-toast][data-tone="warn"]) { color: color-mix(in oklab, var(--de-color-warn) var(--de-snake-tint), var(--de-color-fg)); }
+    :where([data-toast][data-tone="warn"])::before { content: "!"; color: var(--de-color-warn); }
+    :where([data-toast][role="alert"], [data-toast][data-tone="danger"]) { color: color-mix(in oklab, var(--de-color-danger) var(--de-snake-tint), var(--de-color-fg)); }
+    :where([data-toast][role="alert"], [data-toast][data-tone="danger"])::before { content: "✕"; color: var(--de-color-danger); }
+    :where([data-toast]) > :where(button[aria-label]) { color: var(--de-color-muted); }
+    :where([data-toast]) > :where(button[aria-label]):where(:hover) { color: var(--de-color-fg); background: transparent; }
+
+    /* .ss-empty: the diagonal hatch of a thing that is not there yet */
+    :where([data-empty]) {
+      color: var(--de-color-muted);
+      background: repeating-linear-gradient(45deg, var(--de-snake-inset) 0 6px, color-mix(in oklab, var(--de-snake-inset) 70%, var(--de-color-line)) 6px 12px);
+    }
+    :where([data-empty]) > :where(strong) { color: var(--de-color-muted); }
+
+    /* .ss-badge: dim on the second panel; a tone is a .ss-stat — a set-in box with the value in the tone, and its glyph */
+    :where(data):where(:not([data-chip] > data, [data-dot])) {
+      color: var(--de-color-muted);
+      background: var(--de-color-surface-2);
+    }
+    :where(data[data-tone]):where(:not([data-chip] > data, [data-dot])) { background: var(--de-snake-inset); }
+    :where(data[data-tone="ok"]:not([data-dot]))::before     { content: "✓ "; }
+    :where(data[data-tone="danger"]:not([data-dot]))::before { content: "✕ "; }
+    :where(data[data-tone="warn"]:not([data-dot]))::before   { content: "! "; }
+    :where(data[data-tone="info"]:not([data-dot]))::before   { content: "◆ "; }
+    /* .ss-dot: ○ nothing, ● live (with its glow), ◐ idle, ⊗ error */
+    :where(data[data-dot]) { background: transparent; }
+    :where(data[data-dot]:not([data-tone])) { color: var(--de-color-faint); }
+    :where(data[data-dot])::before {
+      content: "○ ";
+      inline-size: auto;
+      block-size: auto;
+      border-radius: 0;
+      background: none;
+      margin-inline-end: 0;
+    }
+    :where(data[data-dot][data-tone="ok"]) { text-shadow: 0 0 6px color-mix(in oklab, var(--de-color-ok) 60%, transparent); }
+    :where(data[data-dot][data-tone="ok"])::before { content: "● "; }
+    :where(data[data-dot][data-tone="warn"], data[data-dot][data-tone="info"])::before { content: "◐ "; }
+    :where(data[data-dot][data-tone="danger"])::before { content: "⊗ "; }
+
+    /* .ss-chip: a dim noun set into --inset, the count in the ink, the remove turns bad */
+    :where([data-chip]) { background: var(--de-snake-inset); }
+    :where([data-chip]:not([data-tone])) { color: var(--de-color-muted); }
+    :where([data-chip]) > :where(data) { color: var(--de-color-fg); }
+    :where([data-chip]) > :where(button) { color: var(--de-color-muted); }
+    :where([data-chip]) > :where(button):where(:hover) { color: var(--de-color-danger); }
+
+    /* .ss-avatar: the compendium's glyph tile — a bone wash, the bone ink */
+    :where([data-avatar]) {
+      color: var(--de-snake-bone);
+      background: color-mix(in oklab, var(--de-snake-bone) 16%, transparent);
+    }
+    /* .ss-swatch: the legend's rounded rectangle */
+    :where([data-swatch])::before { background: var(--c, var(--de-snake-well)); }
+    :where([data-step][data-swatch])::before { background: currentColor; border-color: transparent; }
+
+    /* .ss-spin: a ring in the charge colour */
+    :where([aria-busy="true"])::before {
+      border-color: color-mix(in oklab, var(--de-color-accent) 25%, transparent);
+      border-block-start-color: var(--de-color-accent);
+    }
+    /* .ss-meter: a --well track; a gradient fill from a dark mix of the colour up to the colour */
+    :where(progress, meter) { background: var(--de-snake-well); }
+    :where(progress)::-webkit-progress-value { background: linear-gradient(90deg, color-mix(in oklab, var(--de-color-accent) 45%, var(--de-snake-inset)), var(--de-color-accent)); }
+    :where(progress)::-moz-progress-bar { background: linear-gradient(90deg, color-mix(in oklab, var(--de-color-accent) 45%, var(--de-snake-inset)), var(--de-color-accent)); }
+    :where(progress:not([value])) {
+      background: repeating-linear-gradient(90deg, color-mix(in oklab, var(--de-color-accent) 45%, var(--de-snake-inset)) 0 var(--de-space-3), var(--de-snake-well) var(--de-space-3) var(--de-space-4));
+    }
+    :where(meter)::-webkit-meter-optimum-value { background: linear-gradient(90deg, color-mix(in oklab, var(--de-color-ok) 45%, var(--de-snake-inset)), var(--de-color-ok)); }
+    :where(meter)::-webkit-meter-suboptimum-value { background: linear-gradient(90deg, color-mix(in oklab, var(--de-snake-burn-2) 45%, var(--de-snake-inset)), var(--de-snake-burn-2)); }
+    :where(meter)::-webkit-meter-even-less-good-value { background: linear-gradient(90deg, color-mix(in oklab, var(--de-snake-burn) 45%, var(--de-snake-inset)), var(--de-snake-burn)); }
+    :where(meter)::-moz-meter-bar { background: linear-gradient(90deg, color-mix(in oklab, var(--de-color-ok) 45%, var(--de-snake-inset)), var(--de-color-ok)); }
+
+    /* .ss-check / .ss-radio / .ss-switch: native inputs drawn with the neon edge */
+    :where(input[type="checkbox"]:not([role="switch"]), input[type="radio"]) {
+      appearance: none;
+      display: inline-grid;
+      place-items: center;
+      inline-size: calc(var(--de-space-unit) * 3.5);
+      block-size: calc(var(--de-space-unit) * 3.5);
+      background: var(--de-snake-well);
+      border: 1px solid var(--de-snake-edge-2);
+      border-radius: var(--de-radius-sm);
+      color: var(--de-color-accent);
+      vertical-align: middle;
+      transition: border-color var(--de-transition), background var(--de-transition);
+    }
+    :where(input[type="radio"]) { border-radius: 50%; }
+    :where(input[type="checkbox"]:not([role="switch"]), input[type="radio"]):where(:hover) { border-color: var(--de-snake-edge-hot); }
+    :where(input[type="checkbox"]:not([role="switch"]):checked, input[type="radio"]:checked) {
+      border-color: var(--de-color-accent);
+      background: color-mix(in oklab, var(--de-color-accent) 18%, var(--de-snake-well));
+    }
+    :where(input[type="checkbox"]:not([role="switch"]))::before {
+      content: "";
+      inline-size: calc(var(--de-space-unit) * 2);
+      block-size: var(--de-space-1);
+      border: 2px solid transparent;
+      border-block-start: 0;
+      border-inline-end: 0;
+      transform: translateY(-1px) rotate(-45deg);
+    }
+    :where(input[type="checkbox"]:not([role="switch"]):checked)::before { border-color: currentColor; }
+    :where(input[type="radio"])::before {
+      content: "";
+      inline-size: calc(var(--de-space-unit) * 1.5);
+      block-size: calc(var(--de-space-unit) * 1.5);
+      border-radius: 50%;
+      background: transparent;
+    }
+    :where(input[type="radio"]:checked)::before { background: currentColor; }
+    :where(input[type="checkbox"][role="switch"]) {
+      inline-size: calc(var(--de-space-unit) * 6.5);
+      block-size: calc(var(--de-space-unit) * 3.5);
+      background: var(--de-snake-well);
+      border-color: var(--de-snake-edge-2);
+      border-radius: var(--de-radius-full);
+    }
+    :where(input[type="checkbox"][role="switch"]):where(:hover) { border-color: var(--de-snake-edge-hot); }
+    :where(input[type="checkbox"][role="switch"])::before {
+      inset-block-start: 1px;
+      inset-inline-start: 1px;
+      inline-size: calc(var(--de-space-unit) * 2.5);
+      block-size: calc(var(--de-space-unit) * 2.5);
+      background: var(--de-color-faint);
+    }
+    :where(input[type="checkbox"][role="switch"]:checked) {
+      border-color: var(--de-color-accent);
+      background: color-mix(in oklab, var(--de-color-accent) 18%, var(--de-snake-well));
+    }
+    :where(input[type="checkbox"][role="switch"]:checked)::before {
+      translate: calc(var(--de-space-unit) * 3) 0;
+      background: var(--de-color-accent);
+    }
+    :where(input[type="checkbox"]:disabled, input[type="radio"]:disabled) { opacity: 0.45; }
+    :where(input, textarea)::placeholder { color: var(--de-color-faint); }
+
+    /* .ss-btn: the raised face; hover mixes the edge in; press drops to --inset */
+    :where(button):where(:hover:not(:disabled)) { background: color-mix(in oklab, var(--de-snake-raised) 75%, var(--de-color-line)); }
+    :where(button):where(:active) {
+      background: var(--de-snake-inset);
+      transform: none;
+    }
+    :where(button:disabled) { opacity: 0.45; }
+    /* primary: charge-filled with the board as its ink */
+    :where(form > button:last-child, form > *:last-child button, menu button) {
+      background: linear-gradient(90deg, color-mix(in oklab, var(--de-color-accent) 88%, var(--de-snake-inset)), var(--de-color-accent));
+      color: var(--de-color-accent-fg);
+    }
+    :where(form > button:last-child, form > *:last-child button, menu button):where(:hover:not(:disabled)) {
+      background: var(--de-color-accent);
+      color: var(--de-color-accent-fg);
+    }
+    :where(form > button:last-child, form > *:last-child button, menu button):where(:active) {
+      background: color-mix(in oklab, var(--de-color-accent) 80%, var(--de-snake-inset));
+    }
+    /* ghost: dim on nothing until hovered */
+    :where(button[data-variant="ghost"]) {
+      background: transparent;
+      color: var(--de-color-muted);
+    }
+    :where(button[data-variant="ghost"]):where(:hover:not(:disabled)) {
+      background: transparent;
+      color: var(--de-color-fg);
+    }
+    /* danger: the bad tone on the edge and in the ink, a wash on hover */
+    :where(button[data-variant="danger"]) {
+      background: var(--de-snake-raised);
+      color: color-mix(in oklab, var(--de-color-danger) 65%, var(--de-color-fg));
+    }
+    :where(button[data-variant="danger"]):where(:hover:not(:disabled)) {
+      background: color-mix(in oklab, var(--de-color-danger) 12%, var(--de-snake-raised));
+      color: var(--de-color-danger);
+    }
+    /* .ss-linkbtn: charge with the dotted underline */
+    :where(button[data-variant="link"]) {
+      background: transparent;
+      color: var(--de-color-accent);
+      text-decoration: underline dotted;
+      text-underline-offset: 0.2em;
+    }
+    :where(button[data-variant="link"]):where(:hover:not(:disabled)) {
+      background: transparent;
+      color: color-mix(in oklab, var(--de-color-accent) 70%, var(--de-color-fg));
+    }
+    :where(button[data-icon][data-variant="ghost"]) { color: var(--de-color-muted); }
+    :where(button[aria-pressed="true"]) { background: color-mix(in oklab, var(--de-color-accent) 12%, var(--de-snake-raised)); }
+    /* .ss-theme-toggle: the ◐ glyph in dim */
+    :where(button[data-theme-toggle]) { color: var(--de-color-muted); }
+
+    /* .ss-tabs: small tracked caps on --inset; the chosen one on --raised */
+    :where([role="tab"]) {
+      background: var(--de-snake-inset);
+      color: var(--de-color-muted);
+    }
+    :where([role="tab"]:hover) { color: var(--de-color-fg); }
+    :where([role="tab"][aria-selected="true"]) {
+      background: var(--de-snake-raised);
+      color: var(--de-color-fg);
+    }
+
+    /* .ss-disclosure: ▸ closed, ▾ open, in the charge colour */
+    :where(details > summary) { color: var(--de-color-fg); cursor: pointer; }
+    :where(details > summary)::before {
+      content: "▸";
+      inline-size: 1ch;
+      block-size: auto;
+      border: 0;
+      transform: none;
+      opacity: 1;
+      color: var(--de-color-accent);
+    }
+    :where(details[open] > summary)::before { content: "▾"; transform: none; }
+    :where(details > summary):where(:focus-visible) { outline: none; text-decoration: underline; }
+
+    /* .ss-table: a hovered row takes a wash of the edge */
+    :where(tbody) :where(tr):where(:hover) { background: color-mix(in oklab, var(--de-color-line) 35%, transparent); }
+    :where(tbody) :where(tr[aria-selected="true"]) { background: var(--de-snake-raised); box-shadow: var(--de-snake-mark); }
+    /* .ss-param: the name in the ink, the prose in --dim */
+    :where(dt) { color: var(--de-color-fg); }
+    :where(dd) { color: var(--de-color-muted); }
+
+    /* .ss-row: an opaque line on --inset; hover to the second panel; --raised when chosen; the mark under the cursor */
+    :where([role="listbox"] > li[role="option"]):where(:not(dialog[data-palette] li)) {
+      background: var(--de-snake-inset);
+      color: var(--de-color-fg);
+      transition: border-color var(--de-transition), background var(--de-transition);
+    }
+    :where([role="listbox"] > li[role="option"]:hover):where(:not(dialog[data-palette] li)) { background: var(--de-color-surface-2); }
+    :where([role="listbox"] > li[role="option"][aria-selected="true"]):where(:not(dialog[data-palette] li)) {
+      background: var(--de-snake-raised);
+      color: var(--de-color-fg);
+    }
+    :where([role="listbox"] > li[role="option"][data-cursor]):where(:not(dialog[data-palette] li)) { background: var(--de-color-surface-2); }
+    :where([role="listbox"] > li[role="option"][aria-disabled="true"]) { opacity: 0.45; }
+    :where([role="listbox"] > li[role="option"]) > :where(span:first-child) { color: var(--de-color-accent); }
+    :where([role="listbox"] > li[role="option"]) > :where(small) { color: var(--de-color-faint); }
+
+    /* .ss-palette: the second panel; a › prompt on --inset; the cursor row on --raised with the mark */
+    :where(dialog[data-palette]) > :where(form) { background: var(--de-snake-inset); }
+    :where(dialog[data-palette]) > :where(form)::before {
+      content: "›";
+      color: var(--de-color-accent);
+    }
+    :where(dialog[data-palette]) :where(input[type="search"]) { background: transparent; }
+    :where(dialog[data-palette]) :where(li[role="option"]:hover) { background: transparent; }
+    :where(dialog[data-palette]) :where(li[role="option"][aria-selected="true"]) {
+      background: var(--de-snake-raised);
+      color: var(--de-color-fg);
+    }
+    :where(dialog[data-palette]) :where(li[role="option"]) > :where(small) { color: var(--de-color-faint); }
+    :where(dialog[data-palette]) :where(li[role="option"]) > :where(kbd) { background: var(--de-snake-raised); }
+    :where(dialog[data-palette]) > :where(footer) { color: var(--de-color-muted); }
+
+    /* .ss-sheet / .ss-popover: the panel with the board blurred behind it; the sheet title in the ink */
+    :where(dialog, [popover]) { backdrop-filter: blur(var(--de-blur)); }
+    :where(dialog) > :where(article) > :where(header) :where(h3) { color: var(--de-color-fg); }
+    /* .ss-tooltip / .ss-menu: --inset with the lit edge; a hovered item on --raised in the charge tint */
+    :where([role="tooltip"], [data-tooltip]) {
+      background: var(--de-snake-inset);
+      color: var(--de-color-fg);
+    }
+    :where([role="menu"]) { background: var(--de-snake-inset); }
+    :where([role="menuitem"]) { color: var(--de-color-fg); }
+    :where([role="menuitem"]:hover) {
+      background: var(--de-snake-raised);
+      color: color-mix(in oklab, var(--de-color-accent) var(--de-snake-tint), var(--de-color-fg));
+    }
+    :where([role="menuitem"]) :where(kbd) { color: var(--de-color-muted); background: transparent; }
+
+    /* .ss-code: the caption strip on --raised; the block set into --inset */
+    :where(figure) { background: var(--de-snake-inset); }
+    :where(figure) > :where(figcaption) {
+      background: var(--de-snake-raised);
+      color: var(--de-color-muted);
+    }
+    :where(figure) > :where(figcaption) > :where(button) {
+      background: var(--de-snake-raised);
+      border-color: var(--de-snake-edge-2);
+      color: var(--de-color-muted);
+    }
+
+    /* .ss-term: the board colour, a window strip on --raised with three neon lights, a charge prompt, dim output */
+    :where(pre[data-terminal], pre:has(> samp)) {
+      --de-terminal-bg: var(--de-color-bg);
+      --de-terminal-ink: var(--de-color-fg);
+      background: var(--de-terminal-bg);
+      color: var(--de-terminal-ink);
+    }
+    :where(pre[data-terminal], pre:has(> samp))::before {
+      background-color: var(--de-snake-raised);
+      color: var(--de-color-muted);
+      border-block-end: 1px solid var(--de-color-line);
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      font-size: var(--de-text-xs);
+      background-image:
+        radial-gradient(circle, var(--de-color-danger) 0 44%, transparent 48%),
+        radial-gradient(circle, var(--de-color-warn) 0 44%, transparent 48%),
+        radial-gradient(circle, var(--de-color-ok) 0 44%, transparent 48%);
+      background-size: 0.8em 0.8em;
+      background-repeat: no-repeat;
+      background-position:
+        var(--de-space-2) 50%,
+        calc(var(--de-space-2) + 1.1em) 50%,
+        calc(var(--de-space-2) + 2.2em) 50%;
+    }
+    :where(pre[data-terminal], pre:has(> samp)) > :where(kbd) { color: var(--de-color-fg); }
+    :where(pre[data-terminal], pre:has(> samp)) > :where(kbd)::first-letter { color: var(--de-color-accent); }
+    :where(pre[data-terminal], pre:has(> samp)) > :where(samp) { color: var(--de-color-muted); }
+
+    /* .ss-sep: the title rule freed from the sheet; .ss-crumb: › between crumbs */
+    :where(hr), :where(ul[role="listbox"], ol[role="listbox"]):where(:not(dialog > ul)) { border-image: var(--de-snake-rule) 1; }
+    :where(nav[aria-label="breadcrumb"] li) { color: var(--de-color-muted); }
+    :where(nav[aria-label="breadcrumb"] li + li)::before { content: "›"; color: var(--de-color-faint); }
+    :where(nav[aria-label="breadcrumb"] li:last-child) { color: var(--de-color-fg); font-weight: var(--de-weight-body); }
+    :where(nav[aria-label="breadcrumb"] a):where(:hover) { color: var(--de-color-accent); }
+
+    /* .ss-pager: ← previous · next → as charge links, the label dim */
+    :where(nav[aria-label="pagination"]) > :where(a) {
+      background: transparent;
+      color: var(--de-color-accent);
+    }
+    :where(nav[aria-label="pagination"]) > :where(a:hover) { color: color-mix(in oklab, var(--de-color-accent) 70%, var(--de-color-fg)); }
+    :where(nav[aria-label="pagination"]) > :where(a[rel="prev"])::before { content: "← "; }
+    :where(nav[aria-label="pagination"]) > :where(a[rel="next"])::after { content: " →"; }
+    :where(nav[aria-label="pagination"]) :where(small) { color: var(--de-color-muted); }
+
+    /* .ss-board: columns set into --inset, a dim head, a dimmer count, panels for cards */
+    :where([data-board]) > :where(section) { background: var(--de-snake-inset); }
+    :where([data-board]) > :where(section) > :where(h3, h4) :where(small) { color: var(--de-color-faint); font-variant-numeric: tabular-nums; }
+
+    /* .ss-shell: the top and status strips on the second panel, the rail on the first, the current row marked */
+    :where([data-shell]) > :where(header), :where([data-shell]) > :where(footer) { background: var(--de-color-surface-2); }
+    :where([data-shell]) > :where(header) > :where(strong) { color: var(--de-color-accent); }
+    :where([data-shell]) > :where(header) :where(a[aria-current]) { color: var(--de-color-fg); }
+    :where([data-shell]) > :where(footer) { color: var(--de-color-muted); }
+    :where([data-shell]) > :where(nav, aside) { background: var(--de-color-surface); }
+    :where([data-shell]) > :where(nav) :where(a) { color: var(--de-color-fg); }
+    :where([data-shell]) > :where(nav) :where(a):where(:hover) { background: var(--de-color-surface-2); color: var(--de-color-fg); }
+    :where([data-shell]) > :where(nav) :where(a[aria-current]) {
+      background: var(--de-snake-raised);
+      color: var(--de-color-fg);
+      box-shadow: var(--de-snake-mark);
+    }
+    :where([data-shell]) > :where([data-resize]:hover) { background: var(--de-snake-edge-hot); }
+
+    /* .ss-grid on a pattern region; .ss-scroll's thin thumb; the stage on the board */
+    :where([data-pattern]) {
+      --de-pattern-ink: var(--de-color-line);
+      background-color: var(--de-color-bg);
+    }
+    :where([data-scroll]) { scrollbar-color: var(--de-color-line) transparent; }
+    :where([data-stage]) { background: var(--de-color-bg); }
+  }
+
+  /* the OS switch, restated for the same reason as the attribute switch above */
+  @media (prefers-reduced-motion: reduce) {
+    @scope (:where([data-engine], [data-engine] *):where([data-instance="snake"]:not([data-fx]), [data-fx="snake"])) to ([data-instance], [data-fx]) {
+      :where(:scope):where(:not([data-motion="full"], [data-motion="full"] *)) {
+        --de-dur-instant: 0s;
+        --de-dur-fast: 0s;
+        --de-dur: 0s;
+        --de-dur-slow: 0s;
+      }
+    }
+  }
+}
+/* signature: the Impressive Snake HUD — translucent navy panels on 1px cool edges with a 4px corner, neon signal colours that always bring a glyph, nine-pixel tracked labels, the --edge-hot gradient rule under every title, key-cap buttons, gradient meter fills, and a charge mark under the cursor row. */

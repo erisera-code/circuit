@@ -1273,6 +1273,291 @@ meter.c-meter::-moz-meter-bar { background: var(--tone); border-radius: var(--r-
 .c-board .c-card > .foot { padding: 6px 12px; font-size: 11.5px; }
 .c-board .c-card.dragging { opacity: 0.5; }
 
+/*
+ * ---- extended vocabulary tier (rows 44-53) ----
+ * Ten more components common across other UI frameworks, added to keep the
+ * shared vocabulary current (see COMPONENTS.md). Same conventions as above:
+ * .c-* classes, plain sub-classes for variants, native elements do the
+ * behaviour where one exists, and connecting lines stay var(--line) — never
+ * an accent-coloured rail.
+ */
+
+/* ============ slider ============ */
+/* Native <input type="range">. A thin track, a round accent thumb. */
+.c-slider {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  height: 18px;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+  vertical-align: middle;
+}
+.c-slider:disabled { opacity: 0.5; cursor: not-allowed; }
+.c-slider:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.c-slider::-webkit-slider-runnable-track { height: 4px; border-radius: var(--r-full); background: var(--bg-inset); box-shadow: inset 0 0 0 1px var(--line); }
+.c-slider::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  margin-top: -6px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--bg-panel);
+  box-shadow: 0 0 0 1px var(--accent-border);
+  transition: var(--t-fast);
+}
+.c-slider:disabled::-webkit-slider-thumb { background: var(--ink-3); box-shadow: none; }
+.c-slider::-moz-range-track { height: 4px; border-radius: var(--r-full); background: var(--bg-inset); box-shadow: inset 0 0 0 1px var(--line); }
+.c-slider::-moz-range-progress { height: 4px; border-radius: var(--r-full); background: var(--accent); }
+.c-slider::-moz-range-thumb { width: 16px; height: 16px; border-radius: 50%; background: var(--accent); border: 2px solid var(--bg-panel); box-shadow: 0 0 0 1px var(--accent-border); }
+.c-slider:disabled::-moz-range-thumb { background: var(--ink-3); box-shadow: none; }
+
+/* ============ segmented control ============ */
+/* <div class="c-segmented" role="radiogroup" aria-label="View"><label><input type="radio" name="view" checked>Day</label>…</div>
+ * A single-choice group on real radio inputs; the checked label fills. */
+.c-segmented { display: inline-flex; gap: 2px; border: 1px solid var(--line); border-radius: var(--r-sm); padding: 2px; }
+.c-segmented > label {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 13px;
+  border-radius: calc(var(--r-sm) - 2px);
+  font: 500 12.5px var(--f-body);
+  color: var(--ink-2);
+  cursor: pointer;
+  transition: var(--t-fast);
+}
+.c-segmented > label input { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.c-segmented > label:hover { color: var(--ink); }
+.c-segmented > label:has(> input:checked) { background: var(--accent); color: #fff; }
+.c-segmented > label:has(> input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
+.c-segmented > label:has(> input:disabled) { opacity: 0.5; cursor: not-allowed; }
+
+/* ============ combobox ============ */
+/* <div class="c-combobox"><input class="c-field" role="combobox" aria-expanded="false" aria-controls="…" aria-autocomplete="list">
+ *   <ul class="panel c-list" role="listbox" id="…" hidden><li class="c-row" role="option">…</li></ul></div>
+ * A text input wired to a filterable popup listbox; rows reuse .c-list / .c-row. */
+.c-combobox { position: relative; display: block; }
+.c-combobox > input { padding-right: 30px; }
+.c-combobox::after {
+  content: '';
+  position: absolute;
+  right: 13px;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  border-right: 1.5px solid var(--ink-2);
+  border-bottom: 1.5px solid var(--ink-2);
+  transform: translateY(-70%) rotate(45deg);
+  pointer-events: none;
+}
+.c-combobox > .panel {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 100;
+  max-height: 240px;
+  overflow: auto;
+  padding: 4px;
+  background: var(--bg-panel);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-lg);
+}
+.c-combobox > .panel[hidden] { display: none; }
+.c-combobox .c-row[hidden] { display: none; }
+
+/* ============ skeleton ============ */
+/* A loading placeholder — a moving highlight over a flat tone, not colour-cycling. */
+.c-skeleton {
+  display: block;
+  width: 100%;
+  height: 1em;
+  border-radius: var(--r-sm);
+  background-color: var(--bg-inset);
+  background-image: linear-gradient(90deg, transparent 0%, var(--line) 50%, transparent 100%);
+  background-size: 50% 100%;
+  background-repeat: no-repeat;
+  background-position: -50% 0;
+  animation: c-shimmer 1.6s linear infinite;
+}
+.c-skeleton.text { height: 0.8em; border-radius: var(--r-full); }
+.c-skeleton.text:last-child { width: 65%; }
+.c-skeleton.avatar { width: 40px; height: 40px; border-radius: 50%; }
+@keyframes c-shimmer { from { background-position: -50% 0; } to { background-position: 150% 0; } }
+
+/* ============ stat ============ */
+/* <div class="c-stat"><span class="value">1,204</span><span class="label">Active users</span><span class="trend up">▲ 4.2%</span></div>
+ * A trend is colour AND a glyph, never colour alone — put the glyph in the markup. */
+.c-stat { display: grid; gap: 2px; }
+.c-stat .value { font: 700 28px/1.1 var(--f-display); color: var(--ink); font-variant-numeric: tabular-nums; }
+.c-stat .label { font-size: 12.5px; color: var(--ink-3); }
+.c-stat .trend { display: inline-flex; align-items: center; gap: 3px; font: 600 11.5px var(--f-mono); font-variant-numeric: tabular-nums; margin-top: 2px; }
+.c-stat .trend.up { color: var(--success); }
+.c-stat .trend.down { color: var(--error); }
+.c-stat .trend.flat { color: var(--ink-3); }
+
+/* ============ rating ============ */
+/* <span class="c-rating" role="img" aria-label="4.5 out of 5 stars" style="--val: 4.5"></span>
+ * Read-only; the fractional fill is visual only, so the aria-label carries the number. */
+.c-rating {
+  --pct: calc(var(--val, 0) / 5 * 100%);
+  position: relative;
+  display: inline-block;
+  font: 15px/1 var(--f-display);
+  letter-spacing: 0.12em;
+}
+.c-rating::before { content: '★★★★★'; display: block; color: var(--line); }
+.c-rating::after {
+  content: '★★★★★';
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--pct);
+  overflow: hidden;
+  white-space: nowrap;
+  color: var(--accent);
+}
+
+/* ============ stepper ============ */
+/* <ol class="c-stepper"><li class="done">Account</li><li class="current">Shipping</li><li>Payment</li></ol>
+ * Numbers via a CSS counter; a neutral line connects the dots — never an accent rail. */
+.c-stepper { display: flex; list-style: none; counter-reset: c-step; padding: 0; margin: 0; }
+.c-stepper > li {
+  counter-increment: c-step;
+  position: relative;
+  flex: 1 1 0;
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  text-align: center;
+  font: 12px var(--f-body);
+  color: var(--ink-3);
+}
+.c-stepper > li::before {
+  content: counter(c-step);
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--bg-panel);
+  color: var(--ink-2);
+  font: 600 12px var(--f-mono);
+  position: relative;
+  z-index: 1;
+}
+.c-stepper > li:not(:first-child)::after {
+  content: '';
+  position: absolute;
+  right: 50%;
+  top: 13px;
+  width: 100%;
+  height: 1px;
+  background: var(--line);
+}
+.c-stepper > li.done { color: var(--ink); }
+.c-stepper > li.done::before { content: '✓'; background: var(--accent); border-color: var(--accent); color: #fff; }
+.c-stepper > li.current { color: var(--ink); font-weight: 600; }
+.c-stepper > li.current::before { border-color: var(--accent); color: var(--accent); }
+
+/* ============ timeline ============ */
+/* <ol class="c-timeline"><li><time datetime="2026-09-01">Sep 1</time><p>Repo created.</p></li>
+ *   <li class="current"><time datetime="2026-09-09">Sep 9</time><p>Today.</p></li></ol>
+ * A dot marks each item; a neutral line runs behind them in a fixed gutter. */
+.c-timeline { position: relative; list-style: none; padding: 0 0 0 24px; margin: 0; display: grid; row-gap: 16px; }
+.c-timeline::before { content: ''; position: absolute; left: 5px; top: 7px; bottom: 7px; width: 1px; background: var(--line); }
+.c-timeline > li { position: relative; display: grid; gap: 2px; min-width: 0; }
+.c-timeline > li::before {
+  content: '';
+  position: absolute;
+  left: -24px;
+  top: 5px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--bg-panel);
+  border: 1px solid var(--line);
+}
+.c-timeline > li.current::before { background: var(--accent); border-color: var(--accent); }
+.c-timeline > li time { font: 11px var(--f-mono); color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.04em; }
+.c-timeline > li p { margin: 0; font-size: 13px; color: var(--ink-2); line-height: 1.5; }
+
+/* ============ carousel ============ */
+/* <div class="c-carousel"><div class="track">…slides…</div>
+ *   <div class="nav"><button class="c-iconbtn ghost" aria-label="Previous">‹</button><button class="c-iconbtn ghost" aria-label="Next">›</button></div>
+ *   <div class="dots" role="tablist" aria-label="Slide"><button role="tab" aria-selected="true" aria-label="Slide 1"></button>…</div></div>
+ * CSS scroll-snap track; prev/next float over it in the same grid cell; dots show the current slide. */
+.c-carousel { display: grid; }
+.c-carousel > .track {
+  grid-area: 1 / 1;
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  border-radius: var(--r-lg);
+}
+.c-carousel > .track::-webkit-scrollbar { display: none; }
+.c-carousel > .track > * { flex: 0 0 100%; scroll-snap-align: start; min-width: 0; }
+.c-carousel > .nav { grid-area: 1 / 1; align-self: center; display: flex; justify-content: space-between; padding: 0 10px; pointer-events: none; }
+.c-carousel > .nav > * { pointer-events: auto; }
+.c-carousel > .dots { grid-row: 2; display: flex; justify-content: center; gap: 8px; padding-top: 10px; }
+.c-carousel > .dots > button { width: 7px; height: 7px; padding: 0; border: 0; border-radius: 50%; background: var(--line); cursor: pointer; }
+.c-carousel > .dots > button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.c-carousel > .dots > button[aria-selected='true'] { background: var(--accent); }
+
+/* ============ drawer ============ */
+/* .c-dialog.drawer on the same native <dialog> — same showModal()/close() semantics
+ * as .c-dialog, just anchored to an edge instead of centred. Default: right edge;
+ * .left / .top / .bottom pick another edge. */
+.c-dialog.drawer:not([open]) { display: none; }
+.c-dialog.drawer {
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: auto;
+  margin: 0;
+  width: min(360px, 92vw);
+  max-width: none;
+  height: 100vh;
+  height: 100dvh;
+  max-height: none;
+  border-radius: 0;
+  border: 0;
+  border-left: 1px solid var(--line);
+  animation: c-drawer-in-right var(--t-base) both;
+}
+.c-dialog.drawer > .head, .c-dialog.drawer > form > .head { flex-shrink: 0; }
+.c-dialog.drawer > .body, .c-dialog.drawer > form > .body { flex: 1; overflow-y: auto; }
+.c-dialog.drawer > .actions, .c-dialog.drawer > form > .actions { flex-shrink: 0; border-radius: 0; }
+.c-dialog.drawer.left { right: auto; left: 0; border-left: 0; border-right: 1px solid var(--line); animation-name: c-drawer-in-left; }
+.c-dialog.drawer.top {
+  top: 0; right: 0; bottom: auto; left: 0;
+  width: 100vw; max-width: none;
+  height: auto; max-height: min(360px, 80vh);
+  border-left: 0; border-bottom: 1px solid var(--line);
+  animation-name: c-drawer-in-top;
+}
+.c-dialog.drawer.bottom {
+  top: auto; right: 0; bottom: 0; left: 0;
+  width: 100vw; max-width: none;
+  height: auto; max-height: min(360px, 80vh);
+  border-left: 0; border-top: 1px solid var(--line);
+  animation-name: c-drawer-in-bottom;
+}
+@keyframes c-drawer-in-right { from { transform: translateX(16px); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes c-drawer-in-left { from { transform: translateX(-16px); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes c-drawer-in-top { from { transform: translateY(-16px); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes c-drawer-in-bottom { from { transform: translateY(16px); opacity: 0; } to { transform: none; opacity: 1; } }
+
 /* ============ utilities ============ */
 .c-dim { color: var(--ink-3); }
 .c-muted { color: var(--ink-2); }
@@ -1367,7 +1652,7 @@ button.c-row:focus-visible,
 
 /* ============ reduced motion ============ */
 @media (prefers-reduced-motion: reduce) {
-  .c-spinner, .c-toast, .c-dot.pulse::after { animation: none; }
+  .c-spinner, .c-toast, .c-dot.pulse::after, .c-skeleton, .c-dialog.drawer { animation: none; }
   .c-card.hoverable:hover { transform: none; }
   .c-tooltip > .tip, .c-switch input, .c-switch input::before, .c-meter::before, .c-accordion > summary::after, .c-row .actions { transition: none; }
 }

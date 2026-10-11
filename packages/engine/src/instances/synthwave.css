@@ -1,0 +1,340 @@
+/*
+  design-engine — instance: synthwave
+  -----------------------------------------------------------------------------
+  Neon retrofuture: deep indigo night, magenta horizon, perspective grid floor,
+  glowing text and borders. Signature: an outrun nightscape with neon signs.
+
+  Dark-first. The light side is "dayglo": the same sun and grid over a pale
+  dawn sky, with real violet ink and the neons darkened until they read as
+  text. Glows exist only at night — a glow behind dark ink is a smear.
+  Facets: palette / type / shape / layout / fx — see docs/authoring-an-instance.md.
+*/
+
+/* ===== palette ===== */
+@layer de.instances.palette {
+  :where([data-engine], [data-engine] *):where([data-instance="synthwave"]:not([data-palette]), [data-palette="synthwave"]) {
+    /* light side is the "dayglo" mode; dark side is the night default */
+    --de-color-bg:        light-dark(oklch(96% 0.02 320),        oklch(16% 0.05 280));
+    --de-color-surface:   light-dark(oklch(99% 0.01 320 / 0.8),  oklch(20% 0.05 290 / 0.7));
+    --de-color-surface-2: light-dark(oklch(92% 0.04 310),        oklch(24% 0.06 290 / 0.8));
+    --de-color-fg:        light-dark(oklch(22% 0.12 320),        oklch(88% 0.02 300));
+    --de-color-muted:     light-dark(oklch(42% 0.1 320),         oklch(72% 0.04 300));
+    --de-color-faint:     light-dark(oklch(50% 0.09 320),        oklch(60% 0.05 300));
+    --de-color-line:      light-dark(oklch(70% 0.1 320),         oklch(55% 0.12 320));
+    /* control boundaries (inputs, chips, checkboxes) clear 3:1 on the sky */
+    --de-color-edge:      light-dark(oklch(50% 0.13 320),        oklch(62% 0.14 320));
+    /* neon cyan / magenta: bright at night, darkened to ink-weight by day */
+    --de-color-accent:    light-dark(oklch(45% 0.15 200),        oklch(78% 0.16 200));
+    --de-color-accent-2:  light-dark(oklch(46% 0.2 350),         oklch(74% 0.19 350));
+    --de-color-accent-fg: light-dark(oklch(99% 0.01 320),        oklch(16% 0.05 280));
+    --de-overlay-bg:      light-dark(oklch(94% 0.03 300 / 0.8),  oklch(8% 0.04 280 / 0.72));
+  }
+  /* synthwave is dark-first: prefer the night unless the author forces a theme */
+  :where([data-engine], [data-engine] *):where([data-instance="synthwave"]:not([data-palette]), [data-palette="synthwave"]):where(:not([data-theme])) {
+    color-scheme: dark;
+  }
+}
+
+/* ===== type ===== */
+@layer de.instances.type {
+  :where([data-engine], [data-engine] *):where([data-instance="synthwave"]:not([data-type]), [data-type="synthwave"]) {
+    --de-font-body: var(--de-font-system);
+    --de-font-display: var(--de-font-mono);
+    --de-font-code: var(--de-font-mono);
+    --de-text-base: 1.05rem;
+    --de-leading: 1.6;
+    --de-measure: 66ch;
+  }
+
+  @scope (:where([data-engine], [data-engine] *):where([data-instance="synthwave"]:not([data-type]), [data-type="synthwave"])) to ([data-instance], [data-type]) {
+    /* masthead title */
+    :where(:scope) > :where(header) > :where(h1) {
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      font-size: clamp(2rem, 6vw, 3.6rem);
+    }
+    :where(:scope) > :where(header) :where(small) {
+      text-transform: uppercase;
+      letter-spacing: 0.22em;
+      font-size: var(--de-text-xs);
+      font-weight: 700;
+    }
+    :where(section) > :where(h2) {
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    :where(a) {
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+    :where(li) > :where(article) :where(h3) {
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+    :where(button) {
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+  }
+}
+
+/* ===== shape ===== */
+@layer de.instances.shape {
+  :where([data-engine], [data-engine] *):where([data-instance="synthwave"]:not([data-shape]), [data-shape="synthwave"]) {
+    --de-radius-sm: 0;
+    --de-radius-md: 6px;
+    --de-radius-lg: 12px;
+    --de-shadow-opacity: 0.4;
+    --de-shadow-1: 0 0 8px var(--de-color-accent);
+    --de-shadow-2: 0 0 12px var(--de-color-accent), 0 0 28px oklch(74% 0.19 350 / 0.35);
+
+    /* neon-sign cards */
+    --de-card-border: 1px solid var(--de-color-accent);
+    --de-card-radius: var(--de-radius-lg);
+
+    /* neon pill buttons: outlined, hollow */
+    --de-button-bg: transparent;
+    --de-button-fg: var(--de-color-accent);
+    --de-button-border: 1px solid var(--de-color-accent);
+    --de-button-radius: var(--de-radius-full);
+
+    /* neon-bordered inputs: the edge token, so the boundary clears 3:1 */
+    --de-input-fg: var(--de-color-fg);
+    --de-input-border: 1px solid var(--de-color-edge);
+    --de-input-radius: var(--de-radius-sm);
+  }
+
+  @scope (:where([data-engine], [data-engine] *):where([data-instance="synthwave"]:not([data-shape]), [data-shape="synthwave"])) to ([data-instance], [data-shape]) {
+    :where(blockquote) {
+      border: 1px solid var(--de-color-accent-2);
+      border-radius: var(--de-radius-md);
+    }
+    :where(pre) { border: 1px solid var(--de-color-accent); }
+    :where(input, select, textarea):where(:focus-visible) {
+      outline: none;
+      border-color: var(--de-color-accent);
+    }
+
+    /* callouts and banners: neon-framed panels. A note is framed in magenta;
+       status / alert / warn tones keep their own neon. */
+    :where(section > aside, aside[role="note"], aside[role="status"], aside[role="alert"]) {
+      --de-inset: var(--de-space-4);
+      border: 1px solid var(--de-color-accent-2);
+      border-radius: var(--de-radius-md);
+    }
+    :where(aside[role="status"]) { border-color: var(--de-color-ok); }
+    :where(aside[role="alert"])  { border-color: var(--de-color-danger); }
+    :where([data-banner]) {
+      border: 1px solid var(--de-color-accent-2);
+      border-radius: var(--de-radius-md);
+    }
+    :where([data-banner][role="status"], [data-banner][data-tone="ok"]) { border-color: var(--de-color-ok); }
+    :where([data-banner][data-tone="warn"]) { border-color: var(--de-color-warn); }
+    :where([data-banner][role="alert"], [data-banner][data-tone="danger"]) { border-color: var(--de-color-danger); }
+  }
+}
+
+/* ===== layout ===== */
+@layer de.instances.layout {
+  @scope (:where([data-engine], [data-engine] *):where([data-instance="synthwave"]:not([data-layout]), [data-layout="synthwave"])) to ([data-instance], [data-layout]) {
+    /* materials list: grid of neon signs */
+    :where(ul:has(> li > article)) {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+      gap: var(--de-space-4);
+      list-style: none;
+      padding: 0;
+      padding-block: var(--de-space-5);
+    }
+    :where(ul:has(> li > article)) > :where(li) { display: block; }
+    :where(li) > :where(article) {
+      padding: var(--de-space-4);
+      container-type: normal;
+    }
+    :where(blockquote) { padding: var(--de-space-4) var(--de-space-5); }
+    :where([data-banner]) { padding: var(--de-space-3) var(--de-space-4); }
+  }
+}
+
+/* ===== fx ===== */
+@layer de.instances.fx {
+  @scope (:where([data-engine], [data-engine] *):where([data-instance="synthwave"]:not([data-fx]), [data-fx="synthwave"])) to ([data-instance], [data-fx]) {
+    /* nightscape backdrop: gradient sky + glowing sun + perspective grid floor */
+    :where(:scope) {
+      /* the sky has a light side too: a pale dawn behind the same sun and grid */
+      --de-synthwave-sky-1: light-dark(oklch(95% 0.03 300), oklch(16% 0.05 280));
+      --de-synthwave-sky-2: light-dark(oklch(90% 0.06 330), oklch(22% 0.08 320));
+      --de-synthwave-sky-3: light-dark(oklch(93% 0.04 290), oklch(14% 0.06 290));
+      --de-synthwave-sun:   light-dark(oklch(80% 0.16 25 / 0.45), oklch(70% 0.2 25 / 0.55));
+      /* display ink (title, section heads, quotes): near-white at night, deep violet by day */
+      --de-synthwave-ink:   light-dark(oklch(22% 0.12 320), oklch(92% 0.04 300)); /* = body ink by day */
+      /* neon glows: text-shadows are night-only (transparent by day); box halos
+         survive the day at a lower weight and in the darkened neon */
+      --de-synthwave-glow:     light-dark(transparent, var(--de-color-accent));
+      --de-synthwave-glow-2:   light-dark(transparent, var(--de-color-accent-2));
+      --de-synthwave-halo:     light-dark(oklch(45% 0.15 200 / 0.25), oklch(78% 0.16 200 / 0.4));
+      --de-synthwave-halo-2:   light-dark(oklch(46% 0.2 350 / 0.25),  oklch(74% 0.19 350 / 0.4));
+      --de-synthwave-halo-in:  light-dark(oklch(45% 0.15 200 / 0.06), oklch(78% 0.16 200 / 0.1));
+      --de-synthwave-halo-hot: light-dark(oklch(45% 0.15 200 / 0.4),  var(--de-color-accent));
+      /* translucent panels and input wells over the sky */
+      --de-synthwave-panel:    light-dark(oklch(99% 0.01 320 / 0.7), oklch(20% 0.06 290 / 0.7));
+      --de-synthwave-well:     light-dark(oklch(99% 0.01 320 / 0.7), oklch(16% 0.04 290 / 0.6));
+      /* the sky is a VIEWPORT, not a page: the gradient, the sun and the floor
+         are sized in viewport units and pinned with background-attachment /
+         position: fixed, so a tall document does not stretch the sun into an
+         ellipse and a wide window does not smear the horizon. */
+      --de-synthwave-sun-r: min(34vw, 30vh);
+      background-color: var(--de-synthwave-sky-1);
+      background-image:
+        radial-gradient(circle calc(var(--de-synthwave-sun-r) * 1.6) at 50% 34vh, var(--de-synthwave-sun), transparent 62%),
+        linear-gradient(to bottom, var(--de-synthwave-sky-1), var(--de-synthwave-sky-2) 48%, var(--de-synthwave-sky-3));
+      background-attachment: fixed;
+      background-size: 100vw 100vh;
+      background-repeat: no-repeat;
+      position: relative;
+      isolation: isolate;
+    }
+    /* the grid floor, receding to a horizon at mid-viewport */
+    :where(:scope)::before {
+      content: "";
+      position: absolute;
+      inset: 50% 0 0 0;
+      z-index: -1;
+      background-image:
+        repeating-linear-gradient(to right, var(--de-color-line) 0 1px, transparent 1px 72px),
+        repeating-linear-gradient(to bottom, var(--de-color-line) 0 1px, transparent 1px 40px);
+      background-position: center top;
+      transform: perspective(320px) rotateX(62deg);
+      transform-origin: bottom;
+      opacity: 0.5;
+      pointer-events: none;
+    }
+    /* the glowing sun: a circle, centred, sized by the smaller viewport axis */
+    :where(:scope)::after {
+      content: "";
+      position: absolute;
+      inset: 12vh auto auto 50%;
+      translate: -50% 0;
+      inline-size: var(--de-synthwave-sun-r);
+      aspect-ratio: 1;
+      z-index: -1;
+      background: radial-gradient(circle, oklch(80% 0.19 30), oklch(70% 0.2 350) 60%, transparent 70%);
+      border-radius: 50%;
+      filter: blur(2px);
+      pointer-events: none;
+    }
+    /* when the design owns the page (the scope is the engine anchor) the floor
+       and sun are fixed to the viewport; a nested synthwave region keeps them
+       inside its own box */
+    :where(:scope):where([data-engine])::before,
+    :where(:scope):where([data-engine])::after { position: fixed; }
+    :where(:scope):where(:not([data-engine])) { overflow: clip; }
+
+    /* masthead: chromatic-aberration title (the 2px cyan/magenta split stays by day; the bloom is night-only) */
+    :where(:scope) > :where(header) > :where(h1) {
+      color: var(--de-synthwave-ink);
+      text-shadow:
+        2px 0 0 var(--de-color-accent),
+        -2px 0 0 var(--de-color-accent-2),
+        0 0 18px var(--de-synthwave-glow-2);
+    }
+    :where(:scope) > :where(header) :where(small) { color: var(--de-color-accent); }
+
+    /* section headings: glowing, with a neon corner glyph */
+    :where(section) > :where(h2) {
+      color: var(--de-synthwave-ink);
+      text-shadow: 0 0 10px var(--de-synthwave-glow);
+    }
+    :where(section) > :where(h2)::before {
+      content: "◤ ";
+      color: var(--de-color-accent-2);
+    }
+
+    /* links glow */
+    :where(a) {
+      color: var(--de-color-accent);
+      text-shadow: 0 0 8px var(--de-synthwave-glow);
+    }
+
+    /* cards: neon signs */
+    :where(li) > :where(article) {
+      background: var(--de-color-surface);
+      box-shadow: 0 0 10px var(--de-synthwave-halo), inset 0 0 12px var(--de-synthwave-halo-in);
+      transform: none;
+      backdrop-filter: blur(2px);
+    }
+    :where(li) > :where(article):where(:hover) {
+      box-shadow: 0 0 16px var(--de-synthwave-halo-hot), 0 0 32px var(--de-synthwave-halo-2);
+      transform: translateY(-4px);
+    }
+    :where(li) > :where(article) :where(h3) {
+      color: var(--de-color-accent);
+      text-shadow: 0 0 8px var(--de-synthwave-glow);
+    }
+
+    /* blockquote: neon-framed panel */
+    :where(blockquote) {
+      background: var(--de-synthwave-panel);
+      box-shadow: 0 0 14px var(--de-synthwave-halo-2);
+    }
+    :where(blockquote) :where(p) {
+      color: var(--de-synthwave-ink);
+      text-shadow: 0 0 8px var(--de-synthwave-glow-2);
+    }
+
+    /* callouts and banners: the same neon-framed panel, haloed in the frame's tone */
+    :where(section > aside, aside[role="note"], aside[role="status"], aside[role="alert"], [data-banner]) {
+      background: var(--de-synthwave-panel);
+      box-shadow: 0 0 12px var(--de-synthwave-halo-2), inset 0 0 12px var(--de-synthwave-halo-in);
+    }
+    :where(aside[role="status"], [data-banner][role="status"], [data-banner][data-tone="ok"]) {
+      box-shadow: 0 0 12px color-mix(in oklab, var(--de-color-ok) 35%, transparent), inset 0 0 12px var(--de-synthwave-halo-in);
+    }
+    :where([data-banner][data-tone="warn"]) {
+      box-shadow: 0 0 12px color-mix(in oklab, var(--de-color-warn) 35%, transparent), inset 0 0 12px var(--de-synthwave-halo-in);
+    }
+    :where(aside[role="alert"], [data-banner][role="alert"], [data-banner][data-tone="danger"]) {
+      box-shadow: 0 0 12px color-mix(in oklab, var(--de-color-danger) 35%, transparent), inset 0 0 12px var(--de-synthwave-halo-in);
+    }
+
+    /* code: glowing green-on-dark — a night window in both schemes, so it
+       carries the night syntax palette in both schemes too */
+    :where(pre) {
+      --de-sx-kw:    oklch(78% 0.16 350);
+      --de-sx-str:   oklch(78% 0.15 150);
+      --de-sx-fn:    oklch(76% 0.14 230);
+      --de-sx-cm:    oklch(73% 0.02 250);
+      --de-sx-num:   oklch(78% 0.14 300);
+      --de-sx-tag:   oklch(80% 0.13 70);
+      --de-sx-attr:  oklch(78% 0.11 200);
+      --de-sx-punct: oklch(60% 0.05 300);
+      --de-sx-type:  oklch(78% 0.12 290);
+      --de-sx-bool:  oklch(76% 0.15 25);
+      background: oklch(12% 0.04 200);
+      color: oklch(82% 0.18 145);
+      text-shadow: 0 0 8px oklch(82% 0.18 145 / 0.6);
+      box-shadow: 0 0 12px var(--de-synthwave-halo);
+    }
+
+    /* buttons: neon pills */
+    :where(button) {
+      text-shadow: 0 0 8px var(--de-synthwave-glow);
+      box-shadow: 0 0 10px var(--de-synthwave-halo), inset 0 0 8px var(--de-synthwave-halo-in);
+    }
+    :where(form) > :where(p:last-child) > :where(button:last-child),
+    :where(form) > :where(button:last-child) {
+      background: var(--de-color-accent);
+      color: var(--de-color-accent-fg);
+      text-shadow: none;
+    }
+
+    /* inputs: translucent wells with a neon focus glow */
+    :where(input, select, textarea) { background: var(--de-synthwave-well); }
+    :where(input, select, textarea):where(:focus-visible) { box-shadow: 0 0 10px var(--de-color-accent); }
+  }
+}
+/* signature: an outrun nightscape — perspective grid floor, glowing sun, neon signs and chromatic-aberration title. */

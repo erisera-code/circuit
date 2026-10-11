@@ -1,0 +1,2180 @@
+/* ==== tokens.css ==== */
+/*
+ * CIRCUIT DESIGN TOKENS
+ * The erisera OSS design system — one set of tokens, one accent hue per tool.
+ *
+ * Usage:
+ *   import '@erisera-code/circuit/tokens.css';
+ *   import '@erisera-code/circuit/themes.css';   // per-tool --hue overrides
+ *   <html class="theme-matey">              // and optionally .dark
+ *
+ * Three rules keep the family coherent — see README.md:
+ *   1. Neutrals are hue-stable (cool slate) regardless of --hue.
+ *   2. Semantic color (success/warning/error/info) never rotates.
+ *   3. Syntax-highlighting color never rotates.
+ * Only --accent (derived from --hue) changes per tool.
+ *
+ * Two further fixed groups added for the app-chrome tier (shared vocabulary
+ * with jjhub / noitroidvania — see packages/circuit/COMPONENTS.md):
+ *   --scrim        the overlay wash behind <dialog>::backdrop, .c-scrim and
+ *                  any modal layer. Slate-tinted in light, near-black in dark.
+ *   --cat-1 … 6    a six-step categorical ramp for data that is *not* a
+ *                  status (labels, series, lanes). Fixed like the semantic
+ *                  colours — never rotates with --hue — and deliberately
+ *                  distinct from success/warning/error/info so a category
+ *                  never reads as a state. Consumed by .c-ramp[data-step].
+ */
+
+:root {
+  /* ---- accent (the one thing that changes per tool) ---- */
+  --hue: 25; /* default: erisera / matey orange */
+  --accent: hsl(var(--hue) 95% 46%);
+  --accent-hover: hsl(var(--hue) 95% 40%);
+  --accent-soft: hsl(var(--hue) 95% 53% / 0.09);
+  --accent-border: hsl(var(--hue) 95% 46% / 0.35);
+
+  /* ---- semantic states (fixed — never rotate with --hue) ---- */
+  --success: #0f9d63;
+  --success-soft: #0f9d6314;
+  --warning: #b45f06;
+  --warning-soft: #b45f0614;
+  --error: #d13c30;
+  --error-soft: #d13c3014;
+  --info: #1d6fbf;
+  --info-soft: #1d6fbf14;
+
+  /* ---- overlay scrim (fixed) ---- */
+  --scrim: rgba(15, 23, 42, 0.45);
+
+  /* ---- categorical ramp (fixed — never rotates with --hue) ---- */
+  --cat-1: #2563eb; /* blue */
+  --cat-2: #0d9488; /* teal */
+  --cat-3: #7c3aed; /* violet */
+  --cat-4: #db2777; /* pink */
+  --cat-5: #d97706; /* amber */
+  --cat-6: #65a30d; /* lime */
+
+  /* ---- neutral scale (fixed — hue-stable cool slate) ---- */
+  --n-0: #f8fafc;
+  --n-50: #f1f5f9;
+  --n-100: #e2e8f0;
+  --n-200: #cbd5e1;
+  --n-300: #94a3b8;
+  --n-400: #64748b;
+  --n-500: #475569;
+  --n-600: #334155;
+  --n-700: #1e293b;
+  --n-750: #16203a; /* dark-mode-only: panel-on-dark separation */
+  --n-800: #0f172a;
+  --n-900: #0b1120; /* dark-mode-only: deepest surface (code bg) */
+
+  /* ---- semantic surface roles (light) ---- */
+  --bg: var(--n-0);
+  --bg-panel: #ffffff;
+  --bg-inset: var(--n-50);
+  --ink: var(--n-700);
+  --ink-2: var(--n-400);
+  --ink-3: var(--n-300);
+  --line: var(--n-100);
+  --code-bg: var(--n-800);
+  --code-ink: #e2e8f0;
+
+  /* ---- syntax highlighting (fixed — never rotates with --hue) ---- */
+  --sx-kw: #d6337d;    /* keyword */
+  --sx-str: #0f9d63;   /* string */
+  --sx-fn: #1d6fbf;    /* function */
+  --sx-cm: #8b93a1;    /* comment */
+  --sx-num: #9333d6;   /* number */
+  --sx-tag: #b45f06;   /* tag */
+  --sx-attr: #1d8f8f;  /* attribute */
+  --sx-punct: var(--ink-3);
+  --sx-type: #7c4fd6;  /* type / class */
+  --sx-bool: #c0392b;  /* boolean */
+
+  /* ---- type ---- */
+  --f-display: 'JetBrains Mono Variable', 'JetBrains Mono', 'SF Mono', monospace;
+  --f-body: 'IBM Plex Sans Variable', 'IBM Plex Sans', system-ui, sans-serif;
+  --f-mono: 'JetBrains Mono Variable', 'JetBrains Mono', 'SF Mono', monospace;
+
+  /* ---- spacing (4px base unit) ---- */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-8: 32px;
+  --sp-10: 40px;
+  --sp-14: 56px;
+  --sp-20: 80px;
+
+  /* ---- radius ---- */
+  --r-sm: 6px;
+  --r: 8px;
+  --r-lg: 12px;
+  --r-xl: 16px;
+  --r-2xl: 24px;
+  --r-full: 999px;
+
+  /* ---- elevation ---- */
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
+  --shadow-md: 0 4px 10px -2px rgba(15, 23, 42, 0.1);
+  --shadow-lg: 0 14px 32px -8px rgba(15, 23, 42, 0.16);
+  --shadow-accent: 0 6px 18px -4px hsl(var(--hue) 95% 46% / 0.35);
+
+  /* ---- motion ---- */
+  --t-fast: 150ms ease;
+  --t-base: 200ms ease;
+}
+
+/*
+ * Dark mode — three states: system (default, follows the OS), or an
+ * explicit override to dark or light. Shadows switch strategy in dark —
+ * drop shadows read as fog on dark backgrounds, so dark mode uses a 1px
+ * border + accent glow instead.
+ *
+ *   system (default): no class/attribute needed — follows prefers-color-scheme
+ *   explicit dark:     class="dark"  or  data-theme="dark"
+ *   explicit light:    class="light" or  data-theme="light"  (opts out of
+ *                       system-dark even when the OS is in dark mode —
+ *                       this is the state a plain `:root` with no override
+ *                       was missing, which is what made a page default to
+ *                       light while the OS was in dark mode)
+ *
+ * `[data-theme]` is the attribute Starlight (and some other frameworks)
+ * set instead of a class; both are supported everywhere.
+ */
+/*
+ * System-preference default: applied at :root, so any element that
+ * inherits its tokens from :root (i.e. hasn't been given its own
+ * explicit .dark/.light override) resolves to dark automatically when
+ * the OS is in dark mode. An element carrying `.light`/`data-theme="light"`
+ * still wins over this — see below — because a property set directly on
+ * an element always beats one it only inherited from :root, regardless
+ * of which came first in the stylesheet. This is what makes "system" a
+ * real third state rather than always defaulting to light.
+ */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --accent: hsl(var(--hue) 92% 58%);
+    --accent-hover: hsl(var(--hue) 92% 66%);
+    --accent-soft: hsl(var(--hue) 92% 58% / 0.13);
+    --accent-border: hsl(var(--hue) 92% 58% / 0.4);
+
+    --success: #3ecf8e;
+    --success-soft: #3ecf8e17;
+    --warning: #e0a84a;
+    --warning-soft: #e0a84a17;
+    --error: #f0665a;
+    --error-soft: #f0665a17;
+    --info: #5fa8e8;
+    --info-soft: #5fa8e817;
+
+    --scrim: rgba(2, 6, 23, 0.65);
+
+    --cat-1: #60a5fa;
+    --cat-2: #2dd4bf;
+    --cat-3: #a78bfa;
+    --cat-4: #f472b6;
+    --cat-5: #fbbf24;
+    --cat-6: #a3e635;
+
+    --bg: var(--n-800);
+    --bg-panel: var(--n-750);
+    --bg-inset: var(--n-700);
+    --ink: #e2e8f0;
+    --ink-2: var(--n-300);
+    --ink-3: var(--n-500);
+    --line: var(--n-600);
+    --code-bg: var(--n-900);
+    --code-ink: #dbe3ef;
+
+    --sx-kw: #f472b6;
+    --sx-str: #34d399;
+    --sx-fn: #38bdf8;
+    --sx-cm: #7e8aa0;
+    --sx-num: #c084fc;
+    --sx-tag: #f0b35c;
+    --sx-attr: #4fd1d1;
+    --sx-type: #a78bfa;
+    --sx-bool: #f16b5c;
+
+    --shadow-sm: none;
+    --shadow-md: 0 0 0 1px var(--line);
+    --shadow-lg: 0 0 0 1px var(--line), 0 20px 40px -12px rgba(0, 0, 0, 0.5);
+  }
+}
+
+.dark,
+[data-theme='dark'] {
+  --accent: hsl(var(--hue) 92% 58%);
+  --accent-hover: hsl(var(--hue) 92% 66%);
+  --accent-soft: hsl(var(--hue) 92% 58% / 0.13);
+  --accent-border: hsl(var(--hue) 92% 58% / 0.4);
+
+  --success: #3ecf8e;
+  --success-soft: #3ecf8e17;
+  --warning: #e0a84a;
+  --warning-soft: #e0a84a17;
+  --error: #f0665a;
+  --error-soft: #f0665a17;
+  --info: #5fa8e8;
+  --info-soft: #5fa8e817;
+
+  --scrim: rgba(2, 6, 23, 0.65);
+
+  --cat-1: #60a5fa;
+  --cat-2: #2dd4bf;
+  --cat-3: #a78bfa;
+  --cat-4: #f472b6;
+  --cat-5: #fbbf24;
+  --cat-6: #a3e635;
+
+  --bg: var(--n-800);
+  --bg-panel: var(--n-750);
+  --bg-inset: var(--n-700);
+  --ink: #e2e8f0;
+  --ink-2: var(--n-300);
+  --ink-3: var(--n-500);
+  --line: var(--n-600);
+  --code-bg: var(--n-900);
+  --code-ink: #dbe3ef;
+
+  --sx-kw: #f472b6;
+  --sx-str: #34d399;
+  --sx-fn: #38bdf8;
+  --sx-cm: #7e8aa0;
+  --sx-num: #c084fc;
+  --sx-tag: #f0b35c;
+  --sx-attr: #4fd1d1;
+  --sx-type: #a78bfa;
+  --sx-bool: #f16b5c;
+
+  --shadow-sm: none;
+  --shadow-md: 0 0 0 1px var(--line);
+  --shadow-lg: 0 0 0 1px var(--line), 0 20px 40px -12px rgba(0, 0, 0, 0.5);
+}
+
+/*
+ * Explicit light override — re-declares the same values :root already
+ * uses in light mode. Necessary so that an element with `.light`/
+ * `data-theme="light"` stays light even when the OS is in dark mode
+ * (the system-dark block above only sets values at :root; an element
+ * that inherited dark from :root needs its own direct declaration to
+ * win back to light — inheritance always loses to a direct match).
+ */
+.light,
+[data-theme='light'] {
+  --accent: hsl(var(--hue) 95% 46%);
+  --accent-hover: hsl(var(--hue) 95% 40%);
+  --accent-soft: hsl(var(--hue) 95% 53% / 0.09);
+  --accent-border: hsl(var(--hue) 95% 46% / 0.35);
+
+  --success: #0f9d63;
+  --success-soft: #0f9d6314;
+  --warning: #b45f06;
+  --warning-soft: #b45f0614;
+  --error: #d13c30;
+  --error-soft: #d13c3014;
+  --info: #1d6fbf;
+  --info-soft: #1d6fbf14;
+
+  --scrim: rgba(15, 23, 42, 0.45);
+
+  --cat-1: #2563eb;
+  --cat-2: #0d9488;
+  --cat-3: #7c3aed;
+  --cat-4: #db2777;
+  --cat-5: #d97706;
+  --cat-6: #65a30d;
+
+  --bg: var(--n-0);
+  --bg-panel: #ffffff;
+  --bg-inset: var(--n-50);
+  --ink: var(--n-700);
+  --ink-2: var(--n-400);
+  --ink-3: var(--n-300);
+  --line: var(--n-100);
+  --code-bg: var(--n-800);
+  --code-ink: #e2e8f0;
+
+  --sx-kw: #d6337d;
+  --sx-str: #0f9d63;
+  --sx-fn: #1d6fbf;
+  --sx-cm: #8b93a1;
+  --sx-num: #9333d6;
+  --sx-tag: #b45f06;
+  --sx-attr: #1d8f8f;
+  --sx-type: #7c4fd6;
+  --sx-bool: #c0392b;
+
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
+  --shadow-md: 0 4px 10px -2px rgba(15, 23, 42, 0.1);
+  --shadow-lg: 0 14px 32px -8px rgba(15, 23, 42, 0.16);
+}
+
+/* Opt-in signature grid texture — a utility, not a token (page-layout concern) */
+.circuit-grid {
+  background-image:
+    linear-gradient(rgba(148, 163, 184, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.07) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+.dark.circuit-grid,
+[data-theme='dark'] .circuit-grid {
+  background-image:
+    linear-gradient(rgba(148, 163, 184, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.05) 1px, transparent 1px);
+}
+@media (prefers-color-scheme: dark) {
+  .circuit-grid:not(.light):not([data-theme='light']) {
+    background-image:
+      linear-gradient(rgba(148, 163, 184, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(148, 163, 184, 0.05) 1px, transparent 1px);
+  }
+}
+
+
+/* ==== themes.css ==== */
+/*
+ * CIRCUIT — per-tool hue themes
+ *
+ * The hue registry keeps every erisera product — closed and open source —
+ * perceptually distinct on one color wheel. Existing closed products own a
+ * hue plus a ±20° buffer; every new OSS theme below sits outside all buffers.
+ *
+ * Registry (see docs/hue-registry.md for the full table + wheel diagram):
+ *   erisera default / matey   25°   (root default — no class needed)
+ *   nominos                  199°   existing, closed — buffer 179–219°
+ *   nominos-core             142°   existing, closed — buffer 122–162°
+ *   blog                     160°   existing, closed — buffer 140–180°
+ *   objectify                 70°   new, OSS
+ *   andbox                    95°   new, OSS
+ *   mcp-query                250°   new, OSS
+ *   ecmanim                  285°   new, OSS
+ *   clawser                  340°   new, OSS
+ *
+ * Blocked union: [122°, 219°]. Free arcs: (45°, 122°) and (219°, 365°).
+ * Adding a 7th OSS tool? Pick a hue in a free arc, ≥20° from every
+ * existing stop (open or closed).
+ */
+
+.theme-matey {
+  --hue: 25;
+}
+.theme-objectify {
+  --hue: 70;
+}
+.theme-andbox {
+  --hue: 95;
+}
+.theme-mcp-query {
+  --hue: 250;
+}
+.theme-ecmanim {
+  --hue: 285;
+}
+.theme-clawser {
+  --hue: 340;
+}
+
+
+/* ==== components.css ==== */
+/*
+ * CIRCUIT COMPONENTS
+ * Requires tokens.css (and optionally themes.css) to be loaded first.
+ */
+
+/* ============ docs shell ============ */
+.c-header {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  padding: 0 28px;
+  height: 60px;
+  background: var(--bg-panel);
+  border-bottom: 1px solid var(--line);
+  border-top: 2px solid var(--accent);
+}
+.c-header .c-logo {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-family: var(--f-display);
+  font-size: 16px;
+}
+.c-header .c-logo .co {
+  color: var(--ink-3);
+  font-weight: 400;
+}
+.c-header .c-logo .co::after {
+  content: ' /';
+  color: var(--ink-3);
+}
+.c-header .c-logo .tool {
+  color: var(--ink);
+  font-weight: 700;
+}
+.c-header .c-logo .ver {
+  font-family: var(--f-mono);
+  font-size: 10.5px;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-radius: var(--r-sm);
+  padding: 2px 7px;
+}
+.c-header nav {
+  display: flex;
+  gap: 18px;
+  font-size: 13.5px;
+}
+.c-header nav a {
+  color: var(--ink-2);
+  text-decoration: none;
+}
+.c-header nav a[aria-current] {
+  color: var(--accent);
+}
+
+.c-side {
+  font-size: 13.5px;
+}
+.c-side h5 {
+  margin: 20px 0 8px;
+  font-family: var(--f-display);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  font-weight: 600;
+}
+.c-side h5:first-child {
+  margin-top: 0;
+}
+.c-side ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.c-side a {
+  display: block;
+  color: var(--ink-2);
+  text-decoration: none;
+  padding: 5px 10px;
+  border-radius: var(--r-sm);
+  border-left: 2px solid transparent;
+}
+.c-side a:hover {
+  color: var(--ink);
+}
+.c-side a.on {
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-left-color: var(--accent);
+}
+
+.c-crumb {
+  font: 12px var(--f-mono);
+  color: var(--ink-3);
+}
+.c-crumb b {
+  color: var(--ink-2);
+  font-weight: 500;
+}
+
+.c-pager {
+  display: flex;
+  gap: 14px;
+}
+.c-pager a {
+  flex: 1;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: 13px 16px;
+  text-decoration: none;
+  color: var(--ink);
+  background: var(--bg-panel);
+}
+.c-pager a:hover {
+  border-color: var(--accent);
+}
+.c-pager .dir {
+  font: 10.5px var(--f-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-3);
+  display: block;
+  margin-bottom: 4px;
+}
+.c-pager .next {
+  text-align: right;
+}
+.c-pager .t {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* ============ code block ============ */
+.c-codebox {
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--code-bg);
+  overflow: hidden;
+}
+.c-codebox .cap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 14px;
+  border-bottom: 1px solid var(--line);
+  font: 11px var(--f-mono);
+  color: var(--ink-3);
+}
+.c-codebox .cap .cp {
+  margin-left: auto;
+  font: 11px var(--f-mono);
+  color: var(--ink-2);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 3px 9px;
+  cursor: pointer;
+}
+.c-codebox .cap .cp:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+.c-codebox pre {
+  margin: 0;
+  padding: 16px 18px;
+  overflow-x: auto;
+  font: 13px/1.65 var(--f-mono);
+  color: var(--code-ink);
+}
+.sx-kw { color: var(--sx-kw); }
+.sx-str { color: var(--sx-str); }
+.sx-fn { color: var(--sx-fn); }
+.sx-cm { color: var(--sx-cm); font-style: italic; }
+.sx-num { color: var(--sx-num); }
+.sx-tag { color: var(--sx-tag); }
+.sx-attr { color: var(--sx-attr); }
+.sx-punct { color: var(--sx-punct); }
+.sx-type { color: var(--sx-type); }
+.sx-bool { color: var(--sx-bool); font-weight: 600; }
+
+/* ============ code groups (package-manager tabs) ============ */
+.c-codegroup .cgtabs {
+  display: flex;
+  gap: 2px;
+}
+.c-codegroup .cgtabs button {
+  font: 12px var(--f-mono);
+  background: var(--bg-inset);
+  color: var(--ink-2);
+  border: 1px solid var(--line);
+  border-bottom: none;
+  border-radius: var(--r-sm) var(--r-sm) 0 0;
+  padding: 7px 14px;
+  cursor: pointer;
+  position: relative;
+  top: 1px;
+}
+.c-codegroup .cgtabs button.on {
+  background: var(--code-bg);
+  color: var(--code-ink);
+  border-color: var(--line);
+}
+.c-codegroup .c-codebox {
+  border-radius: 0 var(--r-lg) var(--r-lg) var(--r-lg);
+}
+
+/* ============ terminal / output block ============ */
+.c-termbox {
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--code-bg);
+  overflow: hidden;
+}
+.c-termbox .twin {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--line);
+}
+.c-termbox .twin i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.c-termbox .twin i:nth-child(1) { background: #f0665a; }
+.c-termbox .twin i:nth-child(2) { background: #e0a84a; }
+.c-termbox .twin i:nth-child(3) { background: #3ecf8e; }
+.c-termbox pre {
+  margin: 0;
+  padding: 14px 18px;
+  font: 12.5px/1.7 var(--f-mono);
+  color: var(--code-ink);
+}
+.c-termbox .prompt { color: var(--accent); }
+.c-termbox .out { color: var(--ink-3); }
+
+/* ============ admonitions ============ */
+.c-callout {
+  display: flex;
+  gap: 10px;
+  border: 1px solid var(--line);
+  padding: 11px 13px;
+}
+.c-callout.warning { border-color: var(--warning); }
+.c-callout.tip { border-color: var(--success); }
+.c-callout.danger { border-color: var(--error); }
+.c-callout .ic { font-family: var(--f-mono); font-size: 12px; color: var(--accent); }
+.c-callout.warning .ic { color: var(--warning); }
+.c-callout.tip .ic { color: var(--success); }
+.c-callout.danger .ic { color: var(--error); }
+.c-callout p { margin: 0; font-size: 12.5px; line-height: 1.55; color: var(--ink); }
+.c-callout b { color: var(--ink); }
+
+/* ============ API parameter list ============ */
+.c-paramlist {
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  background: var(--bg-panel);
+}
+.c-paramrow {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  flex-wrap: wrap;
+  padding: 12px 15px;
+  border-bottom: 1px solid var(--line);
+}
+.c-paramrow:last-child { border-bottom: 0; }
+.c-paramrow .pname { font: 700 13px var(--f-mono); color: var(--ink); }
+.c-paramrow .ptype { font: 12px var(--f-mono); color: var(--accent); }
+.c-paramrow .pdefault { font: 11.5px var(--f-mono); color: var(--ink-3); }
+.c-paramrow .preq {
+  font: 10px var(--f-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 1px 7px;
+  border-radius: var(--r-sm);
+  margin-left: auto;
+}
+.c-paramrow .preq.required { background: var(--error-soft); color: var(--error); }
+.c-paramrow .preq.optional { background: var(--bg-inset); color: var(--ink-3); }
+.c-paramrow .pdesc { flex-basis: 100%; font-size: 13px; color: var(--ink-2); line-height: 1.55; }
+
+/* ============ buttons ============ */
+.c-btn {
+  font: 600 13px var(--f-body);
+  border-radius: var(--r-sm);
+  padding: 8px 15px;
+  cursor: pointer;
+  transition: var(--t-fast);
+}
+.c-btn.primary { background: var(--accent); color: #fff; border: 1px solid transparent; }
+.c-btn.primary:hover { background: var(--accent-hover); }
+.c-btn.primary:active { background: var(--accent-hover); box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2); }
+.c-btn.primary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.c-btn.primary:disabled { opacity: 0.4; cursor: not-allowed; }
+.c-btn.secondary { background: var(--bg-inset); color: var(--ink); border: 1px solid var(--line); }
+.c-btn.secondary:hover { border-color: var(--accent); color: var(--accent); }
+.c-btn.ghost { background: transparent; color: var(--accent); border: 1px solid transparent; padding: 8px 10px; }
+.c-btn.ghost:hover { background: var(--accent-soft); }
+.c-btn.danger { background: var(--error); color: #fff; border: 1px solid transparent; }
+.c-btn.danger:hover { filter: brightness(0.92); }
+.c-btn.danger:active { box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2); }
+.c-btn.outline { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+.c-btn.outline:hover { border-color: var(--accent); color: var(--accent); }
+.c-btn:disabled, .c-btn[aria-disabled='true'] { opacity: 0.4; cursor: not-allowed; }
+.c-btn .c-spinner { margin-right: 6px; }
+.c-btn.primary .c-spinner, .c-btn.danger .c-spinner { border-color: rgba(255, 255, 255, 0.35); border-top-color: #fff; }
+
+/* ============ icon button ============ */
+/* Square, glyph-only. Always give it an aria-label (or a .c-tooltip wrapper). */
+.c-iconbtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  font: 14px/1 var(--f-mono);
+  color: var(--ink-2);
+  background: var(--bg-inset);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  transition: var(--t-fast);
+  flex-shrink: 0;
+}
+.c-iconbtn:hover { color: var(--accent); border-color: var(--accent); }
+.c-iconbtn.ghost { background: transparent; border-color: transparent; }
+.c-iconbtn.ghost:hover { background: var(--accent-soft); border-color: transparent; }
+.c-iconbtn.outline { background: transparent; }
+.c-iconbtn.danger:hover { color: var(--error); border-color: var(--error); background: var(--error-soft); }
+.c-iconbtn.sm { width: 26px; height: 26px; font-size: 12px; }
+.c-iconbtn.lg { width: 40px; height: 40px; font-size: 16px; }
+.c-iconbtn:disabled { opacity: 0.4; cursor: not-allowed; }
+.c-iconbtn svg { width: 1em; height: 1em; }
+
+/* ============ link button ============ */
+/* A <button> that reads as inline text — for "Undo", "Show more", toast actions. */
+.c-linkbtn {
+  display: inline;
+  padding: 0;
+  margin: 0;
+  background: none;
+  border: 0;
+  font: inherit;
+  color: var(--accent);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-color: var(--accent-border);
+  transition: var(--t-fast);
+}
+.c-linkbtn:hover { color: var(--accent-hover); text-decoration-color: currentColor; }
+.c-linkbtn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ============ button group / split button ============ */
+/* Joined segments. .c-split is a group whose last segment is a narrow caret —
+ * a plain <button> or a .c-menu <summary> (details-backed dropdown). */
+.c-btngroup, .c-split { display: inline-flex; align-items: stretch; }
+.c-btngroup > .c-btn, .c-btngroup > .c-iconbtn, .c-btngroup > .c-menu > summary,
+.c-split > .c-btn, .c-split > .c-iconbtn, .c-split > .c-menu > summary { border-radius: 0; }
+.c-btngroup > :first-child, .c-btngroup > :first-child > summary,
+.c-split > :first-child, .c-split > :first-child > summary { border-start-start-radius: var(--r-sm); border-end-start-radius: var(--r-sm); }
+.c-btngroup > :last-child, .c-btngroup > :last-child > summary,
+.c-split > :last-child, .c-split > :last-child > summary { border-start-end-radius: var(--r-sm); border-end-end-radius: var(--r-sm); }
+.c-btngroup > * + *, .c-split > * + * { margin-left: -1px; }
+.c-btngroup > :hover, .c-btngroup > :focus-visible, .c-btngroup > .c-menu:hover,
+.c-split > :hover, .c-split > :focus-visible, .c-split > .c-menu:hover { position: relative; z-index: 1; }
+.c-split > .c-btn:last-child, .c-split > .c-menu > summary.c-btn { padding-left: 9px; padding-right: 9px; }
+.c-btngroup > .primary + .primary, .c-split > .primary + .primary,
+.c-split > .primary + .c-menu > summary.primary { border-left-color: rgba(255, 255, 255, 0.3); }
+.c-btngroup > .danger + .danger, .c-split > .danger + .danger,
+.c-split > .danger + .c-menu > summary.danger { border-left-color: rgba(255, 255, 255, 0.3); }
+
+
+/* ============ input ============ */
+.c-field {
+  width: 100%;
+  font: 13px var(--f-body);
+  border-radius: var(--r-sm);
+  border: 1px solid var(--line);
+  background: var(--bg-panel);
+  color: var(--ink);
+  padding: 8px 11px;
+}
+.c-field:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.c-field.is-error { border-color: var(--error); box-shadow: 0 0 0 3px var(--error-soft); }
+.c-field:disabled { opacity: 0.5; background: var(--bg-inset); }
+.c-fieldnote { font: 11px var(--f-mono); color: var(--error); margin-top: 5px; }
+.c-field::placeholder { color: var(--ink-3); }
+.c-field:read-only:not(:disabled) { background: var(--bg-inset); color: var(--ink-2); }
+.c-field.mono { font: 12.5px var(--f-mono); }
+textarea.c-field { min-height: 88px; line-height: 1.55; resize: vertical; }
+select.c-field { appearance: none; -webkit-appearance: none; padding-right: 30px; cursor: pointer; }
+select.c-field:disabled { cursor: not-allowed; }
+/* wrap a <select class="c-field"> in .c-select to draw the chevron from tokens */
+.c-select { position: relative; display: block; }
+.c-select::after {
+  content: '';
+  position: absolute;
+  right: 13px;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  border-right: 1.5px solid var(--ink-2);
+  border-bottom: 1.5px solid var(--ink-2);
+  transform: translateY(-70%) rotate(45deg);
+  pointer-events: none;
+}
+
+/* ============ form field group ============ */
+/* label + control + hint (+ .c-fieldnote for the error line). */
+.c-form { display: flex; flex-direction: column; gap: 6px; }
+.c-form + .c-form { margin-top: 14px; }
+.c-form.inline { flex-direction: row; align-items: center; gap: 10px; }
+.c-form.inline .c-label { flex-shrink: 0; }
+.c-form .c-fieldnote { margin-top: 0; }
+.c-label { font: 600 11.5px var(--f-mono); color: var(--ink-2); letter-spacing: 0.02em; }
+.c-label .req { color: var(--error); margin-left: 3px; }
+.c-label .opt { color: var(--ink-3); font-weight: 400; margin-left: 6px; }
+.c-hint { font: 11px/1.5 var(--f-mono); color: var(--ink-3); }
+
+/* ============ checkbox / radio / switch ============ */
+/* Native inputs. Check and radio keep the UA drawing tinted by accent-color;
+ * the switch is appearance:none and drawn here. Wrap in the label class. */
+.c-check, .c-radio, .c-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font: 13px var(--f-body);
+  color: var(--ink);
+  cursor: pointer;
+  user-select: none;
+}
+.c-check input, .c-radio input {
+  width: 15px;
+  height: 15px;
+  margin: 0;
+  accent-color: var(--accent);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.c-switch input {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 32px;
+  height: 18px;
+  margin: 0;
+  border: 0;
+  border-radius: var(--r-full);
+  background: var(--ink-3);
+  position: relative;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background var(--t-fast);
+}
+.c-switch input::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--bg-panel);
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--t-fast);
+}
+.c-switch input:checked { background: var(--accent); }
+.c-switch input:checked::before { transform: translateX(14px); }
+.c-check input:disabled, .c-radio input:disabled, .c-switch input:disabled { opacity: 0.5; cursor: not-allowed; }
+.c-check:has(input:disabled), .c-radio:has(input:disabled), .c-switch:has(input:disabled) { color: var(--ink-3); cursor: not-allowed; }
+.c-check .c-hint, .c-radio .c-hint, .c-switch .c-hint { display: block; }
+.c-choices { display: flex; flex-direction: column; gap: 8px; }
+.c-choices.inline { flex-direction: row; flex-wrap: wrap; gap: 16px; }
+
+
+/* ============ badges ============ */
+.c-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font: 600 11px var(--f-mono);
+  padding: 3px 9px;
+  border-radius: var(--r-full);
+}
+.c-badge.accent { background: var(--accent-soft); color: var(--accent); }
+.c-badge.success { background: var(--success-soft); color: var(--success); }
+.c-badge.warning { background: var(--warning-soft); color: var(--warning); }
+.c-badge.error { background: var(--error-soft); color: var(--error); }
+.c-badge.neutral { background: var(--bg-inset); color: var(--ink-2); border: 1px solid var(--line); }
+
+/* ============ tabs ============ */
+.c-tabbar {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--line);
+}
+.c-tabbar .tab {
+  font: 12.5px var(--f-body);
+  padding: 8px 4px;
+  color: var(--ink-2);
+  border-bottom: 2px solid transparent;
+  margin-right: 14px;
+  cursor: pointer;
+}
+.c-tabbar .tab:hover { color: var(--ink); }
+.c-tabbar .tab.on { color: var(--accent); border-bottom-color: var(--accent); }
+
+/*
+ * ---- app-chrome tier ----
+ * Everything below is the shared component vocabulary cross-reproduced with
+ * jjhub and noitroidvania (see COMPONENTS.md). Layering, top to bottom:
+ * scrim 300 (matches .c-palette-backdrop) · toasts 250 · menus/tooltips 100.
+ * <dialog> and [popover] live in the browser's top layer and need no z-index.
+ */
+
+/* ============ status dot ============ */
+.c-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--ink-3);
+  vertical-align: middle;
+  position: relative;
+  flex-shrink: 0;
+}
+.c-dot.idle, .c-dot.pending { background: var(--ink-3); }
+.c-dot.live, .c-dot.success { background: var(--success); }
+.c-dot.running, .c-dot.info { background: var(--info); }
+.c-dot.warning { background: var(--warning); }
+.c-dot.error { background: var(--error); }
+.c-dot.accent { background: var(--accent); }
+.c-dot.pulse::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: inherit;
+  animation: c-pulse 1.6s ease-out infinite;
+}
+@keyframes c-pulse {
+  from { transform: scale(1); opacity: 0.6; }
+  to { transform: scale(2.6); opacity: 0; }
+}
+
+/* ============ chip ============ */
+/* A removable / countable noun (a tag, a filter, a person). */
+.c-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: 500 12px var(--f-body);
+  padding: 3px 10px;
+  border-radius: var(--r-full);
+  background: var(--bg-inset);
+  border: 1px solid var(--line);
+  color: var(--ink);
+  white-space: nowrap;
+}
+.c-chip:has(> .x) { padding-right: 5px; }
+.c-chip .count { font: 600 10.5px var(--f-mono); color: var(--ink-3); }
+.c-chip .c-avatar, .c-chip .c-dot { margin-left: -5px; }
+.c-chip.accent { background: var(--accent-soft); border-color: var(--accent-border); color: var(--accent); }
+.c-chip.accent .count { color: var(--accent); opacity: 0.75; }
+/* shared dismiss glyph button — chips, banners, toasts, dialog head */
+.c-chip .x, .c-banner .x, .c-toast .x, .c-dialog .x {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink-3);
+  font: 13px/1 var(--f-mono);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: var(--t-fast);
+}
+.c-chip .x { width: 16px; height: 16px; font-size: 12px; }
+.c-chip .x:hover, .c-banner .x:hover, .c-toast .x:hover, .c-dialog .x:hover { background: var(--error-soft); color: var(--error); }
+
+/* ============ card ============ */
+.c-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--bg-panel);
+  box-shadow: var(--shadow-sm);
+  color: var(--ink);
+}
+.c-card > .head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line);
+  font: 600 13.5px var(--f-body);
+  color: var(--ink);
+}
+.c-card > .head .sub { font: 11px var(--f-mono); color: var(--ink-3); font-weight: 400; }
+.c-card > .head .actions { margin-left: auto; display: flex; gap: 6px; }
+.c-card > .body { flex: 1; padding: 14px 16px; font-size: 13.5px; line-height: 1.6; color: var(--ink-2); }
+.c-card > .body > :first-child { margin-top: 0; }
+.c-card > .body > :last-child { margin-bottom: 0; }
+.c-card > .foot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-top: 1px solid var(--line);
+  background: var(--bg-inset);
+  border-radius: 0 0 var(--r-lg) var(--r-lg);
+  font-size: 12.5px;
+  color: var(--ink-2);
+}
+.c-card > .foot .actions { margin-left: auto; display: flex; gap: 6px; }
+.c-card.compact > .head { padding: 9px 12px; font-size: 13px; }
+.c-card.compact > .body { padding: 10px 12px; font-size: 13px; }
+.c-card.compact > .foot { padding: 7px 12px; }
+.c-card.hoverable { transition: var(--t-fast); }
+.c-card.hoverable:hover { border-color: var(--accent-border); box-shadow: var(--shadow-md); transform: translateY(-1px); }
+/* .clickable works on <a>, <button> and <div tabindex=0 role=button> alike */
+.c-card.clickable { cursor: pointer; text-decoration: none; text-align: left; font: inherit; padding: 0; width: 100%; }
+.c-card.clickable:hover { border-color: var(--accent); }
+
+/* ============ banner ============ */
+/* Inline alert with an action row and a dismiss. Same tone family as .c-callout. */
+.c-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border: 1px solid var(--line);
+  color: var(--ink);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.c-banner .ic { font: 12px var(--f-mono); color: var(--accent); flex-shrink: 0; }
+.c-banner .msg { flex: 1; min-width: 0; }
+.c-banner .msg b { color: var(--ink); }
+.c-banner .actions { display: flex; gap: 6px; flex-shrink: 0; }
+.c-banner.success { border-color: var(--success); }
+.c-banner.success .ic { color: var(--success); }
+.c-banner.warning { border-color: var(--warning); }
+.c-banner.warning .ic { color: var(--warning); }
+.c-banner.error { border-color: var(--error); }
+.c-banner.error .ic { color: var(--error); }
+.c-banner.info { border-color: var(--info); }
+.c-banner.info .ic { color: var(--info); }
+.c-banner.neutral { border-color: var(--line); }
+.c-banner.neutral .ic { color: var(--ink-3); }
+
+/* ============ toast + tray ============ */
+/* .c-toasts is the fixed tray; position modifiers match the React tier
+ * (bottom-right default). Tones colour the glyph, never the surface. */
+.c-toasts {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 250;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: min(360px, calc(100vw - 32px));
+  pointer-events: none;
+}
+.c-toasts > * { pointer-events: auto; }
+.c-toasts.bottom-left { left: 16px; right: auto; }
+.c-toasts.top-right { top: 16px; bottom: auto; }
+.c-toasts.top-left { left: 16px; right: auto; top: 16px; bottom: auto; }
+.c-toasts.top-center { left: 50%; right: auto; top: 16px; bottom: auto; transform: translateX(-50%); }
+.c-toasts.bottom-center { left: 50%; right: auto; transform: translateX(-50%); }
+.c-toast {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 11px 12px;
+  background: var(--bg-panel);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-lg);
+  font-size: 13px;
+  color: var(--ink);
+  animation: c-toast-in var(--t-base) both;
+}
+.c-toast .ic { font: 12px var(--f-mono); color: var(--accent); padding-top: 2px; flex-shrink: 0; }
+.c-toast .msg { flex: 1; min-width: 0; line-height: 1.5; }
+.c-toast .title { display: block; font-weight: 600; }
+.c-toast .msg .c-linkbtn { display: inline-block; margin-top: 4px; font-size: 12.5px; }
+.c-toast .c-spinner { margin-top: 2px; }
+.c-toast.success .ic { color: var(--success); }
+.c-toast.warning .ic { color: var(--warning); }
+.c-toast.error .ic { color: var(--error); }
+.c-toast.info .ic { color: var(--info); }
+@keyframes c-toast-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* ============ dialog ============ */
+/* Styles a native <dialog>. Open with .showModal(); a <form method="dialog">
+ * may wrap head/body/actions. .confirm is the compact yes/no variant. */
+.c-dialog {
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--r-xl);
+  background: var(--bg-panel);
+  color: var(--ink);
+  box-shadow: var(--shadow-lg);
+  width: min(480px, calc(100vw - 32px));
+  max-height: calc(100vh - 64px);
+  font: 13.5px var(--f-body);
+}
+.c-dialog::backdrop {
+  /* literal fallback only for engines whose ::backdrop can't read custom properties */
+  background: rgba(15, 23, 42, 0.45);
+  background: var(--scrim);
+  backdrop-filter: blur(2px);
+}
+.c-dialog form { display: contents; }
+.c-dialog > .head, .c-dialog > form > .head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--line);
+  font: 650 15px var(--f-display);
+  color: var(--ink);
+}
+.c-dialog > .head .x, .c-dialog > form > .head .x { margin-left: auto; }
+.c-dialog > .body, .c-dialog > form > .body { padding: 16px 18px; line-height: 1.6; color: var(--ink-2); }
+.c-dialog > .body > :first-child, .c-dialog > form > .body > :first-child { margin-top: 0; }
+.c-dialog > .body > :last-child, .c-dialog > form > .body > :last-child { margin-bottom: 0; }
+.c-dialog > .actions, .c-dialog > form > .actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 18px;
+  border-top: 1px solid var(--line);
+  background: var(--bg-inset);
+  border-radius: 0 0 var(--r-xl) var(--r-xl);
+}
+.c-dialog .actions .start { margin-right: auto; }
+.c-dialog.confirm { width: min(380px, calc(100vw - 32px)); border-radius: var(--r-lg); }
+.c-dialog.confirm > .head, .c-dialog.confirm > form > .head { border-bottom: 0; padding: 16px 18px 2px; font-size: 14px; }
+.c-dialog.confirm > .body, .c-dialog.confirm > form > .body { padding: 6px 18px 14px; font-size: 13px; }
+.c-dialog.confirm > .actions, .c-dialog.confirm > form > .actions { border-top: 0; background: transparent; padding: 0 18px 16px; }
+
+/* ============ popover ============ */
+/* Styles a [popover]. Centred by the UA by default; .anchored sits under its
+ * invoker (popovertarget) where CSS anchor positioning exists, and falls
+ * back to centred everywhere else. */
+.c-popover {
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--bg-panel);
+  color: var(--ink);
+  box-shadow: var(--shadow-lg);
+  min-width: 220px;
+  max-width: 320px;
+  font: 13px/1.55 var(--f-body);
+}
+.c-popover::backdrop { background: transparent; }
+.c-popover .head { font: 600 13px var(--f-body); color: var(--ink); margin-bottom: 4px; }
+.c-popover .desc { color: var(--ink-2); font-size: 12.5px; }
+.c-popover .actions { display: flex; justify-content: flex-end; gap: 6px; margin-top: 10px; }
+@supports (position-area: bottom) {
+  .c-popover.anchored {
+    inset: auto;
+    margin: 6px 0 0;
+    position-area: bottom span-right;
+    position-try-fallbacks: flip-block, flip-inline;
+  }
+  .c-popover.anchored.end { position-area: bottom span-left; }
+}
+
+/* ============ tooltip ============ */
+/* Pure CSS: <span class="c-tooltip">trigger<span class="tip" role="tooltip">…</span></span>
+ * Shows on hover and on keyboard focus of the trigger. */
+.c-tooltip { position: relative; display: inline-flex; }
+.c-tooltip > .tip {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 6px);
+  transform: translateX(-50%) translateY(2px);
+  z-index: 100;
+  background: var(--code-bg);
+  color: var(--code-ink);
+  font: 11px/1.4 var(--f-mono);
+  padding: 4px 8px;
+  border-radius: var(--r-sm);
+  box-shadow: var(--shadow-md);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--t-fast), transform var(--t-fast);
+}
+.c-tooltip:hover > .tip, .c-tooltip:focus-within > .tip { opacity: 1; transform: translateX(-50%) translateY(0); }
+.c-tooltip.bottom > .tip { bottom: auto; top: calc(100% + 6px); transform: translateX(-50%) translateY(-2px); }
+.c-tooltip.bottom:hover > .tip, .c-tooltip.bottom:focus-within > .tip { transform: translateX(-50%) translateY(0); }
+
+/* ============ dropdown menu ============ */
+/* <details class="c-menu"><summary class="c-btn secondary">…</summary><div class="items">…</div></details>
+ * Items are <button class="item"> or <a class="item">; .sep is an <hr>. */
+.c-menu { position: relative; display: inline-block; }
+.c-menu > summary { list-style: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+.c-menu > summary::-webkit-details-marker { display: none; }
+.c-menu > summary::after { content: '▾'; font: 11px var(--f-mono); opacity: 0.7; }
+.c-menu[open] > summary::after { content: '▴'; }
+.c-menu > summary.c-iconbtn::after, .c-menu > summary.plain::after { content: none; }
+.c-menu > .items {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 100;
+  min-width: 190px;
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  background: var(--bg-panel);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-lg);
+}
+.c-menu.anchor-start > .items { left: 0; right: auto; }
+.c-menu.anchor-end > .items { left: auto; right: 0; }
+.c-menu.up > .items { top: auto; bottom: calc(100% + 4px); }
+.c-menu .item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 7px 10px;
+  border: 0;
+  background: transparent;
+  border-radius: var(--r-sm);
+  font: 13px var(--f-body);
+  color: var(--ink);
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.c-menu .item:hover { background: var(--accent-soft); color: var(--accent); }
+.c-menu .item .glyph { width: 16px; text-align: center; font: 12px var(--f-mono); color: var(--ink-3); flex-shrink: 0; }
+.c-menu .item:hover .glyph { color: inherit; }
+.c-menu .item .c-key, .c-menu .item kbd { margin-left: auto; }
+.c-menu .item.danger { color: var(--error); }
+.c-menu .item.danger:hover { background: var(--error-soft); color: var(--error); }
+.c-menu .item:disabled, .c-menu .item[aria-disabled='true'] { opacity: 0.4; cursor: not-allowed; }
+.c-menu .sep { border: 0; border-top: 1px solid var(--line); margin: 4px 0; }
+.c-menu .label { font: 10.5px var(--f-display); text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-3); padding: 6px 10px 3px; }
+
+/* ============ accordion ============ */
+/* One <details class="c-accordion"> per panel; wrap several in .c-accordions to join them. */
+.c-accordion { border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--bg-panel); }
+.c-accordion > summary {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 14px;
+  font: 600 13.5px var(--f-body);
+  color: var(--ink);
+  cursor: pointer;
+  border-radius: inherit;
+}
+.c-accordion > summary::-webkit-details-marker { display: none; }
+.c-accordion > summary::after {
+  content: '';
+  margin-left: auto;
+  width: 7px;
+  height: 7px;
+  border-right: 1.5px solid var(--ink-3);
+  border-bottom: 1.5px solid var(--ink-3);
+  transform: translateY(-2px) rotate(45deg);
+  transition: transform var(--t-fast);
+  flex-shrink: 0;
+}
+.c-accordion > summary:hover { color: var(--accent); }
+.c-accordion[open] > summary { color: var(--accent); border-bottom: 1px solid var(--line); border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+.c-accordion[open] > summary::after { transform: translateY(2px) rotate(-135deg); border-color: var(--accent); }
+.c-accordion > summary .c-badge, .c-accordion > summary .c-dot { margin-left: 2px; }
+.c-accordion > .body { padding: 12px 14px 14px; font-size: 13.5px; line-height: 1.6; color: var(--ink-2); }
+.c-accordion > .body > :first-child { margin-top: 0; }
+.c-accordion > .body > :last-child { margin-bottom: 0; }
+.c-accordions { display: flex; flex-direction: column; }
+.c-accordions > .c-accordion { border-radius: 0; }
+.c-accordions > .c-accordion + .c-accordion { border-top: 0; }
+.c-accordions > .c-accordion:first-child { border-radius: var(--r-lg) var(--r-lg) 0 0; }
+.c-accordions > .c-accordion:last-child { border-radius: 0 0 var(--r-lg) var(--r-lg); }
+
+/* ============ data table / key-value ============ */
+/* Real <table>. Wrap in .c-tablewrap for a bordered, scrollable frame. */
+.c-table { width: 100%; border-collapse: collapse; font-size: 13px; color: var(--ink); }
+.c-table th {
+  text-align: left;
+  font: 600 10.5px var(--f-display);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--ink-3);
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--line);
+  background: var(--bg-inset);
+  white-space: nowrap;
+}
+.c-table td { padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+.c-table tbody tr:hover { background: var(--bg-inset); }
+.c-table tbody tr.selected, .c-table tbody tr[aria-selected='true'] { background: var(--accent-soft); }
+.c-table tbody tr.dim { opacity: 0.55; }
+.c-table .num { text-align: right; font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+.c-table .mono { font: 12px var(--f-mono); }
+.c-table th.sort { cursor: pointer; }
+.c-table th.sort:hover { color: var(--ink); }
+.c-table th[aria-sort] { color: var(--accent); }
+.c-table th[aria-sort='ascending']::after { content: ' ▴'; }
+.c-table th[aria-sort='descending']::after { content: ' ▾'; }
+.c-table.compact th { padding: 5px 10px; }
+.c-table.compact td { padding: 5px 10px; font-size: 12.5px; }
+.c-tablewrap { border: 1px solid var(--line); border-radius: var(--r-lg); overflow: auto; background: var(--bg-panel); }
+.c-tablewrap > .c-table tbody tr:last-child td { border-bottom: 0; }
+/* key / value — works as <table class="c-kv"> (th scope=row) or <dl class="c-kv"> */
+table.c-kv { width: 100%; border-collapse: collapse; font-size: 13px; color: var(--ink); }
+table.c-kv th { text-align: left; font: 500 12px var(--f-mono); color: var(--ink-3); padding: 6px 16px 6px 0; white-space: nowrap; width: 1%; vertical-align: top; border-bottom: 1px solid var(--line); }
+table.c-kv td { padding: 6px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+table.c-kv tr:last-child th, table.c-kv tr:last-child td { border-bottom: 0; }
+dl.c-kv { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 0 16px; margin: 0; font-size: 13px; color: var(--ink); }
+dl.c-kv dt { font: 500 12px var(--f-mono); color: var(--ink-3); padding: 6px 0; border-bottom: 1px solid var(--line); }
+dl.c-kv dd { margin: 0; padding: 6px 0; border-bottom: 1px solid var(--line); min-width: 0; }
+dl.c-kv dt:nth-last-of-type(1), dl.c-kv dd:last-of-type { border-bottom: 0; }
+.c-kv .mono { font: 12px var(--f-mono); }
+
+/* ============ list rows ============ */
+/* .c-row is a <li>, <a> or <button> in a .c-list; hover / selected / cursor / dim
+ * states, a leading .glyph and a trailing .actions slot revealed on hover/focus. */
+.c-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 1px; }
+.c-list.bordered { border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--bg-panel); padding: 4px; }
+.c-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-width: 0;
+  padding: 6px 10px;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: transparent;
+  font: 13px var(--f-body);
+  color: var(--ink-2);
+  text-align: left;
+  text-decoration: none;
+  cursor: default;
+}
+a.c-row, button.c-row, .c-row[role='option'], .c-row[role='button'] { cursor: pointer; }
+.c-row:hover { color: var(--ink); background: var(--bg-inset); }
+.c-row.selected, .c-row[aria-selected='true'] { color: var(--accent); background: var(--accent-soft); }
+.c-row.cursor, .c-row[aria-current='true'] { box-shadow: inset 0 0 0 1px var(--accent-border); }
+.c-row.dim { opacity: 0.55; }
+.c-row .glyph { width: 16px; text-align: center; font: 12px var(--f-mono); color: var(--ink-3); flex-shrink: 0; }
+.c-row.selected .glyph, .c-row[aria-selected='true'] .glyph { color: var(--accent); }
+.c-row .title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: inherit; }
+.c-row .meta { font: 11px var(--f-mono); color: var(--ink-3); flex-shrink: 0; }
+.c-row .actions { display: flex; gap: 4px; margin-left: auto; opacity: 0; transition: opacity var(--t-fast); }
+.c-row:hover .actions, .c-row:focus-within .actions, .c-row.selected .actions, .c-row.cursor .actions { opacity: 1; }
+
+/* ============ empty state ============ */
+.c-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 6px;
+  padding: 36px 20px;
+  border: 1px dashed var(--line);
+  border-radius: var(--r-lg);
+  color: var(--ink-3);
+}
+.c-empty .glyph { font: 22px var(--f-mono); color: var(--ink-3); margin-bottom: 4px; }
+.c-empty .title { font: 600 14px var(--f-body); color: var(--ink); }
+.c-empty .desc { font-size: 13px; line-height: 1.55; color: var(--ink-2); max-width: 40ch; }
+.c-empty .actions { display: flex; gap: 8px; margin-top: 8px; }
+.c-empty.sm { padding: 18px 14px; gap: 4px; }
+.c-empty.sm .glyph { font-size: 16px; margin-bottom: 0; }
+
+/* ============ spinner ============ */
+.c-spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--line);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: c-spin 0.7s linear infinite;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+.c-spinner.sm { width: 12px; height: 12px; border-width: 1.5px; }
+.c-spinner.lg { width: 28px; height: 28px; border-width: 3px; }
+.c-spinner.ink { border-top-color: var(--ink-2); }
+@keyframes c-spin { to { transform: rotate(360deg); } }
+
+/* ============ meter / progress ============ */
+/* Styles <meter> and <progress> natively, or a plain element with a --f
+ * (0..1) fill: <div class="c-meter" role="meter" style="--f:.6">. Tones
+ * recolour the fill via --tone. */
+.c-meter {
+  --tone: var(--accent);
+  display: block;
+  width: 100%;
+  height: 6px;
+  border: 0;
+  border-radius: var(--r-full);
+  background: var(--bg-inset);
+  box-shadow: inset 0 0 0 1px var(--line);
+  overflow: hidden;
+  position: relative;
+  vertical-align: middle;
+}
+.c-meter:not(meter):not(progress)::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  width: calc(var(--f, 0) * 100%);
+  background: var(--tone);
+  border-radius: var(--r-full);
+  transition: width var(--t-base);
+}
+meter.c-meter, progress.c-meter { appearance: none; -webkit-appearance: none; }
+progress.c-meter::-webkit-progress-bar { background: transparent; }
+progress.c-meter::-webkit-progress-value { background: var(--tone); border-radius: var(--r-full); transition: width var(--t-base); }
+progress.c-meter::-moz-progress-bar { background: var(--tone); border-radius: var(--r-full); }
+meter.c-meter::-webkit-meter-bar { background: transparent; border: 0; border-radius: var(--r-full); }
+meter.c-meter::-webkit-meter-optimum-value,
+meter.c-meter::-webkit-meter-suboptimum-value,
+meter.c-meter::-webkit-meter-even-less-good-value { background: var(--tone); border-radius: var(--r-full); }
+meter.c-meter::-moz-meter-bar { background: var(--tone); border-radius: var(--r-full); }
+.c-meter.success { --tone: var(--success); }
+.c-meter.warning { --tone: var(--warning); }
+.c-meter.error { --tone: var(--error); }
+.c-meter.info { --tone: var(--info); }
+.c-meter.sm { height: 4px; }
+.c-meter.lg { height: 10px; }
+.c-meter.inline { display: inline-block; width: 80px; }
+.c-meterrow { display: flex; align-items: center; gap: 10px; font: 11px var(--f-mono); color: var(--ink-3); }
+.c-meterrow .c-meter { flex: 1; }
+.c-meterrow .val { min-width: 3ch; text-align: right; color: var(--ink-2); }
+
+/* ============ avatar ============ */
+/* Initials fallback by default; drop an <img> inside for a photo. */
+.c-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--accent-border);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font: 600 11px var(--f-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  overflow: hidden;
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+.c-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.c-avatar.sm { width: 22px; height: 22px; font-size: 9px; }
+.c-avatar.lg { width: 40px; height: 40px; font-size: 14px; }
+.c-avatar.square { border-radius: var(--r-sm); }
+.c-avatar.neutral { background: var(--bg-inset); color: var(--ink-2); border-color: var(--line); }
+.c-avatars { display: inline-flex; align-items: center; }
+.c-avatars .c-avatar { box-shadow: 0 0 0 2px var(--bg-panel); }
+.c-avatars .c-avatar + .c-avatar { margin-left: -7px; }
+
+/* ============ key cap ============ */
+/* <kbd class="c-key">⌘</kbd>; group a combo in .c-keys. */
+.c-key {
+  display: inline-block;
+  min-width: 18px;
+  padding: 1px 6px;
+  font: 10.5px/1.5 var(--f-mono);
+  color: var(--ink-2);
+  text-align: center;
+  background: var(--bg-inset);
+  border: 1px solid var(--line);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+.c-keys { display: inline-flex; align-items: center; gap: 3px; font: 10.5px var(--f-mono); color: var(--ink-3); }
+
+/* ============ separator / section title ============ */
+.c-sep { border: 0; border-top: 1px solid var(--line); height: 0; margin: 14px 0; }
+.c-sep.vertical { display: inline-block; width: 0; height: 1em; border-top: 0; border-left: 1px solid var(--line); margin: 0 8px; vertical-align: middle; }
+.c-section {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 20px 0 8px;
+  font: 600 11px var(--f-display);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.c-section::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+.c-section.plain::after { content: none; }
+.c-section .count { font: 10.5px var(--f-mono); letter-spacing: 0; text-transform: none; }
+.c-section .actions { display: flex; gap: 4px; }
+
+/* ============ swatch ============ */
+/* <span class="c-swatch" style="--sw: var(--success)"></span> */
+.c-swatch {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border-radius: var(--r-sm);
+  background: var(--sw, var(--accent));
+  border: 1px solid var(--line);
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+.c-swatch.sm { width: 12px; height: 12px; border-radius: 3px; }
+.c-swatch.lg { width: 36px; height: 36px; border-radius: var(--r); }
+.c-swatch.round { border-radius: 50%; }
+.c-swatchrow { display: inline-flex; align-items: center; gap: 8px; font: 11.5px var(--f-mono); color: var(--ink-2); }
+
+/* ============ categorical ramp ============ */
+/* Six fixed steps (--cat-1…6 in tokens.css) selected by data-step. The
+ * attribute name is a convention, not a contract — to bind the same ramp to
+ * an app noun (data-lane, data-rarity…) copy the six selector lines under
+ * your attribute; the visual rules below only read --ramp. */
+.c-ramp[data-step='1'] { --ramp: var(--cat-1); }
+.c-ramp[data-step='2'] { --ramp: var(--cat-2); }
+.c-ramp[data-step='3'] { --ramp: var(--cat-3); }
+.c-ramp[data-step='4'] { --ramp: var(--cat-4); }
+.c-ramp[data-step='5'] { --ramp: var(--cat-5); }
+.c-ramp[data-step='6'] { --ramp: var(--cat-6); }
+.c-ramp {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: 600 11px var(--f-mono);
+  padding: 3px 9px;
+  border-radius: var(--r-sm);
+  border-left: 3px solid var(--ramp, var(--ink-3));
+  color: var(--ramp, var(--ink-2));
+  background: color-mix(in srgb, var(--ramp, var(--ink-3)) 14%, transparent);
+}
+.c-ramp.solid { background: var(--ramp, var(--ink-3)); color: var(--bg-panel); border-left: 0; }
+.c-ramp.dot { padding: 0; width: 10px; height: 10px; border: 0; border-radius: 50%; background: var(--ramp, var(--ink-3)); }
+.c-ramp.ink { padding: 0; border: 0; background: transparent; font: inherit; color: var(--ramp, inherit); }
+
+/* ============ app shell ============ */
+/* header / side rail / main / statusbar grid. --c-rail-w sets the rail width;
+ * .c-resize is the drag handle (wire the drag yourself, it only draws). */
+.c-shell {
+  display: grid;
+  grid-template-columns: var(--c-rail-w, 232px) minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-areas: 'head head' 'rail main' 'status status';
+  height: 100vh;
+  height: 100dvh;
+  background: var(--bg);
+  color: var(--ink);
+}
+.c-shell > .c-header { grid-area: head; }
+.c-shell > .c-rail {
+  grid-area: rail;
+  position: relative;
+  min-height: 0;
+  overflow: auto;
+  padding: 20px 14px;
+  border-right: 1px solid var(--line);
+  background: var(--bg-panel);
+}
+.c-shell > .c-main { grid-area: main; min-width: 0; min-height: 0; overflow: auto; padding: 24px 28px; }
+.c-shell > .c-status { grid-area: status; }
+.c-shell.rail-end { grid-template-columns: minmax(0, 1fr) var(--c-rail-w, 232px); grid-template-areas: 'head head' 'main rail' 'status status'; }
+.c-shell.rail-end > .c-rail { border-right: 0; border-left: 1px solid var(--line); }
+.c-status {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  height: 26px;
+  padding: 0 12px;
+  border-top: 1px solid var(--line);
+  background: var(--bg-panel);
+  font: 11px var(--f-mono);
+  color: var(--ink-3);
+  white-space: nowrap;
+  overflow: hidden;
+}
+.c-status .seg { display: inline-flex; align-items: center; gap: 5px; }
+.c-status .sp { flex: 1; }
+.c-status b { color: var(--ink-2); font-weight: 500; }
+.c-status .c-dot { width: 6px; height: 6px; }
+.c-resize {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: -3px;
+  width: 6px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: col-resize;
+  z-index: 1;
+  transition: background var(--t-fast);
+}
+.c-resize:hover, .c-resize:active, .c-resize.dragging { background: var(--accent-border); }
+.c-resize.horizontal { top: auto; right: 0; left: 0; bottom: -3px; width: auto; height: 6px; cursor: row-resize; }
+.c-shell.rail-end .c-resize { right: auto; left: -3px; }
+@media (max-width: 780px) {
+  .c-shell, .c-shell.rail-end { grid-template-columns: minmax(0, 1fr); grid-template-areas: 'head' 'main' 'status'; }
+  .c-shell > .c-rail { display: none; }
+}
+
+/* ============ board ============ */
+/* Columns of cards. <div class="c-board"><section class="col"><div class="head">…</div><div class="c-card">…</div></section></div> */
+.c-board {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(240px, 280px);
+  gap: 12px;
+  align-items: start;
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+.c-board > .col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 120px;
+  padding: 10px;
+  background: var(--bg-inset);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+}
+.c-board > .col > .head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 4px 6px;
+  font: 600 11px var(--f-display);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+.c-board > .col > .head .count { margin-left: auto; font: 10.5px var(--f-mono); letter-spacing: 0; color: var(--ink-3); }
+.c-board > .col.over { border-color: var(--accent); background: var(--accent-soft); }
+.c-board .c-card { box-shadow: var(--shadow-sm); }
+.c-board .c-card > .body { padding: 10px 12px; font-size: 13px; color: var(--ink); }
+.c-board .c-card > .foot { padding: 6px 12px; font-size: 11.5px; }
+.c-board .c-card.dragging { opacity: 0.5; }
+
+/*
+ * ---- extended vocabulary tier (rows 44-53) ----
+ * Ten more components common across other UI frameworks, added to keep the
+ * shared vocabulary current (see COMPONENTS.md). Same conventions as above:
+ * .c-* classes, plain sub-classes for variants, native elements do the
+ * behaviour where one exists, and connecting lines stay var(--line) — never
+ * an accent-coloured rail.
+ */
+
+/* ============ slider ============ */
+/* Native <input type="range">. A thin track, a round accent thumb. */
+.c-slider {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  height: 18px;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+  vertical-align: middle;
+}
+.c-slider:disabled { opacity: 0.5; cursor: not-allowed; }
+.c-slider:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.c-slider::-webkit-slider-runnable-track { height: 4px; border-radius: var(--r-full); background: var(--bg-inset); box-shadow: inset 0 0 0 1px var(--line); }
+.c-slider::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  margin-top: -6px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--bg-panel);
+  box-shadow: 0 0 0 1px var(--accent-border);
+  transition: var(--t-fast);
+}
+.c-slider:disabled::-webkit-slider-thumb { background: var(--ink-3); box-shadow: none; }
+.c-slider::-moz-range-track { height: 4px; border-radius: var(--r-full); background: var(--bg-inset); box-shadow: inset 0 0 0 1px var(--line); }
+.c-slider::-moz-range-progress { height: 4px; border-radius: var(--r-full); background: var(--accent); }
+.c-slider::-moz-range-thumb { width: 16px; height: 16px; border-radius: 50%; background: var(--accent); border: 2px solid var(--bg-panel); box-shadow: 0 0 0 1px var(--accent-border); }
+.c-slider:disabled::-moz-range-thumb { background: var(--ink-3); box-shadow: none; }
+
+/* ============ segmented control ============ */
+/* <div class="c-segmented" role="radiogroup" aria-label="View"><label><input type="radio" name="view" checked>Day</label>…</div>
+ * A single-choice group on real radio inputs; the checked label fills. */
+.c-segmented { display: inline-flex; gap: 2px; border: 1px solid var(--line); border-radius: var(--r-sm); padding: 2px; }
+.c-segmented > label {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 13px;
+  border-radius: calc(var(--r-sm) - 2px);
+  font: 500 12.5px var(--f-body);
+  color: var(--ink-2);
+  cursor: pointer;
+  transition: var(--t-fast);
+}
+.c-segmented > label input { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.c-segmented > label:hover { color: var(--ink); }
+.c-segmented > label:has(> input:checked) { background: var(--accent); color: #fff; }
+.c-segmented > label:has(> input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
+.c-segmented > label:has(> input:disabled) { opacity: 0.5; cursor: not-allowed; }
+
+/* ============ combobox ============ */
+/* <div class="c-combobox"><input class="c-field" role="combobox" aria-expanded="false" aria-controls="…" aria-autocomplete="list">
+ *   <ul class="panel c-list" role="listbox" id="…" hidden><li class="c-row" role="option">…</li></ul></div>
+ * A text input wired to a filterable popup listbox; rows reuse .c-list / .c-row. */
+.c-combobox { position: relative; display: block; }
+.c-combobox > input { padding-right: 30px; }
+.c-combobox::after {
+  content: '';
+  position: absolute;
+  right: 13px;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  border-right: 1.5px solid var(--ink-2);
+  border-bottom: 1.5px solid var(--ink-2);
+  transform: translateY(-70%) rotate(45deg);
+  pointer-events: none;
+}
+.c-combobox > .panel {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 100;
+  max-height: 240px;
+  overflow: auto;
+  padding: 4px;
+  background: var(--bg-panel);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-lg);
+}
+.c-combobox > .panel[hidden] { display: none; }
+.c-combobox .c-row[hidden] { display: none; }
+
+/* ============ skeleton ============ */
+/* A loading placeholder — a moving highlight over a flat tone, not colour-cycling. */
+.c-skeleton {
+  display: block;
+  width: 100%;
+  height: 1em;
+  border-radius: var(--r-sm);
+  background-color: var(--bg-inset);
+  background-image: linear-gradient(90deg, transparent 0%, var(--line) 50%, transparent 100%);
+  background-size: 50% 100%;
+  background-repeat: no-repeat;
+  background-position: -50% 0;
+  animation: c-shimmer 1.6s linear infinite;
+}
+.c-skeleton.text { height: 0.8em; border-radius: var(--r-full); }
+.c-skeleton.text:last-child { width: 65%; }
+.c-skeleton.avatar { width: 40px; height: 40px; border-radius: 50%; }
+@keyframes c-shimmer { from { background-position: -50% 0; } to { background-position: 150% 0; } }
+
+/* ============ stat ============ */
+/* <div class="c-stat"><span class="value">1,204</span><span class="label">Active users</span><span class="trend up">▲ 4.2%</span></div>
+ * A trend is colour AND a glyph, never colour alone — put the glyph in the markup. */
+.c-stat { display: grid; gap: 2px; }
+.c-stat .value { font: 700 28px/1.1 var(--f-display); color: var(--ink); font-variant-numeric: tabular-nums; }
+.c-stat .label { font-size: 12.5px; color: var(--ink-3); }
+.c-stat .trend { display: inline-flex; align-items: center; gap: 3px; font: 600 11.5px var(--f-mono); font-variant-numeric: tabular-nums; margin-top: 2px; }
+.c-stat .trend.up { color: var(--success); }
+.c-stat .trend.down { color: var(--error); }
+.c-stat .trend.flat { color: var(--ink-3); }
+
+/* ============ rating ============ */
+/* <span class="c-rating" role="img" aria-label="4.5 out of 5 stars" style="--val: 4.5"></span>
+ * Read-only; the fractional fill is visual only, so the aria-label carries the number. */
+.c-rating {
+  --pct: calc(var(--val, 0) / 5 * 100%);
+  position: relative;
+  display: inline-block;
+  font: 15px/1 var(--f-display);
+  letter-spacing: 0.12em;
+}
+.c-rating::before { content: '★★★★★'; display: block; color: var(--line); }
+.c-rating::after {
+  content: '★★★★★';
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--pct);
+  overflow: hidden;
+  white-space: nowrap;
+  color: var(--accent);
+}
+
+/* ============ stepper ============ */
+/* <ol class="c-stepper"><li class="done">Account</li><li class="current">Shipping</li><li>Payment</li></ol>
+ * Numbers via a CSS counter; a neutral line connects the dots — never an accent rail. */
+.c-stepper { display: flex; list-style: none; counter-reset: c-step; padding: 0; margin: 0; }
+.c-stepper > li {
+  counter-increment: c-step;
+  position: relative;
+  flex: 1 1 0;
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  text-align: center;
+  font: 12px var(--f-body);
+  color: var(--ink-3);
+}
+.c-stepper > li::before {
+  content: counter(c-step);
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--bg-panel);
+  color: var(--ink-2);
+  font: 600 12px var(--f-mono);
+  position: relative;
+  z-index: 1;
+}
+.c-stepper > li:not(:first-child)::after {
+  content: '';
+  position: absolute;
+  right: 50%;
+  top: 13px;
+  width: 100%;
+  height: 1px;
+  background: var(--line);
+}
+.c-stepper > li.done { color: var(--ink); }
+.c-stepper > li.done::before { content: '✓'; background: var(--accent); border-color: var(--accent); color: #fff; }
+.c-stepper > li.current { color: var(--ink); font-weight: 600; }
+.c-stepper > li.current::before { border-color: var(--accent); color: var(--accent); }
+
+/* ============ timeline ============ */
+/* <ol class="c-timeline"><li><time datetime="2026-09-01">Sep 1</time><p>Repo created.</p></li>
+ *   <li class="current"><time datetime="2026-09-09">Sep 9</time><p>Today.</p></li></ol>
+ * A dot marks each item; a neutral line runs behind them in a fixed gutter. */
+.c-timeline { position: relative; list-style: none; padding: 0 0 0 24px; margin: 0; display: grid; row-gap: 16px; }
+.c-timeline::before { content: ''; position: absolute; left: 5px; top: 7px; bottom: 7px; width: 1px; background: var(--line); }
+.c-timeline > li { position: relative; display: grid; gap: 2px; min-width: 0; }
+.c-timeline > li::before {
+  content: '';
+  position: absolute;
+  left: -24px;
+  top: 5px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--bg-panel);
+  border: 1px solid var(--line);
+}
+.c-timeline > li.current::before { background: var(--accent); border-color: var(--accent); }
+.c-timeline > li time { font: 11px var(--f-mono); color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.04em; }
+.c-timeline > li p { margin: 0; font-size: 13px; color: var(--ink-2); line-height: 1.5; }
+
+/* ============ carousel ============ */
+/* <div class="c-carousel"><div class="track">…slides…</div>
+ *   <div class="nav"><button class="c-iconbtn ghost" aria-label="Previous">‹</button><button class="c-iconbtn ghost" aria-label="Next">›</button></div>
+ *   <div class="dots" role="tablist" aria-label="Slide"><button role="tab" aria-selected="true" aria-label="Slide 1"></button>…</div></div>
+ * CSS scroll-snap track; prev/next float over it in the same grid cell; dots show the current slide. */
+.c-carousel { display: grid; }
+.c-carousel > .track {
+  grid-area: 1 / 1;
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  border-radius: var(--r-lg);
+}
+.c-carousel > .track::-webkit-scrollbar { display: none; }
+.c-carousel > .track > * { flex: 0 0 100%; scroll-snap-align: start; min-width: 0; }
+.c-carousel > .nav { grid-area: 1 / 1; align-self: center; display: flex; justify-content: space-between; padding: 0 10px; pointer-events: none; }
+.c-carousel > .nav > * { pointer-events: auto; }
+.c-carousel > .dots { grid-row: 2; display: flex; justify-content: center; gap: 8px; padding-top: 10px; }
+.c-carousel > .dots > button { width: 7px; height: 7px; padding: 0; border: 0; border-radius: 50%; background: var(--line); cursor: pointer; }
+.c-carousel > .dots > button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.c-carousel > .dots > button[aria-selected='true'] { background: var(--accent); }
+
+/* ============ drawer ============ */
+/* .c-dialog.drawer on the same native <dialog> — same showModal()/close() semantics
+ * as .c-dialog, just anchored to an edge instead of centred. Default: right edge;
+ * .left / .top / .bottom pick another edge. */
+.c-dialog.drawer:not([open]) { display: none; }
+.c-dialog.drawer {
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: auto;
+  margin: 0;
+  width: min(360px, 92vw);
+  max-width: none;
+  height: 100vh;
+  height: 100dvh;
+  max-height: none;
+  border-radius: 0;
+  border: 0;
+  border-left: 1px solid var(--line);
+  animation: c-drawer-in-right var(--t-base) both;
+}
+.c-dialog.drawer > .head, .c-dialog.drawer > form > .head { flex-shrink: 0; }
+.c-dialog.drawer > .body, .c-dialog.drawer > form > .body { flex: 1; overflow-y: auto; }
+.c-dialog.drawer > .actions, .c-dialog.drawer > form > .actions { flex-shrink: 0; border-radius: 0; }
+.c-dialog.drawer.left { right: auto; left: 0; border-left: 0; border-right: 1px solid var(--line); animation-name: c-drawer-in-left; }
+.c-dialog.drawer.top {
+  top: 0; right: 0; bottom: auto; left: 0;
+  width: 100vw; max-width: none;
+  height: auto; max-height: min(360px, 80vh);
+  border-left: 0; border-bottom: 1px solid var(--line);
+  animation-name: c-drawer-in-top;
+}
+.c-dialog.drawer.bottom {
+  top: auto; right: 0; bottom: 0; left: 0;
+  width: 100vw; max-width: none;
+  height: auto; max-height: min(360px, 80vh);
+  border-left: 0; border-top: 1px solid var(--line);
+  animation-name: c-drawer-in-bottom;
+}
+@keyframes c-drawer-in-right { from { transform: translateX(16px); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes c-drawer-in-left { from { transform: translateX(-16px); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes c-drawer-in-top { from { transform: translateY(-16px); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes c-drawer-in-bottom { from { transform: translateY(16px); opacity: 0; } to { transform: none; opacity: 1; } }
+
+/* ============ utilities ============ */
+.c-dim { color: var(--ink-3); }
+.c-muted { color: var(--ink-2); }
+.c-accent { color: var(--accent); }
+.c-success { color: var(--success); }
+.c-warning { color: var(--warning); }
+.c-error { color: var(--error); }
+.c-info { color: var(--info); }
+.c-mono { font-family: var(--f-mono); }
+.c-caps { font: 600 10.5px var(--f-display); letter-spacing: 0.08em; text-transform: uppercase; }
+.c-nowrap { white-space: nowrap; }
+.c-truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.c-grow { flex: 1 1 auto; min-width: 0; }
+.c-row-flex { display: flex; align-items: center; gap: var(--sp-2); }
+.c-row-flex.wrap { flex-wrap: wrap; }
+.c-row-flex.end { justify-content: flex-end; }
+.c-row-flex.between { justify-content: space-between; }
+.c-stack { display: flex; flex-direction: column; gap: var(--sp-2); }
+.c-stack.tight { gap: var(--sp-1); }
+.c-stack.loose { gap: var(--sp-4); }
+.c-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ============ scroll area ============ */
+.c-scroll { overflow: auto; scrollbar-width: thin; scrollbar-color: var(--ink-3) transparent; overscroll-behavior: contain; }
+.c-scroll.x { overflow: auto hidden; }
+.c-scroll.y { overflow: hidden auto; }
+.c-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+.c-scroll::-webkit-scrollbar-track { background: transparent; }
+.c-scroll::-webkit-scrollbar-thumb { background: var(--ink-3); border-radius: var(--r-full); border: 2px solid transparent; background-clip: padding-box; }
+.c-scroll::-webkit-scrollbar-thumb:hover { background-color: var(--ink-2); }
+
+/* ============ scrim ============ */
+/* Full-viewport overlay wash for custom layers; <dialog> gets the same wash
+ * through ::backdrop. Hide with the hidden attribute. .center lays out a child. */
+.c-scrim { position: fixed; inset: 0; z-index: 300; background: var(--scrim); backdrop-filter: blur(2px); }
+.c-scrim.center { display: flex; align-items: center; justify-content: center; padding: 24px; }
+.c-scrim[hidden] { display: none; }
+
+/* ============ theme toggle ============ */
+/* Pairs with theme-toggle.js, which writes the label and aria-pressed
+ * (pressed = an explicit dark/light override is active; unpressed = system). */
+.c-theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: 12px var(--f-mono);
+  color: var(--ink-2);
+  background: var(--bg-inset);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: var(--t-fast);
+}
+.c-theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+.c-theme-toggle[aria-pressed='true'] { color: var(--accent); background: var(--accent-soft); border-color: var(--accent-border); }
+
+/* ============ focus ring (every interactive component) ============ */
+.c-btn:focus-visible,
+.c-iconbtn:focus-visible,
+.c-linkbtn:focus-visible,
+.c-chip .x:focus-visible,
+.c-banner .x:focus-visible,
+.c-toast .x:focus-visible,
+.c-dialog .x:focus-visible,
+.c-card.clickable:focus-visible,
+.c-menu > summary:focus-visible,
+.c-menu .item:focus-visible,
+.c-accordion > summary:focus-visible,
+.c-table th.sort:focus-visible,
+a.c-row:focus-visible,
+button.c-row:focus-visible,
+.c-row[tabindex]:focus-visible,
+.c-check input:focus-visible,
+.c-radio input:focus-visible,
+.c-switch input:focus-visible,
+.c-resize:focus-visible,
+.c-theme-toggle:focus-visible,
+.c-scroll:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.c-menu .item:focus-visible, .c-accordion > summary:focus-visible, .c-row:focus-visible { outline-offset: -2px; }
+
+/* ============ reduced motion ============ */
+@media (prefers-reduced-motion: reduce) {
+  .c-spinner, .c-toast, .c-dot.pulse::after, .c-skeleton, .c-dialog.drawer { animation: none; }
+  .c-card.hoverable:hover { transform: none; }
+  .c-tooltip > .tip, .c-switch input, .c-switch input::before, .c-meter::before, .c-accordion > summary::after, .c-row .actions { transition: none; }
+}
+
+
+/* ==== palette.css ==== */
+/*
+ * CIRCUIT — search / command palette
+ * Pair with palette.js, which mounts this markup and wires behavior.
+ */
+
+.c-search-trigger {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--bg-inset);
+  color: var(--ink-3);
+  font: 13px var(--f-body);
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: var(--t-fast);
+}
+.c-search-trigger:hover { border-color: var(--accent); color: var(--ink-2); }
+.c-search-trigger svg { flex-shrink: 0; opacity: 0.8; }
+.c-search-trigger kbd {
+  margin-left: auto;
+  font: 10.5px var(--f-mono);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 1px 6px;
+  background: var(--bg-panel);
+}
+
+.c-palette-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 10, 14, 0.55);
+  backdrop-filter: blur(2px);
+  z-index: 300;
+  display: flex;
+  justify-content: center;
+  padding-top: 12vh;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--t-base);
+}
+.c-palette-backdrop.open { opacity: 1; pointer-events: auto; }
+
+.c-palette {
+  width: min(600px, 90vw);
+  max-height: 60vh;
+  background: var(--bg-panel);
+  border: 1px solid var(--line);
+  border-radius: var(--r-xl);
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transform: translateY(-8px);
+  transition: transform var(--t-base);
+}
+.c-palette-backdrop.open .c-palette { transform: translateY(0); }
+
+.c-palette-input-row {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--line);
+  flex-shrink: 0;
+}
+.c-palette-input-row svg { flex-shrink: 0; color: var(--ink-3); }
+.c-palette-input-row input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--ink);
+  font: 15px var(--f-body);
+  min-width: 0;
+}
+.c-palette-input-row input::placeholder { color: var(--ink-3); }
+.c-palette-input-row kbd {
+  font: 10.5px var(--f-mono);
+  color: var(--ink-3);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+
+.c-palette-results { overflow-y: auto; padding: 8px; }
+.c-presult-group + .c-presult-group { margin-top: 4px; }
+.c-presult-label {
+  font: 10.5px var(--f-display);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-3);
+  padding: 8px 10px 4px;
+}
+.c-presult {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 9px 10px;
+  border-radius: var(--r-sm);
+  border-left: 2px solid transparent;
+  cursor: pointer;
+  color: var(--ink);
+}
+.c-presult .picon {
+  flex-shrink: 0;
+  width: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink-3);
+  font: 12px var(--f-mono);
+}
+.c-presult .ptext { flex: 1; min-width: 0; }
+.c-presult .ptitle { font-size: 13.5px; line-height: 1.3; }
+.c-presult .ptitle mark { background: none; color: var(--accent); font-weight: 700; }
+.c-presult .ppath { font: 11px var(--f-mono); color: var(--ink-3); margin-top: 1px; }
+.c-presult .penter { font: 10px var(--f-mono); color: var(--ink-3); opacity: 0; flex-shrink: 0; }
+.c-presult.sel { background: var(--accent-soft); border-left-color: var(--accent); }
+.c-presult.sel .picon { color: var(--accent); }
+.c-presult.sel .penter { opacity: 1; }
+
+.c-palette-empty { padding: 30px 16px; text-align: center; color: var(--ink-3); font-size: 13px; }
+
+.c-palette-footer {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 9px 16px;
+  border-top: 1px solid var(--line);
+  font: 11px var(--f-mono);
+  color: var(--ink-3);
+  flex-shrink: 0;
+}
+.c-palette-footer span { display: flex; align-items: center; gap: 5px; }
+.c-palette-footer kbd { border: 1px solid var(--line); border-radius: 4px; padding: 1px 5px; background: var(--bg-inset); }

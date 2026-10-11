@@ -1,0 +1,48 @@
+/*
+  design-engine — structure: flow rhythm
+  -----------------------------------------------------------------------------
+  Vertical rhythm WITHOUT margins. Prose containers (main, article, section,
+  aside, header, footer, details, fieldset, li-cards…) become vertical grids
+  and space their children with `row-gap`. Headings ask for extra room above
+  through padding, so the hierarchy is spatial, not just typographic:
+
+    paragraph → paragraph         1 step  (--de-flow)
+    anything  → h2                3 steps
+    anything  → h3 / h4           1.5 steps
+    section   → section           2 steps + the section's own padding
+
+  A heading's own row-gap already sits between it and the paragraph right
+  after it; there's deliberately no rule pulling that pair any tighter —
+  row-gap is one value for the whole grid, so tightening one pair below it
+  needs a margin, and this layer never uses one (see the layer comment).
+
+  Instances re-tune `--de-flow` on any region.
+*/
+
+@layer de.structure {
+  :where([data-engine]) {
+    --de-flow: var(--de-space-3);
+  }
+
+  :where([data-engine]) :where(main, article, section, aside, header, details, fieldset, dialog, [role="note"], [role="status"], [role="alert"]),
+  :where([data-engine]) > :where(footer) {
+    display: grid;
+    row-gap: var(--de-flow);
+    align-content: start;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* grid items must be allowed to shrink below their content (pre, table) */
+  :where([data-engine]) :where(main, article, section, aside, header, details, fieldset, dialog) > :where(*),
+  :where([data-engine]) > :where(footer) > :where(*) {
+    min-inline-size: 0;
+  }
+
+  /* headings introduce a break: more room above than below */
+  :where([data-engine]) :where(main, article, section, aside) > :where(:is(h2):not(:first-child)) {
+    padding-block-start: calc(var(--de-flow) * 2);
+  }
+  :where([data-engine]) :where(main, article, section, aside) > :where(:is(h3, h4):not(:first-child)) {
+    padding-block-start: calc(var(--de-flow) * 0.5);
+  }
+}

@@ -1,0 +1,36 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Vocabulary" />
+
+# The shared component vocabulary
+
+Forty-three components, thirteen designs, **one markup**. Every story under
+**Designs/** renders the same canonical, classless snippet for a component —
+byte-identical across designs — under one design. **Compare** puts all
+thirteen designs side by side for one component. The **Source stylesheets**
+section is reference only: the sibling systems' own CSS on their own class-based
+markup, which is what the `circuit`, `jjhub`, `noitroidvania` and `snake`
+designs were translated from.
+
+| system | idiom | source |
+|---|---|---|
+| design-engine | classless: roles, data attributes and placement bind the styles; thirteen designs via `data-instance` (toolbar → *engine design*) | this repo |
+| circuit | erisera docs chrome, `.c-*`, hue-driven accent | erisera-code/circuit |
+| jjhub | terminal UI, monospace, `[ bracketed ]` buttons | erisera-code/jjhub |
+| noitroidvania | Ashfall game chrome, `.ui-root`, square, no shadows | johnhenry/noitroidvania |
+| impressive-snake | Snake HUD, `.ss-root`, translucent navy panels, neon signals | johnhenry/impressive-snake |
+
+The toolbar's **theme** switches every frame between dark and light; every
+design has a light side and a dark side.
+
+Regenerate the stories after editing `examples/family/components.mjs`:
+
+```bash
+npm run stories
+```
+
+Refresh the vendored sibling stylesheets after pulling those repos:
+
+```bash
+npm run sync:family
+```

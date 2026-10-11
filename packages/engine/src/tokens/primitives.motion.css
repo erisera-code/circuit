@@ -1,0 +1,27 @@
+/*
+  design-engine — tokens: primitives (motion)
+  -----------------------------------------------------------------------------
+  Easing curves and durations. Every engine transition/animation reads a
+  duration token, so reduced-motion (OS or data-motion="reduced") collapses
+  motion by zeroing these — no !important, no per-rule media queries.
+*/
+
+@layer de.tokens {
+  :where([data-engine]:not([data-engine] [data-engine])) {
+    --de-ease:        cubic-bezier(0.22, 0.61, 0.36, 1);
+    --de-ease-in:     cubic-bezier(0.4, 0, 1, 1);
+    --de-ease-out:    cubic-bezier(0, 0, 0.2, 1);
+    --de-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    --de-dur-instant: 60ms;
+    --de-dur-fast:    120ms;
+    --de-dur:         200ms;
+    --de-dur-slow:    360ms;
+
+    --de-transition: var(--de-dur) var(--de-ease);
+
+    /* distance tokens for motion (used by scroll-driven + entry animations) */
+    --de-lift: 2px;
+    --de-travel: 8px;
+  }
+}

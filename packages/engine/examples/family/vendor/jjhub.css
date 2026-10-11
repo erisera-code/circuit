@@ -1,0 +1,4563 @@
+/* JJHub — terminal-ish monospace aesthetic. Plain CSS, no framework.
+ *
+ * ============================== DESIGN SYSTEM ==============================
+ *
+ * Everything visual resolves through the tokens below. The rules are:
+ *
+ *   1. ONE NAME PER CONCEPT. There is exactly one border colour (--border),
+ *      one muted-text colour (--dim). Aliases are how `--line` and `--muted`
+ *      got invented and shipped undefined — an undefined var() in a shorthand
+ *      makes the WHOLE declaration invalid at computed-value time, so
+ *      `border: 1px solid var(--line)` silently rendered *no border at all*.
+ *   2. NO RAW COLOUR BELOW THE TOKEN BLOCK. A literal hex/rgb outside :root
+ *      is a theme bug waiting to happen: it can't respond to [data-theme].
+ *      State surfaces derive from the palette via color-mix() so light and
+ *      dark stay correct by construction rather than by remembering to edit
+ *      two places.
+ *   3. SCALES, NOT ONE-OFFS. Radius, elevation, z-index and type come from
+ *      the fixed sets below so "which grey border radius is this" is never a
+ *      judgement call.
+ *
+ * Both rules are enforced by test/web-design-system.test.ts — a raw hex or an
+ * undefined token fails the suite rather than shipping.
+ *
+ * Spacing is deliberately NOT tokenised. This is a monospace terminal UI whose
+ * padding is tuned against the character grid (1ch markers, 72ch measures,
+ * 2.5ch controls); a --sp-4 indirection would obscure that coupling without
+ * making anything more consistent. Values stay literal and even.
+ * ===========================================================================
+ */
+
+:root {
+  /* -- palette --
+   * Raw colour literals are allowed anywhere in this token block (that's the
+   * rule — see rule 2 above), not just here; the palette is simply where
+   * MOST of them live. Elevation below has its own (the scrim/shadow
+   * values), for the same reason. */
+  --bg: #0b0e13;
+  --panel: #10141b;
+  --border: #2a3340;
+  --fg: #c9d4e0;
+  --fg-strong: #e6edf6; /* high-emphasis text: selected rows */
+  --dim: #78859c; /* WCAG AA (4.5:1) against --bg; #6b7684 was ~4.2:1 */
+  --accent: #7aa2f7;
+  --pass: #9ece6a;
+  --warn: #e0af68;
+  --fail: #f7768e;
+  /* issue #466: the ground under a framed preview document. Deliberately the
+     same in both themes (not overridden by the light block): previewed files
+     are authored for a light page, and an unstyled one would otherwise show
+     black default text on this app's dark canvas. */
+  --paper: #ffffff;
+
+  /* -- elevation: overlay scrim + the two shadow depths -- */
+  --scrim: rgb(3 5 8 / 60%);
+  --shadow-sm: 0 4px 12px rgb(0 0 0 / 30%);
+  --shadow-md: 0 8px 18px rgb(0 0 0 / 22%);
+
+  /* -- derived state surfaces --
+   * color-mix keeps these correct in BOTH themes from the palette above.
+   * The percentages reproduce the previous hand-picked dark-theme hexes
+   * almost exactly (#1a2029 hover, #1d2735 selected) while finally giving
+   * the light theme a legible hover/selection instead of a dark smear. */
+  --hover-bg: color-mix(in srgb, var(--fg) 6%, var(--panel));
+  --selected-bg: color-mix(in srgb, var(--accent) 12%, var(--panel));
+  /* Tints for diff/patch/hunk fills — same mix ratio, varying strength. */
+  --tint-weak: 12%;
+  --tint-strong: 18%;
+
+  /* -- radius scale -- */
+  --r-sm: 2px; /* inline chips: badges, state badges, counts */
+  --r-md: 3px; /* interactive controls: buttons, inputs, menus, tooltips */
+  --r-lg: 4px; /* containers: cards, code blocks, CTAs */
+  --r-pill: 999px;
+  --r-circle: 50%;
+
+  /* -- type scale -- (mobile lifts the whole scale; see the media query) */
+  --font-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+  --fs-xs: 11px; /* badges, meta, counts */
+  --fs-sm: 12px; /* secondary text, descriptions */
+  --fs-md: 13px; /* body */
+  --fs-lg: 14px; /* pane + modal titles */
+  --fs-xl: 16px; /* form controls on mobile (iOS focus-zoom threshold) */
+  --fs-2xl: 18px; /* the lone dismiss glyph */
+
+  /* -- stacking order -- named by role so the sequence is legible and new
+   * layers can't accidentally collide with an existing one. */
+  --z-dropdown: 10; /* <details> menus anchored in normal flow */
+  --z-legend: 20; /* the change-state legend popover */
+  --z-tooltip: 40; /* state badge tooltips */
+  --z-toast: 90; /* notification tray */
+  --z-modal: 100; /* modal overlay */
+  --z-palette: 200; /* command palette sits above modals */
+
+  /* -- focus: one ring everywhere, so keyboard nav reads consistently -- */
+  --focus-ring: 2px solid var(--accent);
+  --focus-offset: 2px;
+
+  /* -- syntax colours -- the .sx-* classes inside a .code block. Ten roles,
+   * one hue each, chosen to sit beside the palette above (the accent is the
+   * function colour, --pass the string colour) rather than import another
+   * scheme; --sx-cm is comment ink, so it lands near --dim and stays AA. */
+  --sx-kw: #bb9af7;
+  --sx-str: #9ece6a;
+  --sx-fn: #7aa2f7;
+  --sx-cm: #7f8ca4;
+  --sx-num: #ff9e64;
+  --sx-tag: #f7768e;
+  --sx-attr: #73daca;
+  --sx-punct: #a9b1d6;
+  --sx-type: #2ac3de;
+  --sx-bool: #e0af68;
+
+  /* -- categorical ramp -- .ramp[data-step="1…6"]: six hues for series that
+   * must read as DIFFERENT, not as better/worse (a status is --pass/--warn/
+   * --fail, never a ramp step). Ordered so adjacent steps contrast. */
+  --ramp-1: #7aa2f7;
+  --ramp-2: #9ece6a;
+  --ramp-3: #e0af68;
+  --ramp-4: #f7768e;
+  --ramp-5: #bb9af7;
+  --ramp-6: #2ac3de;
+}
+
+:root[data-theme="light"] {
+  --bg: #f5f6f8;
+  --panel: #eaecef;
+  --border: #ccd2db;
+  --fg: #1b2430;
+  --fg-strong: #0d131c;
+  --dim: #55606e; /* WCAG AA (4.5:1) against --bg */
+  --accent: #2856c7;
+  --pass: #2f7d3c;
+  --warn: #93650a;
+  --fail: #c22b45;
+
+  /* A modal scrim stays dark in light mode (the conventional treatment — it
+   * reads as "the page behind is dimmed"), but the shadows soften: heavy
+   * black drop shadows look like grime on a light surface. */
+  --scrim: rgb(3 5 8 / 45%);
+  --shadow-sm: 0 4px 12px rgb(27 36 48 / 16%);
+  --shadow-md: 0 8px 18px rgb(27 36 48 / 12%);
+
+  /* Syntax and ramp hues darkened for a light page; same roles, same order. */
+  --sx-kw: #5a3ea6;
+  --sx-str: #2f7d3c;
+  --sx-fn: #2856c7;
+  --sx-cm: #5f6b7a;
+  --sx-num: #b3541e;
+  --sx-tag: #c22b45;
+  --sx-attr: #0f766e;
+  --sx-punct: #4b5563;
+  --sx-type: #0e7490;
+  --sx-bool: #93650a;
+
+  --ramp-1: #2856c7;
+  --ramp-2: #2f7d3c;
+  --ramp-3: #93650a;
+  --ramp-4: #c22b45;
+  --ramp-5: #6b3fb0;
+  --ramp-6: #0e7490;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  /* All scrolling happens inside the app's own containers (.cols children,
+   * .picker-body, modal bodies) — the page itself must never scroll, or the
+   * topbar/statusbar stop being fixed. Belt (overflow) and suspenders
+   * (overscroll) for mobile rubber-banding. */
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-mono);
+  font-size: var(--fs-md);
+  line-height: 1.5;
+}
+
+/* Unstyled <a> tags otherwise fall back to the browser default blue
+   (#0000EE) — jarring against this theme. Anything that wants a muted link
+   (e.g. a check run's detailsUrl) still wins via its own class, since a
+   class selector outranks this element selector. */
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* ====================== shared component vocabulary ======================
+ *
+ * The generic component names JJHub shares with its two sibling design
+ * systems (circuit, noitroidvania) — one concept, this system's idiom:
+ * monospace, square or --r-* corners, [ bracketed ] buttons, box-drawing and
+ * geometric glyphs (── ▸ ▾ [x] (o) ●) where another system would reach for an
+ * icon or a filled tint, every colour through a token (tints derived with
+ * color-mix, so the light theme is right by construction), spacing literal
+ * and even like the rest of this file. docs/DESIGN-SYSTEM.md carries the
+ * matrix and one markup snippet per class; /design renders them all.
+ *
+ * CASCADE POSITION IS DELIBERATE. This section sits ABOVE every app-specific
+ * rule in the file. Where an app class predates its generic name (.dep-chip
+ * before .chip, .info-card before .card, .state-tooltip before .tooltip …)
+ * the app class is listed here as an ALIAS on the generic rule: it inherits
+ * the generic defaults, and its own — later — rule still wins on every
+ * property it sets. Aliasing therefore never restyles an existing component,
+ * and call sites are not migrated. New markup reaches for the generic name.
+ *
+ * Bare (bracket-less) buttons introduced here — .btn-icon, .chip__x — are
+ * opted out in the ONE consolidated .btn-bare rule below, never with a
+ * bracket opt-out of their own (test/web-design-system.test.ts counts them).
+ * ========================================================================= */
+
+/* --- 1. buttons: primary / secondary / ghost / danger ---
+ * The bare <button> IS the secondary button (bordered, bracketed). The
+ * variants below only change colour, never the brackets — a primary is a
+ * filled `[ label ]`, a ghost drops its border until hovered, a danger reads
+ * in --fail. Specificity mirrors the base `button:hover:not(:disabled)` and
+ * `button:disabled` rules so a variant's colour survives both states. */
+
+.btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
+  font-weight: bold;
+}
+
+button.btn-primary::before,
+button.btn-primary::after {
+  color: color-mix(in srgb, var(--bg) 55%, var(--accent));
+}
+
+button.btn-primary:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--bg);
+  filter: brightness(1.1);
+}
+
+button.btn-primary:disabled {
+  background: color-mix(in srgb, var(--accent) 35%, var(--panel));
+  border-color: transparent;
+  color: var(--dim);
+  filter: none;
+}
+
+.btn-secondary {
+  border-color: var(--border);
+  color: var(--fg);
+}
+
+.btn-ghost {
+  border-color: transparent;
+  color: var(--dim);
+}
+
+button.btn-ghost:hover:not(:disabled) {
+  border-color: transparent;
+  color: var(--accent);
+}
+
+.btn-danger {
+  border-color: color-mix(in srgb, var(--fail) 50%, var(--border));
+  color: var(--fail);
+}
+
+button.btn-danger:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--fail) var(--tint-weak), transparent);
+  border-color: var(--fail);
+  color: var(--fail);
+}
+
+/* --- 2. icon button: a square glyph, bare, ALWAYS with aria-label ---
+ * Aliases: the two ad-hoc glyph buttons that predate it. */
+.btn-icon,
+button.notification-dismiss,
+button.stack-collapse {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  min-width: 24px;
+  height: 24px;
+  padding: 0;
+  color: var(--dim);
+  line-height: 1;
+  flex: none;
+}
+
+button.btn-icon:hover:not(:disabled) {
+  color: var(--accent);
+}
+
+/* --- 4. button group: `[ a ][ b ][ c ]` — borders collapse, radii only on
+ * the outer corners (longhands: the radius scale still applies). --- */
+.btn-group {
+  display: inline-flex;
+  align-items: center;
+}
+
+.btn-group > button {
+  border-radius: 0;
+}
+
+.btn-group > button + button {
+  margin-left: -1px;
+}
+
+.btn-group > button:first-child {
+  border-top-left-radius: var(--r-md);
+  border-bottom-left-radius: var(--r-md);
+}
+
+.btn-group > button:last-child {
+  border-top-right-radius: var(--r-md);
+  border-bottom-right-radius: var(--r-md);
+}
+
+/* --- 5. field: text input / textarea / select, one look ---
+ * Alias: .modal-field (the dialog field this generalises). A field is a
+ * well (--bg) sunk into whatever panel holds it. */
+.field,
+.modal-field {
+  display: block;
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 0;
+  color: var(--fg);
+  font: inherit;
+  padding: 6px 8px;
+  min-width: 0;
+}
+
+textarea.field {
+  min-height: 72px;
+  resize: vertical;
+}
+
+select.field {
+  padding: 5px 6px;
+}
+
+.field:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
+  border-color: var(--accent);
+}
+
+.field:disabled {
+  color: var(--dim);
+  cursor: not-allowed;
+}
+
+.field[aria-invalid="true"],
+.field.invalid {
+  border-color: var(--fail);
+}
+
+/* --- 6. form field: label + control + hint + error ---
+ * Alias: .modal-field-group (same stacking rhythm). The error line carries a
+ * glyph as well as its colour, so it is never colour-only. */
+.form-field,
+.modal-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin: 8px 0;
+  min-width: 0;
+}
+
+.form-label {
+  color: var(--dim);
+}
+
+.form-label .form-req {
+  color: var(--warn);
+}
+
+.form-hint {
+  color: var(--dim);
+  font-size: var(--fs-sm);
+}
+
+.form-error {
+  color: var(--fail);
+  font-size: var(--fs-sm);
+}
+
+.form-error::before {
+  content: "✗ ";
+}
+
+/* --- 7. check / radio / switch: styled NATIVE inputs ---
+ * appearance:none turns the input into an ordinary box, which is what lets
+ * its ::before render; the control is then drawn as text — `[x]`, `(o)`,
+ * `[on ]` — in the same monospace grid as the label beside it. The native
+ * element keeps keyboard, form and a11y semantics; only the paint changes.
+ * .choice is the label wrapper that puts control and text on one line. */
+.choice {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.check,
+.radio,
+.switch {
+  appearance: none;
+  -webkit-appearance: none;
+  display: inline-block;
+  flex: none;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--dim);
+  font: inherit;
+  line-height: 1.5;
+  cursor: pointer;
+  vertical-align: middle;
+}
+
+.check,
+.radio {
+  width: 3ch;
+}
+
+.switch {
+  width: 5ch;
+}
+
+.check::before,
+.radio::before,
+.switch::before {
+  display: block;
+  white-space: pre;
+}
+
+.check::before {
+  content: "[ ]";
+}
+
+.check:checked::before {
+  content: "[x]";
+}
+
+.check:indeterminate::before {
+  content: "[-]";
+}
+
+.radio::before {
+  content: "( )";
+}
+
+.radio:checked::before {
+  content: "(o)";
+}
+
+.switch::before {
+  content: "[off]";
+}
+
+.switch:checked::before {
+  content: "[on ]";
+}
+
+.check:checked,
+.radio:checked,
+.check:indeterminate {
+  color: var(--accent);
+}
+
+.switch:checked {
+  color: var(--pass);
+}
+
+.check:hover:not(:disabled),
+.radio:hover:not(:disabled),
+.switch:hover:not(:disabled) {
+  color: var(--accent);
+}
+
+.check:disabled,
+.radio:disabled,
+.switch:disabled {
+  color: var(--dim);
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* --- 8. badge tones: outline stays, only the ink changes --- */
+.badge.accent {
+  color: var(--accent);
+}
+
+.badge.pass {
+  color: var(--pass);
+}
+
+.badge.warn {
+  color: var(--warn);
+}
+
+.badge.fail {
+  color: var(--fail);
+}
+
+.badge.dim {
+  color: var(--dim);
+}
+
+/* --- 9. status dot: a ● glyph, coloured by state; give it role="img" and
+ * an aria-label so the state is announced, not just seen --- */
+.dot {
+  display: inline-block;
+  width: 1ch;
+  color: var(--dim);
+  line-height: 1;
+}
+
+.dot::before {
+  content: "●";
+}
+
+.dot[data-state="live"] {
+  color: var(--pass);
+}
+
+.dot[data-state="busy"] {
+  color: var(--warn);
+  animation: dot-pulse 1.2s ease-in-out infinite;
+}
+
+.dot[data-state="error"] {
+  color: var(--fail);
+}
+
+.dot[data-state="idle"] {
+  color: var(--dim);
+}
+
+@keyframes dot-pulse {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+/* --- 10. chip: a countable / removable noun ---
+ * Aliases: .dep-chip (topology dependencies), .reviewer-chip. */
+.chip,
+.dep-chip,
+.reviewer-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+.chip,
+.dep-chip {
+  border-radius: var(--r-sm);
+  padding: 1px 6px;
+  font-size: var(--fs-xs);
+  white-space: nowrap;
+}
+
+.chip.accent {
+  border-color: currentColor;
+}
+
+.chip__count {
+  color: var(--dim);
+}
+
+.chip__x {
+  border: none;
+  padding: 0;
+  color: var(--dim);
+  font-size: var(--fs-xs);
+  line-height: 1;
+}
+
+button.chip__x:hover:not(:disabled) {
+  border: none;
+  color: var(--fail);
+}
+
+/* --- 11. card: head / body / foot; hoverable, clickable, selected ---
+ * Aliases: .info-card (landing/status cards), .board-card (workspace board).
+ * The card itself carries no padding — its parts do — so a head rule and a
+ * foot rule always run edge to edge. */
+.card,
+.info-card,
+.board-card {
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  background: var(--panel);
+  min-width: 0;
+}
+
+.card__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-bottom: 1px solid var(--border);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.card__body {
+  padding: 10px 12px;
+}
+
+.card__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-top: 1px solid var(--border);
+  color: var(--dim);
+  font-size: var(--fs-sm);
+}
+
+.card.hoverable:hover,
+.card.clickable:hover {
+  border-color: var(--accent);
+}
+
+.card.clickable {
+  cursor: pointer;
+}
+
+.card.selected {
+  border-color: var(--accent);
+  background: var(--selected-bg);
+}
+
+/* --- 12. callout: note / tip / warn / danger ---
+ * A full border and a glyph, no fill — the terminal idiom for an aside. The
+ * glyph column doubles as the tone's second carrier, so colour is never the
+ * only signal. Alias: .evidence-note keeps its own (later) rule; it is the
+ * unruled, glyph-less measure-capped note this generalises. */
+.callout,
+.evidence-note {
+  max-width: 72ch;
+  min-width: 0;
+}
+
+.callout {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 0 1ch;
+  margin: 8px 0;
+  padding: 4px 10px;
+  border: 2px solid var(--accent);
+}
+
+.callout::before {
+  content: "▸";
+  color: var(--accent);
+}
+
+.callout__title {
+  font-weight: bold;
+  color: var(--fg-strong);
+}
+
+.callout__body {
+  min-width: 0;
+}
+
+.callout__title + .callout__body {
+  grid-column: 2;
+}
+
+.callout[data-tone="tip"] {
+  border-color: var(--pass);
+}
+
+.callout[data-tone="tip"]::before {
+  content: "✓";
+  color: var(--pass);
+}
+
+.callout[data-tone="warn"] {
+  border-color: var(--warn);
+}
+
+.callout[data-tone="warn"]::before {
+  content: "⚠";
+  color: var(--warn);
+}
+
+.callout[data-tone="danger"] {
+  border-color: var(--fail);
+}
+
+.callout[data-tone="danger"]::before {
+  content: "✗";
+  color: var(--fail);
+}
+
+/* --- 13. banner: an inline alert with actions and a dismiss ---
+ * Same anatomy as the toast (full border, tone by border colour) but in
+ * normal flow, at the top of the content it concerns. Dismiss is a .btn-icon.
+ * DivergenceBanner keeps its own `.empty.warn` (a dashed, warn-coloured
+ * empty-state box) — that is a pre-existing look, not an alias. */
+.banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  margin: 6px 0;
+  padding: 6px 10px;
+  border: 1px solid var(--accent);
+  background: var(--panel);
+}
+
+.banner__msg {
+  flex: 1 1 240px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.banner__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.banner[data-tone="pass"] {
+  border-color: var(--pass);
+}
+
+.banner[data-tone="warn"] {
+  border-color: var(--warn);
+}
+
+.banner[data-tone="fail"] {
+  border-color: var(--fail);
+}
+
+/* --- 16. popover: an anchored panel ---
+ * Alias: .change-state-legend-panel. Anchor it inside a `position: relative`
+ * parent (.menu, .anchor); .popover-start hangs off the left edge instead. */
+.anchor {
+  position: relative;
+  display: inline-block;
+}
+
+.popover,
+.change-state-legend-panel {
+  position: absolute;
+  z-index: var(--z-legend);
+  right: 0;
+  top: calc(100% + 6px);
+  box-sizing: border-box;
+  min-width: 200px;
+  max-width: min(360px, calc(100vw - 24px));
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 8px;
+  background: var(--panel);
+  color: var(--fg);
+  box-shadow: var(--shadow-sm);
+}
+
+.popover-start {
+  right: auto;
+  left: 0;
+}
+
+/* --- 17. tooltip ---
+ * Alias: .state-tooltip (positioned from JS, position: fixed). A CSS-only
+ * hover/focus tooltip is a .tooltip inside a .tip-anchor. */
+.tooltip,
+.state-tooltip {
+  position: fixed;
+  z-index: var(--z-tooltip);
+  box-sizing: border-box;
+  max-width: min(320px, calc(100vw - 24px));
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 6px 8px;
+  background: var(--panel);
+  color: var(--fg);
+  font-size: var(--fs-sm);
+  line-height: 1.35;
+  white-space: normal;
+  box-shadow: var(--shadow-sm);
+}
+
+.tip-anchor {
+  position: relative;
+  display: inline-block;
+}
+
+.tip-anchor > .tooltip {
+  display: none;
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  width: max-content;
+}
+
+.tip-anchor:hover > .tooltip,
+.tip-anchor:focus-within > .tooltip {
+  display: block;
+}
+
+/* --- 21. disclosure: <details> with a ▸/▾ marker ---
+ * Alias: .repo-group (its own rule keeps the bold owner heading). */
+.disclosure,
+.repo-group {
+  min-width: 0;
+}
+
+.disclosure > summary,
+.repo-group > summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 4px 0;
+  color: var(--fg);
+}
+
+.disclosure > summary::-webkit-details-marker,
+.repo-group > summary::-webkit-details-marker {
+  display: none;
+}
+
+.disclosure > summary::before,
+.repo-group > summary::before {
+  content: "▸ ";
+  color: var(--dim);
+}
+
+.disclosure[open] > summary::before,
+.repo-group[open] > summary::before {
+  content: "▾ ";
+}
+
+.disclosure > summary:hover {
+  color: var(--accent);
+}
+
+.disclosure__body,
+.repo-group-items {
+  padding-left: 14px;
+}
+
+/* --- 24. code block: caption row with a copy slot, syntax token classes ---
+ * Alias: .info-code (a bare <pre>; keeps its own padding). The syntax
+ * colours are the --sx-* tokens declared in both :root blocks. */
+.code,
+.info-code {
+  margin: 8px 0;
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  background: var(--panel);
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.code__cap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px;
+  border-bottom: 1px solid var(--border);
+  color: var(--dim);
+  font-size: var(--fs-sm);
+}
+
+.code__cap .copy-button,
+.code__copy {
+  margin-left: auto;
+}
+
+.code pre {
+  margin: 0;
+  padding: 10px 12px;
+  overflow-x: auto;
+}
+
+.code code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: inherit;
+}
+
+.sx-kw {
+  color: var(--sx-kw);
+}
+
+.sx-str {
+  color: var(--sx-str);
+}
+
+.sx-fn {
+  color: var(--sx-fn);
+}
+
+.sx-cm {
+  color: var(--sx-cm);
+  font-style: italic;
+}
+
+.sx-num {
+  color: var(--sx-num);
+}
+
+.sx-tag {
+  color: var(--sx-tag);
+}
+
+.sx-attr {
+  color: var(--sx-attr);
+}
+
+.sx-punct {
+  color: var(--sx-punct);
+}
+
+.sx-type {
+  color: var(--sx-type);
+}
+
+.sx-bool {
+  color: var(--sx-bool);
+}
+
+/* --- 25. terminal block: window strip with three ● lights, prompt, output ---
+ * The lights are pure decoration (aria-hidden in the snippet); they are the
+ * one place --fail/--warn/--pass appear side by side without meaning. */
+.term {
+  margin: 8px 0;
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  background: var(--bg);
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.term__bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 10px;
+  border-bottom: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--dim);
+  font-size: var(--fs-sm);
+}
+
+.term__lights {
+  display: inline-flex;
+  gap: 4px;
+  line-height: 1;
+}
+
+.term__lights i::before {
+  content: "●";
+  font-style: normal;
+}
+
+.term__lights i:nth-child(1) {
+  color: var(--fail);
+}
+
+.term__lights i:nth-child(2) {
+  color: var(--warn);
+}
+
+.term__lights i:nth-child(3) {
+  color: var(--pass);
+}
+
+.term__body {
+  margin: 0;
+  padding: 10px 12px;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.term__prompt {
+  color: var(--accent);
+  user-select: none;
+}
+
+.term__out {
+  display: block;
+  color: var(--dim);
+}
+
+/* --- 28. meter: 0..1 fill via --f, tone via --c (both set inline by the
+ * caller, like --rail-width). The fill is a transform, not a width, so it
+ * animates without layout; native <meter class="meter"> gets the same box.
+ * .rating (row 49, below) reuses --f for its own 0..1 fill. */
+.meter {
+  position: relative;
+  display: block;
+  width: 100%;
+  max-width: 240px;
+  height: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  overflow: hidden;
+}
+
+.meter::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--c, var(--accent));
+  transform: scaleX(var(--f, 0));
+  transform-origin: left;
+  transition: transform 0.2s ease-out;
+}
+
+meter.meter {
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+meter.meter::before {
+  display: none;
+}
+
+meter.meter::-webkit-meter-bar {
+  background: var(--bg);
+  border: none;
+  border-radius: 0;
+}
+
+meter.meter::-webkit-meter-optimum-value,
+meter.meter::-webkit-meter-suboptimum-value,
+meter.meter::-webkit-meter-even-less-good-value {
+  background: var(--c, var(--accent));
+}
+
+meter.meter::-moz-meter-bar {
+  background: var(--c, var(--accent));
+}
+
+/* --- 29. avatar: image or initials fallback, next to .user-chip --- */
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--r-circle);
+  color: var(--fg);
+  font-size: var(--fs-xs);
+  font-weight: bold;
+  text-transform: uppercase;
+  overflow: hidden;
+  vertical-align: middle;
+  object-fit: cover;
+}
+
+/* Initials fallback (a <span>): a ring and a panel ground; an <img> stays bare. */
+.avatar:not(img) {
+  border: 1px solid var(--border);
+  background: var(--panel);
+}
+
+.avatar.sm {
+  width: 16px;
+  height: 16px;
+}
+
+.avatar.lg {
+  width: 32px;
+  height: 32px;
+  font-size: var(--fs-sm);
+}
+
+/* --- 30. key cap: <kbd> anywhere, or .key on a span --- */
+kbd,
+.key {
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 0 4px;
+  font-family: inherit;
+  font-size: var(--fs-xs);
+}
+
+kbd + kbd,
+.key + .key {
+  margin-left: 2px;
+}
+
+/* --- 32. breadcrumb: an <ol> in a <nav>, ▸ between crumbs --- */
+.crumb ol {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 6px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.crumb li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.crumb li + li::before {
+  content: "▸";
+  color: var(--dim);
+}
+
+.crumb [aria-current="page"] {
+  color: var(--fg-strong);
+}
+
+/* --- 33. pager: prev / next with a position readout between --- */
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 12px 0;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+.pager__info {
+  color: var(--dim);
+  font-size: var(--fs-sm);
+}
+
+.pager a[aria-disabled="true"],
+.pager button:disabled {
+  color: var(--dim);
+  pointer-events: none;
+}
+
+/* --- 34. swatch: a colour sample with its name; colour via --c, or via
+ * currentColor so `.swatch.ramp[data-step]` needs no inline style --- */
+.swatch {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-sm);
+}
+
+.swatch::before {
+  content: "";
+  flex: none;
+  width: 1.2em;
+  height: 1.2em;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  background: var(--c, currentColor);
+}
+
+.swatch.lg::before {
+  width: 2em;
+  height: 2em;
+}
+
+/* --- 35. categorical ramp: six hues that stay distinct in both themes;
+ * data-step, never a colour name, so a series can be re-coloured in one
+ * place (the --ramp-* tokens) --- */
+.ramp[data-step="1"] {
+  color: var(--ramp-1);
+}
+
+.ramp[data-step="2"] {
+  color: var(--ramp-2);
+}
+
+.ramp[data-step="3"] {
+  color: var(--ramp-3);
+}
+
+.ramp[data-step="4"] {
+  color: var(--ramp-4);
+}
+
+.ramp[data-step="5"] {
+  color: var(--ramp-5);
+}
+
+.ramp[data-step="6"] {
+  color: var(--ramp-6);
+}
+
+/* --- 36. grid texture: a faint character-cell grid, all from tokens --- */
+.grid-bg {
+  background-color: var(--bg);
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--fg) 6%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--fg) 6%, transparent) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* --- 39. parameter list: a <dl> of name / type / requiredness / prose --- */
+.params {
+  margin: 8px 0;
+  border-top: 1px solid var(--border);
+}
+
+.param {
+  display: grid;
+  grid-template-columns: minmax(140px, max-content) minmax(0, 1fr);
+  gap: 4px 16px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.param dt,
+.param dd {
+  margin: 0;
+  min-width: 0;
+}
+
+.param dt {
+  color: var(--fg-strong);
+  overflow-wrap: anywhere;
+}
+
+.param__type {
+  color: var(--dim);
+  font-size: var(--fs-xs);
+}
+
+.param__req {
+  color: var(--warn);
+  font-size: var(--fs-xs);
+}
+
+/* --- 40. utilities (text tones .dim/.accent/.pass/.warn/.fail and .sr-only
+ * live in their own sections below) --- */
+.nowrap {
+  white-space: nowrap;
+}
+
+.grow {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.row-flex {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.caps {
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  font-size: var(--fs-xs);
+}
+
+/* --- 41. scroll area: thin, themed scrollbar (the rails keep the browser
+ * default on purpose — a rail is chrome, this is a content well) --- */
+.scroll {
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+.scroll::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.scroll::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: var(--r-pill);
+}
+
+.scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* --- 42. scrim: the overlay layer. `.scrim` is declared on .modal-overlay's
+ * rule (see the modal section); .scrim-top is the palette's top-anchored
+ * variant of it. --- */
+.scrim.scrim-top {
+  align-items: flex-start;
+  padding-top: 12vh;
+}
+
+/* --- 43. theme toggle: `[ ◐ ]`, the glyph flips with the theme --- */
+.theme-toggle {
+  color: var(--dim);
+  min-width: 2.5ch;
+}
+
+.theme-toggle__glyph::before {
+  content: "◐";
+}
+
+:root[data-theme="light"] .theme-toggle__glyph::before {
+  content: "◑";
+}
+
+/* --- 23. list-row states: keyboard cursor and dimmed (the base .row and its
+ * hover/selected states are in the rows section) --- */
+.row[data-cursor] {
+  background: var(--selected-bg);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+.row.dim {
+  color: var(--dim);
+}
+
+/* ====================== extended vocabulary (44-53) =======================
+ * Ten components the sibling systems added to the shared vocabulary after
+ * the original 43 — same cross-system concepts, JJHub's own terminal idiom.
+ * Same rules as the block above: tokens only, native elements first, no
+ * accent-coloured one-sided rail carrying state (the anti-pattern already
+ * eliminated from callout/banner/toast/cursor-row), visible :focus-visible
+ * on anything interactive, prefers-reduced-motion respected.
+ * ========================================================================= */
+
+/* --- 44. slider: a native <input type="range">, thin track, accent thumb --- */
+.slider {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  max-width: 240px;
+  height: 20px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.slider::-webkit-slider-runnable-track {
+  height: 2px;
+  background: var(--border);
+  border-radius: var(--r-pill);
+}
+
+.slider::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  margin-top: -6px;
+  border: none;
+  border-radius: var(--r-circle);
+  background: var(--accent);
+}
+
+.slider::-moz-range-track {
+  height: 2px;
+  background: var(--border);
+  border-radius: var(--r-pill);
+}
+
+.slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border: none;
+  border-radius: var(--r-circle);
+  background: var(--accent);
+}
+
+.slider:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
+}
+
+.slider:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* --- 45. segmented: a single-choice group on real radio inputs — the input
+ * stays in the accessibility tree (clip, not display:none), the label it
+ * sits inside is the visible segment; adjoining segments share one border,
+ * the checked one fills with --accent --- */
+.segmented {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  overflow: hidden;
+}
+
+.segmented__opt {
+  position: relative;
+  padding: 5px 12px;
+  color: var(--fg);
+  cursor: pointer;
+  user-select: none;
+}
+
+.segmented__opt + .segmented__opt {
+  border-left: 1px solid var(--border);
+}
+
+.segmented__opt input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  opacity: 0;
+  clip-path: inset(50%);
+}
+
+.segmented__opt:hover {
+  background: var(--hover-bg);
+}
+
+.segmented__opt:has(input:checked) {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+.segmented__opt:has(input:disabled) {
+  color: var(--dim);
+  cursor: not-allowed;
+}
+
+.segmented__opt:has(input:focus-visible) {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
+}
+
+/* --- 46. combobox: a .field input with a filterable dropdown below it —
+ * the panel is .popover/.popover-start unmodified (anchored under the
+ * input instead of a trigger), its rows are the .row list-row idiom --- */
+.combobox {
+  position: relative;
+}
+
+.combobox__list {
+  padding: 4px 0;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+/* --- 47. skeleton: a loading placeholder — a moving highlight over a flat
+ * tone, never colour-cycling; data-shape picks the silhouette --- */
+.skeleton {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  background: var(--panel);
+  border-radius: var(--r-sm);
+}
+
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--fg) 8%, transparent), transparent);
+  transform: translateX(-100%);
+  animation: skeleton-shimmer 1.6s ease-in-out infinite;
+}
+
+.skeleton[data-shape="line"] {
+  height: 0.9em;
+  margin: 4px 0;
+  max-width: 32ch;
+}
+
+.skeleton[data-shape="avatar"] {
+  width: 24px;
+  height: 24px;
+  border-radius: var(--r-circle);
+}
+
+.skeleton[data-shape="block"] {
+  height: 60px;
+}
+
+@keyframes skeleton-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* --- 48. stat: a big value, a small label, a trend that is never colour
+ * alone — the glyph changes with data-trend, not just the ink --- */
+.stat {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.stat__value {
+  color: var(--fg-strong);
+  font-size: var(--fs-2xl);
+  font-weight: bold;
+}
+
+.stat__label {
+  color: var(--dim);
+  font-size: var(--fs-sm);
+}
+
+.stat__trend {
+  color: var(--dim);
+  font-size: var(--fs-xs);
+}
+
+.stat__trend::before {
+  margin-right: 3px;
+}
+
+.stat__trend[data-trend="up"] {
+  color: var(--pass);
+}
+
+.stat__trend[data-trend="up"]::before {
+  content: "▲";
+}
+
+.stat__trend[data-trend="down"] {
+  color: var(--fail);
+}
+
+.stat__trend[data-trend="down"]::before {
+  content: "▼";
+}
+
+.stat__trend[data-trend="flat"]::before {
+  content: "●";
+}
+
+/* --- 49. rating: read-only stars, fractional via a clipped overlay; the
+ * number lives in a real aria-label (role="img"), never colour alone --- */
+.rating {
+  position: relative;
+  display: inline-block;
+  line-height: 1;
+  user-select: none;
+}
+
+.rating::before {
+  content: "☆☆☆☆☆";
+  color: var(--dim);
+}
+
+.rating::after {
+  content: "★★★★★";
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  width: calc(var(--f, 0) * 100%);
+  color: var(--warn);
+}
+
+/* --- 50. stepper: done / current / upcoming, connected by a neutral glyph
+ * rule — never an accent-coloured one-sided rail --- */
+.stepper {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.stepper__step {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--dim);
+}
+
+.stepper__step + .stepper__step::before {
+  content: "──";
+  margin: 0 8px;
+  color: var(--border);
+}
+
+.stepper__num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-circle);
+  font-size: var(--fs-xs);
+}
+
+.stepper__step[data-status="done"] {
+  color: var(--fg);
+}
+
+.stepper__step[data-status="done"] .stepper__num {
+  border-color: var(--pass);
+  color: var(--pass);
+}
+
+.stepper__step[data-status="current"] {
+  color: var(--fg-strong);
+  font-weight: bold;
+}
+
+.stepper__step[data-status="current"] .stepper__num {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--selected-bg);
+}
+
+/* --- 51. timeline: dated events down a fixed gutter; the connecting line is
+ * neutral (--border) and painted behind the marker glyph, never accent --- */
+.timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.timeline__item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr);
+  gap: 2px 10px;
+  padding-bottom: 14px;
+}
+
+.timeline__item:last-child {
+  padding-bottom: 0;
+}
+
+.timeline__marker {
+  position: relative;
+  grid-row: 1 / span 2;
+  display: flex;
+  justify-content: center;
+}
+
+.timeline__item:not(:last-child) .timeline__marker::before {
+  content: "";
+  position: absolute;
+  top: 1em;
+  bottom: -14px;
+  left: 50%;
+  width: 1px;
+  background: var(--border);
+  transform: translateX(-50%);
+}
+
+.timeline__marker::after {
+  content: "●";
+  color: var(--dim);
+  line-height: 1;
+}
+
+.timeline__item[data-status="current"] .timeline__marker::after {
+  content: "◉";
+  color: var(--accent);
+}
+
+.timeline__item time {
+  grid-column: 2;
+  color: var(--dim);
+  font-size: var(--fs-sm);
+}
+
+.timeline__item p {
+  grid-column: 2;
+  margin: 4px 0 0;
+}
+
+/* --- 52. carousel: scroll-snap slides, prev/next, dot pagination --- */
+.carousel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.carousel__track {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+.carousel__slide {
+  flex: 0 0 220px;
+  scroll-snap-align: start;
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  background: var(--panel);
+  padding: 10px 12px;
+}
+
+.carousel__controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.carousel__dots {
+  display: inline-flex;
+  gap: 6px;
+}
+
+.carousel__dot {
+  width: 6px;
+  height: 6px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--r-circle);
+  background: transparent;
+}
+
+.carousel__dot:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+
+.carousel__dot.active {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.carousel__dot:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
+}
+
+/* --- 53. drawer: an edge-anchored dialog — same semantics as .modal (a
+ * .scrim overlay, role="dialog", aria-modal="true"), just anchored to an
+ * edge instead of centred; .scrim-end is the anchoring variant, the same
+ * pattern as .scrim-top --- */
+.scrim.scrim-end {
+  align-items: stretch;
+  justify-content: flex-end;
+}
+
+.drawer {
+  display: flex;
+  flex-direction: column;
+  width: min(360px, 100vw);
+  max-width: 100vw;
+  height: 100%;
+  background: var(--panel);
+  border-left: 1px solid var(--border);
+  padding: 14px 16px;
+  overflow-y: auto;
+}
+
+.drawer__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.drawer__title {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: var(--fs-lg);
+}
+
+.drawer__body {
+  flex: 1 1 auto;
+}
+
+/* --- focus: every interactive class introduced above, one ring --- */
+.btn-primary:focus-visible,
+.btn-secondary:focus-visible,
+.btn-ghost:focus-visible,
+.btn-danger:focus-visible,
+.btn-icon:focus-visible,
+.btn-group > button:focus-visible,
+.chip__x:focus-visible,
+.check:focus-visible,
+.radio:focus-visible,
+.switch:focus-visible,
+.card.clickable:focus-visible,
+.disclosure > summary:focus-visible,
+.crumb a:focus-visible,
+.pager a:focus-visible,
+.pager button:focus-visible,
+.theme-toggle:focus-visible,
+.row[data-cursor]:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
+}
+
+/* --- motion: the spinner, the busy dot, the meter fill, the skeleton
+ * shimmer and the carousel's smooth scroll are the only things that move;
+ * none of them carries meaning the static frame lacks --- */
+@media (prefers-reduced-motion: reduce) {
+  .spinner,
+  .dot[data-state="busy"],
+  .skeleton::after {
+    animation: none;
+  }
+
+  .meter::before {
+    transition: none;
+  }
+
+  .carousel__track {
+    scroll-behavior: auto;
+  }
+}
+
+@media (max-width: 768px) {
+  .param {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  /* position:fixed + inset:0 pins the shell to the VISIBLE viewport on every
+   * engine — the standard mobile app-shell pattern. It replaces the previous
+   * height:100vh/100dvh pair: on iOS Safari, html/body height:100% resolves
+   * against the SMALL viewport while dvh tracks the dynamic one, so a
+   * dvh-sized child of a %-sized parent could end up taller than its clipped
+   * ancestor and the bottom of every screen became unreachable (reported as
+   * "can't scroll down to see more" on phones). Fixed positioning sizes the
+   * shell from the viewport directly, no % chain involved. */
+  position: fixed;
+  inset: 0;
+}
+
+/* --- chrome --- */
+
+.topbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  background: var(--panel);
+  flex: none;
+}
+
+.brand {
+  color: var(--accent);
+  font-weight: bold;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.spacer-sm {
+  width: 8px;
+}
+
+.statusbar {
+  flex: none;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  border-top: 1px solid var(--border);
+  background: var(--panel);
+  padding: 4px 12px;
+  min-height: 26px;
+}
+
+.notification-tray {
+  position: fixed;
+  right: 12px;
+  bottom: calc(56px + env(safe-area-inset-bottom));
+  z-index: var(--z-toast);
+  display: grid;
+  gap: 8px;
+  width: min(420px, calc(100vw - 24px));
+  pointer-events: none;
+}
+
+.notification-toast {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: start;
+  border: 1px solid var(--accent);
+  background: var(--panel);
+  box-shadow: var(--shadow-md);
+  padding: 8px 8px 8px 10px;
+  pointer-events: auto;
+}
+
+.notification-toast.success {
+  border-color: var(--pass);
+}
+
+.notification-toast.error {
+  border-color: var(--fail);
+}
+
+.notification-message {
+  overflow-wrap: anywhere;
+}
+
+/* Issue #510 (PWA): the update-available toast. Reuses .notification-toast's
+   look (see above) but sits on its own, fixed independently of the
+   notification tray's stacking order — an update is a standing offer, not a
+   transient message, so it isn't auto-dismissed or grouped with it. */
+.pwa-update-toast {
+  position: fixed;
+  right: 12px;
+  bottom: calc(56px + env(safe-area-inset-bottom));
+  z-index: var(--z-toast);
+  width: min(320px, calc(100vw - 24px));
+}
+
+button.notification-dismiss {
+  min-width: 24px;
+  min-height: 24px;
+  padding: 0 6px;
+  color: var(--dim);
+  font-size: var(--fs-2xl);
+  line-height: 1;
+}
+
+.settings-feedback {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+}
+
+.settings-feedback label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cols {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+/* Rail widths come through custom properties, NOT inline width styles:
+ * useResizableWidth call sites set style={{ "--rail-width": ... }} so the
+ * user-dragged width applies at desktop sizes, while the mobile media
+ * query's `width: 100%` still wins by ordinary cascade (an inline custom
+ * property doesn't participate in the width cascade the way an inline
+ * `width` did — which previously forced a `!important` arms race here). */
+.rail {
+  width: var(--rail-width, 320px);
+  max-width: calc(100% - 280px);
+  min-width: 0;
+  flex: none;
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 8px 0 16px;
+  background: var(--panel);
+}
+
+.rail.right {
+  border-right: none;
+  border-left: 1px solid var(--border);
+  width: var(--rail-right-width, 280px);
+  padding: 8px 12px 16px;
+}
+
+.main {
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 12px 16px 24px;
+  min-width: 0;
+}
+
+.resize-handle {
+  flex: none;
+  width: 5px;
+  cursor: col-resize;
+  background: transparent;
+}
+
+.resize-handle:hover,
+.resize-handle:active,
+.resize-handle:focus-visible {
+  background: var(--accent);
+}
+
+.resize-handle:focus-visible {
+  outline: none;
+}
+
+/* --- section chrome: box-drawing feel --- */
+
+/* The trailing rule used to be a 31-dash `content` string with
+ * white-space: nowrap — an unbreakable ~35ch run that set this element's
+ * min-content width and propagated through every min-width:auto flex
+ * ancestor, twice forcing whole-page horizontal overflow on phones (see
+ * .picker-body's comment). Now the leading "── " stays as real glyphs
+ * (3ch min-content, harmless) and the rule is a zero-content flex-growing
+ * pseudo-element drawn with currentColor: min-content 0 by construction,
+ * so it can never force overflow, while max-width preserves the fixed
+ * desktop appearance. align-items: center puts the 1px bar where U+2500
+ * draws its stroke. */
+.sec-title {
+  display: flex;
+  align-items: center;
+  color: var(--dim);
+  margin: 14px 8px 4px;
+}
+
+.sec-title::before {
+  content: "── ";
+  white-space: pre;
+  flex: none;
+}
+
+.sec-title::after {
+  content: "";
+  flex: 1 1 0;
+  min-width: 2ch;
+  max-width: 31ch;
+  height: 1px;
+  background: currentColor;
+  margin-left: 1ch;
+}
+
+.main .sec-title,
+.rail.right .sec-title {
+  margin-left: 0;
+}
+
+.group-title {
+  color: var(--accent);
+  padding: 2px 8px;
+}
+
+.workspace-stack {
+  border-top: 1px solid var(--border);
+  margin-top: 6px;
+}
+
+.workspace-stack-header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 0;
+  padding: 4px 8px;
+}
+
+button.stack-collapse {
+  width: 24px;
+  min-width: 24px;
+  padding: 1px 0;
+  color: var(--dim);
+}
+
+.workspace-stack-title {
+  color: var(--accent);
+  flex: 1 1 130px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.workspace-stack-header .spacer {
+  display: none;
+}
+
+.workspace-stack-count {
+  flex: none;
+  font-size: var(--fs-xs);
+  white-space: nowrap;
+}
+
+button.stack-manage-button {
+  flex: none;
+}
+
+.workspace-stack-members {
+  padding-bottom: 2px;
+}
+
+button.show-more {
+  display: block;
+  margin: 5px 8px;
+  padding: 0;
+  color: var(--accent);
+}
+
+button.section-link {
+  margin-left: 8px;
+  padding: 0;
+  font: inherit;
+  font-size: var(--fs-xs);
+  font-weight: normal;
+}
+
+.pane-title {
+  font-size: var(--fs-lg);
+  margin-bottom: 2px;
+}
+
+.stack-member {
+  border-top: 1px solid var(--border);
+  margin-top: 16px;
+  padding-top: 8px;
+}
+
+.stack-member:first-of-type {
+  border-top: none;
+  margin-top: 8px;
+  padding-top: 0;
+}
+
+.proj-line {
+  color: var(--dim);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 8px;
+  margin-bottom: 4px;
+  white-space: pre-wrap;
+}
+
+/* --- rows & lists --- */
+
+/* nowrap audit (see .picker-body): safe — overflow:hidden + ellipsis cap the
+ * min-content contribution, and every .row ancestor rail has a fixed width
+ * (or 100% on mobile). */
+.row {
+  padding: 1px 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.row:hover {
+  background: var(--hover-bg);
+}
+
+/* Overrides .row's single-line-truncation assumptions: this is an info row
+ * (not a clickable nav item), so it needs to wrap onto multiple lines
+ * instead of clipping when its content doesn't fit one line. */
+.session-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  cursor: default;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+}
+
+.row.selected {
+  background: var(--selected-bg);
+  color: var(--fg-strong);
+}
+
+.row.change-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  overflow: visible;
+  text-overflow: clip;
+}
+
+button.change-row-select {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  text-align: left;
+}
+
+button.change-row-select:hover:not(:disabled) {
+  border: none;
+  color: inherit;
+}
+
+button.change-row-select:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
+}
+
+.change-row-id {
+  flex: none;
+}
+
+.change-row-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.marker {
+  color: var(--accent);
+  display: inline-block;
+  width: 1ch;
+}
+
+.indent {
+  padding-left: 16px;
+}
+
+.badge {
+  border: 1px solid currentColor;
+  border-radius: var(--r-sm);
+  padding: 0 4px;
+  margin-left: 6px;
+  font-size: var(--fs-xs);
+}
+
+/* Issue #536: "this is alpha software" flag — previously a fixed corner
+ * overlay shown on every screen, which sat over per-screen topbar controls.
+ * Now inline, next to the product title on the signed-out landing page only
+ * (see InfoPage.tsx), so it's just the shared `.badge` look plus a little
+ * breathing room and quiet opacity — no positioning of its own. */
+.alpha-badge {
+  opacity: 0.7;
+  cursor: default;
+  vertical-align: middle;
+}
+
+.change-indicators {
+  display: inline-flex;
+  flex: 0 1 auto;
+  flex-wrap: wrap;
+  gap: 3px;
+  vertical-align: middle;
+}
+
+.state-badge-wrap {
+  display: inline-flex;
+}
+
+button.state-badge {
+  margin-left: 0;
+  border-color: currentColor;
+  border-radius: var(--r-sm);
+  padding: 0 4px;
+  font-size: var(--fs-xs);
+  line-height: 1.45;
+}
+
+button.state-badge:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
+}
+
+.state-tooltip {
+  position: fixed;
+  z-index: var(--z-tooltip);
+  box-sizing: border-box;
+  width: min(320px, calc(100vw - 24px));
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 6px 8px;
+  background: var(--panel);
+  color: var(--fg);
+  font-size: var(--fs-sm);
+  line-height: 1.35;
+  white-space: normal;
+  box-shadow: var(--shadow-sm);
+}
+
+.change-state-legend {
+  position: relative;
+  flex: none;
+}
+
+.change-state-legend summary {
+  cursor: pointer;
+  color: var(--dim);
+  white-space: nowrap;
+}
+
+.change-state-legend-panel {
+  position: absolute;
+  z-index: var(--z-legend);
+  right: 0;
+  top: calc(100% + 6px);
+  display: grid;
+  gap: 7px;
+  box-sizing: border-box;
+  width: min(360px, calc(100vw - 24px));
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 8px;
+  background: var(--panel);
+  color: var(--fg);
+  box-shadow: var(--shadow-sm);
+}
+
+.change-state-legend-item {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  align-items: start;
+  gap: 6px;
+  font-size: var(--fs-sm);
+  line-height: 1.35;
+}
+
+.plain-list {
+  list-style: none;
+  padding-left: 8px;
+  margin: 4px 0;
+}
+
+/* --- buttons: [ bracketed ] terminal buttons --- */
+
+button {
+  background: transparent;
+  color: var(--fg);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  font: inherit;
+  padding: 2px 8px;
+  cursor: pointer;
+  /* The [ / ] below are separate generated boxes, not part of the label text —
+   * without this, a button squeezed narrower than its content wraps the label
+   * internally and the brackets can land on their own line, inflating the
+   * button's height and breaking row alignment with its siblings. Buttons
+   * that container flex-wrap can't fit are meant to move to a new row whole,
+   * never split internally. */
+  white-space: nowrap;
+}
+
+button::before {
+  content: "[ ";
+  color: var(--dim);
+}
+
+button::after {
+  content: " ]";
+  color: var(--dim);
+}
+
+/* --- bare buttons: the single opt-out from the bracket treatment ---
+ *
+ * Brackets are applied to the `button` ELEMENT, so every button is bracketed
+ * by default and anything that must read as something else (an inline link, a
+ * badge, a list row, a segmented control) has to opt out. That opt-out used
+ * to be seven separate `::before,::after { content: none }` blocks scattered
+ * down the file — `button.link`'s appeared twice verbatim, and three buttons
+ * that clearly should have been bare were simply never added: .cmdk-item
+ * (`all: unset` resets the element, NOT its pseudo-elements), .view-toggle
+ * and .diff-collapsed. Listing every bare button in one rule is what makes
+ * that omission visible.
+ *
+ * `.btn-bare` is the name to reach for on anything new. */
+.btn-bare::before,
+.btn-bare::after,
+button.link::before,
+button.link::after,
+button.stack-collapse::before,
+button.stack-collapse::after,
+button.change-row-select::before,
+button.change-row-select::after,
+button.state-badge::before,
+button.state-badge::after,
+[data-layer="palette"] [role="option"]::before,
+[data-layer="palette"] [role="option"]::after,
+.copy-button::before,
+.copy-button::after,
+.picker-row::before,
+.picker-row::after,
+.view-toggle::before,
+.view-toggle::after,
+.diff-collapsed::before,
+.diff-collapsed::after,
+button.repo-pin::before,
+button.repo-pin::after,
+.btn-icon::before,
+.btn-icon::after,
+.chip__x::before,
+.chip__x::after {
+  content: none;
+}
+
+button:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+button:disabled {
+  color: var(--dim);
+  cursor: not-allowed;
+}
+
+button.warn {
+  color: var(--warn);
+}
+
+button.accent {
+  color: var(--accent);
+}
+
+.copy-button {
+  border: none;
+  padding: 0;
+  margin-left: 6px;
+  font-size: var(--fs-xs);
+  color: var(--dim);
+}
+
+.copy-button:hover:not(:disabled) {
+  border: none;
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 6px 0;
+}
+
+.actions.stacked {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+/* --- tabs --- */
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 6px 12px;
+  border-bottom: 1px solid var(--border);
+  background: var(--panel);
+  flex: none;
+}
+
+.tab.active {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.review-meta {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  flex: none;
+}
+
+/* --- tables --- */
+
+table.kv {
+  border-collapse: collapse;
+  margin: 4px 0;
+}
+
+table.kv td {
+  padding: 1px 16px 1px 0;
+  vertical-align: top;
+}
+
+table.kv td:first-child {
+  color: var(--dim);
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+table.ops {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+table.ops th {
+  text-align: left;
+  color: var(--dim);
+  font-weight: normal;
+  border-bottom: 1px solid var(--border);
+  padding: 2px 12px 2px 0;
+}
+
+/* nowrap audit: safe — .table-scroll's overflow-x:auto gives wide op rows a
+ * scrollbar (layer 1) and .main's min-width:0 keeps them from widening the
+ * page (layer 2). */
+table.ops td {
+  padding: 1px 12px 1px 0;
+  white-space: nowrap;
+}
+
+table.ops td:nth-child(4) {
+  white-space: normal;
+}
+
+table.ops tr.selected td {
+  background: var(--selected-bg);
+}
+
+table.ops tbody tr {
+  cursor: pointer;
+}
+
+table.ops tbody tr:hover td {
+  background: var(--hover-bg);
+}
+
+/* A plain, non-clickable data grid (WebMcpDiagnostics' tool/call tables) —
+ * shares table.ops's header/width rules but deliberately skips its
+ * cursor:pointer/hover-highlight (these rows aren't clickable) and its
+ * nth-child(4) white-space override (op-log-column-specific, not general). */
+table.grid {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+table.grid th {
+  text-align: left;
+  color: var(--dim);
+  font-weight: normal;
+  border-bottom: 1px solid var(--border);
+  padding: 2px 12px 2px 0;
+}
+
+table.grid td {
+  padding: 2px 12px 4px 0;
+  vertical-align: top;
+}
+
+/* --- checks --- */
+
+.check-row {
+  display: flex;
+  gap: 12px;
+  padding: 1px 0;
+  flex-wrap: wrap;
+}
+
+.check-name {
+  min-width: 260px;
+}
+
+/* --- evidence panels ---
+ *
+ * ChecksPanel's grouped workflow-evidence section, DeploymentEvidencePanel,
+ * SecurityEvidencePanel and LinkedIssuesPanel all render the same shape (issue
+ * #279 merged the former standalone WorkflowEvidencePanel into ChecksPanel,
+ * which keeps reusing this shared `.evidence*` shape): a rule-off heading, an
+ * optional explanatory note capped at a reading measure, then a list of
+ * rows each marked by a left rule. They shipped as four independent
+ * copy-pasted blocks — 174 lines expressing one pattern four times, and
+ * already drifting apart (linked-issues used an 8px note margin and a 5px
+ * list gap where the other three used 6px and 8px, for no reason anyone
+ * chose). One pattern, four consumers.
+ *
+ * Panel-specific bits stay with their panel below; anything here is shared
+ * by construction, so a change to the pattern reaches all four. */
+
+.evidence {
+  border-top: 1px solid var(--border);
+  margin-top: 18px;
+  padding-top: 14px;
+}
+
+/* The review-health panel is the same pattern inverted — it sits ABOVE the
+ * content it introduces rather than below, so its rule is on the bottom. */
+.evidence-top {
+  border-top: none;
+  border-bottom: 1px solid var(--border);
+  margin: 0 0 18px;
+  padding: 0 0 16px;
+}
+
+.evidence-heading,
+.evidence-summary {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.evidence-heading .sec-title {
+  flex: 1 1 260px;
+  margin-bottom: 0;
+}
+
+.evidence-note {
+  margin: 6px 0;
+  max-width: 72ch;
+}
+
+.evidence-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.evidence-row {
+  border-left: 2px solid var(--border);
+  min-width: 0;
+  padding-left: 10px;
+}
+
+/* .check-name carries a 260px min-width for column alignment in ChecksPanel;
+ * inside an evidence row it must be allowed to shrink instead, and long
+ * unbroken names (workflow slugs, CVE ids, deployment envs) need a break
+ * opportunity or they force the row wider than its container. */
+.evidence-summary .check-name,
+.evidence-row .check-name {
+  min-width: min(260px, 100%);
+  overflow-wrap: anywhere;
+}
+
+/* Nested disclosure inside a row (workflow runs list their jobs this way). */
+.evidence-sublist {
+  margin: 6px 0 0;
+  min-width: 0;
+}
+
+.evidence-sublist summary {
+  cursor: pointer;
+  width: fit-content;
+}
+
+/* --- GitHub review threads --- */
+
+/* Review health is the evidence pattern with the rule on top (.evidence
+ * .evidence-top in the markup); only its own extras live here. Stack
+ * landability (issue #272 roadmap item 3.1) reuses the exact same spacing —
+ * it's the same evidence-panel shape, just with a different heading. */
+.stack-review-health,
+.stack-landability {
+  margin-top: 16px;
+}
+
+.review-health-facts,
+.reviewer-list,
+.review-owner-options,
+.review-routing-inputs {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.evidence-heading.review-health-heading {
+  justify-content: space-between;
+}
+
+.review-health-facts,
+.review-health-section,
+.review-routing {
+  margin-top: 10px;
+}
+
+.review-health-facts {
+  color: var(--dim);
+  font-size: var(--fs-sm);
+}
+
+.review-health-label {
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.reviewer-chip {
+  align-items: center;
+  border: 1px solid var(--border);
+  display: inline-flex;
+  gap: 5px;
+  padding: 3px 6px;
+}
+
+.reviewer-chip button {
+  font-size: var(--fs-xs);
+  padding: 1px 4px;
+}
+
+.review-owner-table {
+  margin-top: 6px;
+  max-inline-size: 100%;
+  overflow-wrap: anywhere;
+}
+
+.review-owner-options {
+  margin-bottom: 8px;
+}
+
+.review-owner-option {
+  align-items: center;
+  display: inline-flex;
+  gap: 4px;
+}
+
+.review-routing {
+  border: 1px solid var(--border);
+  min-inline-size: 0;
+  padding: 8px;
+}
+
+.review-routing-inputs label {
+  display: grid;
+  font-size: var(--fs-sm);
+  gap: 3px;
+}
+
+.review-routing-inputs input {
+  max-inline-size: min(100%, 240px);
+}
+
+@media (max-width: 768px) {
+  .review-health-heading {
+    align-items: flex-start;
+  }
+
+  .review-routing-inputs {
+    align-items: stretch;
+  }
+
+  .review-routing-inputs label,
+  .review-routing-inputs input {
+    inline-size: 100%;
+    max-inline-size: none;
+  }
+}
+
+.review-threads {
+  max-width: 900px;
+}
+
+.review-thread {
+  border-top: 1px solid var(--border);
+  padding: 10px 0 12px;
+  min-width: 0;
+}
+
+.review-thread-meta,
+.review-comment-meta,
+.review-thread-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: safe center;
+  gap: 6px 10px;
+}
+
+.review-thread-path {
+  font-family: var(--font-mono);
+  overflow-wrap: anywhere;
+}
+
+.review-comment {
+  border-top: 1px solid var(--border);
+  margin-top: 8px;
+  padding-top: 8px;
+}
+
+.review-comment-body {
+  margin-top: 4px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.review-thread-actions {
+  margin-top: 8px;
+}
+
+.review-thread-reply {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.review-thread-reply textarea {
+  min-width: 0;
+  min-height: 72px;
+  resize: vertical;
+}
+
+@media (max-width: 768px) {
+  .review-thread-reply {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .review-thread-reply button {
+    justify-self: start;
+  }
+}
+
+/* --- conflict detail --- */
+
+.conflict-cols {
+  display: flex;
+  gap: 12px;
+  margin: 6px 0;
+}
+
+.conflict-col {
+  flex: 1;
+  border: 1px solid var(--border);
+  padding: 6px 8px;
+  min-width: 0;
+}
+
+.col-head {
+  color: var(--accent);
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 4px;
+  padding-bottom: 2px;
+}
+
+/* --- misc --- */
+
+.empty {
+  color: var(--dim);
+  border: 1px dashed var(--border);
+  padding: 8px 10px;
+  margin: 6px 8px;
+  max-width: 640px;
+}
+
+.main .empty {
+  margin-left: 0;
+}
+
+.desc {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  padding: 8px;
+  white-space: pre-wrap;
+  max-width: 720px;
+}
+
+.link {
+  cursor: pointer;
+}
+
+.link:hover {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+/* A <button class="link"> (e.g. filter "clear" actions) should read as plain
+ * inline text, not the bracketed terminal button style — strip button chrome
+ * back down to what a clickable .link span would look like, keeping native
+ * button keyboard/focus semantics. */
+button.link {
+  border: none;
+  background: none;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+}
+
+/* button.link's `color: inherit`/`font: inherit` outrank .brand's own color/weight
+ * (higher specificity: type+class vs. a bare class) — restore them explicitly for
+ * a <button class="brand link">, e.g. the "JJHub" back-to-repositories link. */
+button.brand.link {
+  color: var(--accent);
+  font-weight: bold;
+}
+
+/* Same specificity fix as button.brand.link above, for a status-colored button.link
+ * (e.g. DaemonBadge's expand/collapse toggle, which carries pass/warn/dim). */
+button.pass.link {
+  color: var(--pass);
+}
+button.warn.link {
+  color: var(--warn);
+}
+button.dim.link {
+  color: var(--dim);
+}
+
+.dim {
+  color: var(--dim);
+}
+
+.accent {
+  color: var(--accent);
+}
+
+.pass {
+  color: var(--pass);
+}
+
+.warn {
+  color: var(--warn);
+}
+
+.fail {
+  color: var(--fail);
+}
+
+/* --- repo picker --- */
+
+.picker {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  /* See .picker-body's comment below — on screens that wrap it in this
+   * container, .picker is the element actually sitting as .app's flex item,
+   * so it needs the same min-width: 0 .picker-body needs on InfoPage's
+   * (signed-out) case, where .picker-body sits directly in .app instead. */
+  min-width: 0;
+}
+
+.picker-body {
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  overflow-x: hidden;
+  padding: 16px;
+  max-width: 720px;
+  /* This element (or its .picker wrapper above, on every screen that has
+   * one — InfoPage's signed-out case is the one exception, rendering
+   * .picker-body directly inside .app) sits as a flex item in a column
+   * flexbox. Flex items default to min-width:auto (their content's
+   * min-content size), not 0 — so any unbreakable (nowrap) descendant can
+   * force the WHOLE page into horizontal overflow. The original trigger
+   * (.sec-title's 31-dash nowrap rule) is gone — its rule is now a
+   * zero-min-content flex pseudo-element — but min-width: 0 and
+   * overflow-x: hidden stay as the general defense against whatever else
+   * ends up nowrap/unbreakable in here later. */
+  min-width: 0;
+}
+
+.form-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+/* nowrap audit: safe — ellipsis caps min-content, and .picker-body's
+ * min-width:0/overflow-x:hidden defenses contain anything that escapes. */
+.picker-row {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 1px 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.picker-row:hover:not(:disabled) {
+  background: var(--hover-bg);
+  color: var(--fg);
+  border-color: transparent;
+}
+
+.repo-shortlist {
+  margin-bottom: 10px;
+}
+
+.repo-search {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 8px 0 12px;
+}
+
+.repo-picker-entry {
+  display: flex;
+  align-items: stretch;
+  min-width: 0;
+}
+
+.repo-picker-entry .row {
+  flex: 1;
+  min-width: 0;
+}
+
+button.repo-pin {
+  width: 28px;
+  min-width: 28px;
+  padding: 0;
+  color: var(--dim);
+}
+
+button.repo-pin:hover {
+  color: var(--accent);
+}
+
+input {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  color: var(--fg);
+  font: inherit;
+  padding: 3px 8px;
+  flex: 1;
+}
+
+input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.repo-search input {
+  min-width: 0;
+}
+
+.repo-search input[type="search"]::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+select {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  color: var(--fg);
+  font: inherit;
+  padding: 3px 6px;
+}
+
+select:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+/* --- bookmark form --- */
+
+.bookmark-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 6px 8px 2px;
+}
+
+.bookmark-field {
+  flex: 1;
+  min-width: 90px;
+}
+
+/* --- change filter --- */
+
+.filter-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 4px 0 6px;
+}
+
+.filter-field {
+  display: block;
+  width: 100%;
+  flex: 1;
+  margin: 0;
+}
+
+.filter-row .link {
+  flex: none;
+  font-weight: bold;
+}
+
+/* --- Workspace board view (land-readiness columns) --- */
+
+.view-toggle {
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--dim);
+  padding: 2px 8px;
+  font-size: var(--fs-sm);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+}
+
+.view-toggle-active {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.board {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.board-column {
+  flex: 1 0 180px;
+  min-width: 180px;
+}
+
+.board-column-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--dim);
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 2px 4px 4px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 6px;
+}
+
+.board-column-count {
+  border: 1px solid var(--border);
+  border-radius: var(--r-pill);
+  padding: 0 6px;
+  font-size: var(--fs-xs);
+}
+
+.board-empty {
+  padding: 2px 4px;
+  font-size: var(--fs-sm);
+  font-style: italic;
+}
+
+.board-card {
+  border: 1px solid var(--border);
+  background: var(--panel);
+  border-radius: var(--r-md);
+  padding: 6px 8px;
+  margin-bottom: 6px;
+  cursor: pointer;
+}
+
+.board-card:hover {
+  border-color: var(--accent);
+}
+
+.board-card-selected {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, var(--panel));
+}
+
+.board-card-title {
+  font-weight: bold;
+  margin-bottom: 2px;
+  overflow-wrap: anywhere;
+}
+
+.board-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--fs-xs);
+}
+
+.stack-management-hint {
+  margin: 0 0 12px;
+}
+
+/* --- op log filter --- */
+
+.oplog-filters {
+  margin-bottom: 10px;
+}
+
+.oplog-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.oplog-filter-row select,
+.oplog-filter-row input[type="date"] {
+  flex: 1;
+  min-width: 110px;
+}
+
+.oplog-filter-row .link {
+  flex: none;
+  font-weight: bold;
+}
+
+/* --- modal --- */
+
+/* `.scrim` is the generic name for this overlay layer (shared component
+ * vocabulary, row 42); .cmdk-overlay is the same layer top-anchored, which
+ * `.scrim.scrim-top` reproduces for new callers. */
+.modal-overlay,
+.scrim {
+  position: fixed;
+  inset: 0;
+  background: var(--scrim);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--z-modal);
+}
+
+.modal {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  padding: 14px 16px;
+  min-width: 360px;
+  max-width: 640px;
+  /* A modal's own content (AddFilesModal's upload/compose/file-list/delete
+   * sections in particular) can exceed any viewport's height — html/body/
+   * #root are overflow:hidden on purpose (see that rule's comment), so
+   * without this the modal just clips, taking its Cancel/Commit actions
+   * with it. dvh (not vh) accounts for mobile browser chrome, matching
+   * .rail.right's mobile max-height below. */
+  max-height: 90dvh;
+  overflow-y: auto;
+}
+
+.modal-title {
+  font-size: var(--fs-lg);
+  margin-bottom: 6px;
+}
+
+.modal-message {
+  margin-bottom: 8px;
+}
+
+.modal-field {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--fg);
+  font: inherit;
+  padding: 6px 8px;
+  resize: vertical;
+}
+
+.modal-field:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+/* Groups a label with its field in a multi-field dialog (e.g. NewChangeModal) —
+ * `.modal-message`/plain `.modal-field` are enough for Modal's single-field case,
+ * but stacking several labeled fields needs its own spacing rhythm. */
+.modal-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin: 8px 0;
+}
+
+.modal-actions {
+  margin-top: 10px;
+  justify-content: flex-end;
+}
+
+.modal-wide {
+  max-width: 1100px;
+  width: 90vw;
+}
+
+.stack-manager {
+  width: 100%;
+  max-width: 760px;
+}
+
+.stack-manager-field {
+  display: grid;
+  gap: 4px;
+  margin: 10px 0;
+}
+
+.stack-manager-field label,
+.stack-manager-members legend {
+  color: var(--dim);
+}
+
+.stack-manager-members {
+  min-width: 0;
+  margin: 10px 0;
+  border: 1px solid var(--border);
+}
+
+.stack-manager-candidates {
+  max-height: 240px;
+  overflow: auto;
+}
+
+.stack-manager-candidate {
+  display: grid;
+  grid-template-columns: auto max-content minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: baseline;
+  padding: 5px 2px;
+}
+
+.stack-manager-change-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stack-manager-order {
+  display: grid;
+  gap: 4px;
+  padding-left: 28px;
+  margin: 0;
+}
+
+.stack-manager-order li {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
+
+.stack-manager-move {
+  min-width: 2.5ch;
+  padding: 0 4px;
+}
+
+@media (max-width: 768px) {
+  .stack-manager {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .stack-manager-candidate {
+    grid-template-columns: auto max-content minmax(0, 1fr);
+  }
+
+  .stack-manager-candidate .dim {
+    grid-column: 3;
+  }
+}
+
+/* --- command palette (Cmd+K / Ctrl+K, issue #96) --- */
+
+[data-layer="palette"] {
+  position: fixed;
+  inset: 0;
+  background: var(--scrim);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 12vh;
+  z-index: var(--z-palette);
+}
+
+[data-layer="palette"] > article {
+  margin: 0;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  width: 560px;
+  max-width: 90vw;
+  max-height: 70vh;
+  display: flex;
+  flex-direction: column;
+}
+
+[data-layer="palette"] form[role="search"] {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+}
+
+[data-layer="palette"] form[role="search"] > input {
+  background: var(--bg);
+  border: none;
+  color: var(--fg);
+  font: inherit;
+  padding: 10px 12px;
+  width: 100%;
+  flex: 1;
+  min-width: 0;
+}
+
+[data-layer="palette"] form[role="search"] > input:focus {
+  outline: none;
+}
+
+[data-layer="palette"] form[role="search"] > button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: var(--dim);
+  cursor: pointer;
+  padding: 0 12px;
+  font-size: var(--fs-xl);
+  line-height: 1;
+  /* On mobile the palette is full-screen — there's no visible backdrop to tap and no
+   * Escape key, so .cmdk-close is the only way to dismiss it at all there, not just a
+   * convenience. 44px is Apple HIG's minimum comfortable tap target; both dimensions
+   * (not just height) matter for a target this narrow, and centering keeps the glyph
+   * from looking off-position within the taller/wider box. Applied unconditionally
+   * rather than only under the mobile breakpoint — there's no reason for this row to
+   * size differently by screen width. */
+  min-height: 44px;
+  min-width: 44px;
+}
+
+[data-layer="palette"] form[role="search"] > button:hover {
+  color: var(--fg);
+}
+
+[data-layer="palette"] form[role="search"] > button[aria-pressed="true"] {
+  color: var(--fail);
+}
+
+[data-layer="palette"] [role="listbox"] {
+  list-style: none;
+  margin: 0;
+  overflow-y: auto;
+  padding: 4px 0;
+}
+
+[data-layer="palette"] [role="option"] {
+  all: unset;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 6px 12px;
+  width: 100%;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+}
+
+[data-layer="palette"] [role="option"][aria-selected="true"] {
+  background: var(--border);
+}
+
+[data-layer="palette"] [role="option"]:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: calc(-1 * var(--focus-offset));
+}
+
+[data-layer="palette"] [role="option"] > span {
+  color: var(--fg);
+}
+
+[data-layer="palette"] [role="option"] > span mark {
+  background: none;
+  color: var(--accent);
+  font-weight: bold;
+}
+
+[data-layer="palette"] [role="option"] > small {
+  color: var(--dim);
+  font-size: var(--fs-sm);
+}
+
+[data-layer="palette"] [role="listbox"] > [data-empty] {
+  color: var(--dim);
+  padding: 10px 12px;
+}
+
+[data-layer="palette"] section[role="note"] {
+  color: var(--dim);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+[data-layer="palette"] section[role="note"] > p {
+  margin: 0;
+}
+[data-layer="palette"] section[role="note"] kbd {
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 0 4px;
+  margin-right: 2px;
+  font-size: var(--fs-xs);
+}
+
+[data-layer="palette"] > article > footer {
+  color: var(--dim);
+  border-top: 1px solid var(--border);
+  padding: 6px 12px;
+  font-size: var(--fs-sm);
+}
+
+[data-layer="palette"] > article > form:not([role]) {
+  margin: 0;
+  padding: 14px 16px;
+}
+[data-layer="palette"] > article > form:not([role]) > h2 {
+  margin: 0 0 6px;
+  font-size: var(--fs-lg);
+  font-weight: normal;
+}
+[data-layer="palette"] > article > form:not([role]) > p {
+  margin: 0 0 8px;
+  color: var(--dim);
+}
+
+[data-layer="palette"] > article > form:not([role]) > div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin: 8px 0;
+}
+
+.edit-merged-cols {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.edit-merged-col {
+  flex: 1;
+  min-width: 0;
+}
+
+.edit-merged-col textarea {
+  height: 100%;
+}
+
+/* --- diff view --- */
+
+/* Container-query pilot (the codebase's first): .diff-view is the container,
+ * .diff-split responds to the PANE's width, not the viewport's — so split
+ * diffs stack whenever the pane is narrow (wide rail dragged out, split-
+ * screen desktop window), not just on phones. Scoped here deliberately:
+ * inline-size containment makes this element the containing block for
+ * position:fixed descendants, which would break modals/overlays if applied
+ * to .main or .cols — .diff-view has no such descendants (scroll body +
+ * rows only). The 560px threshold is a content threshold (where side-by-side
+ * code becomes unreadable), intentionally not the 768px mobile breakpoint —
+ * test/web-breakpoint.test.ts excludes @container widths for this reason. */
+.diff-view {
+  border: 1px solid var(--border);
+  width: min(100%, 1100px);
+  min-width: 0;
+  margin: 6px 0;
+  overflow: hidden;
+  container-type: inline-size;
+}
+
+@container (max-width: 560px) {
+  .diff-split {
+    flex-direction: column;
+  }
+
+  .diff-split-col + .diff-split-col {
+    border-left: none;
+    border-top: 1px solid var(--border);
+  }
+}
+
+.diff-head {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--border);
+  background: var(--panel);
+}
+
+.diff-body {
+  max-height: 420px;
+  max-width: 100%;
+  overflow: auto;
+}
+
+.diff-line {
+  display: flex;
+  min-width: 0;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 0 8px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.diff-marker {
+  width: 1ch;
+  flex: none;
+  color: var(--dim);
+}
+
+.diff-text {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.diff-add {
+  background: color-mix(in srgb, var(--pass) var(--tint-weak), transparent);
+  color: var(--pass);
+}
+
+.diff-del {
+  background: color-mix(in srgb, var(--fail) var(--tint-weak), transparent);
+  color: var(--fail);
+}
+
+.diff-blank {
+  background: var(--panel);
+}
+
+.diff-split {
+  display: flex;
+}
+
+.diff-split-col {
+  flex: 1;
+  min-width: 0;
+}
+
+.diff-split-col + .diff-split-col {
+  border-left: 1px solid var(--border);
+}
+
+.diff-split-head {
+  color: var(--accent);
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--border);
+  background: var(--panel);
+}
+
+.diff-warning {
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.patch-view {
+  max-width: none;
+}
+
+.patch-head {
+  justify-content: flex-end;
+}
+
+.patch-collapse-control {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--dim);
+  font-size: var(--fs-sm);
+}
+
+.patch-collapse-control input {
+  accent-color: var(--accent);
+}
+
+.patch-body {
+  background: var(--panel);
+}
+
+.patch-line {
+  display: grid;
+  grid-template-columns: 2ch minmax(0, 1fr);
+  gap: 6px;
+  white-space: pre-wrap;
+}
+
+.patch-hunk {
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+.patch-meta {
+  color: var(--dim);
+}
+
+.patch-add {
+  background: color-mix(in srgb, var(--pass) var(--tint-strong), transparent);
+  color: var(--pass);
+}
+
+.patch-del {
+  background: color-mix(in srgb, var(--fail) var(--tint-strong), transparent);
+  color: var(--fail);
+}
+
+.diff-collapsed {
+  display: block;
+  width: 100%;
+  border: 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  border-radius: 0;
+  color: var(--dim);
+  background: var(--panel);
+  font: inherit;
+  font-size: var(--fs-sm);
+  text-align: left;
+}
+
+.diff-collapsed:hover,
+.diff-collapsed:focus-visible {
+  color: var(--accent);
+  outline: none;
+}
+
+/* --- accessibility --- */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* --- auth (issue #43): status-bar user chip; landing/CTA button --- */
+
+.btn.primary {
+  display: inline-block;
+  padding: 8px 18px;
+  background: var(--accent);
+  color: var(--bg);
+  border-radius: var(--r-lg);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.btn.primary:hover {
+  text-decoration: none;
+  filter: brightness(1.1);
+}
+
+/* --- info / landing page --- */
+
+/* InfoPage scrolls as a real document, not inside a fixed inner box. While it
+ * is mounted it adds .info-doc to <html> (see InfoPage.tsx), which releases
+ * the global overflow:hidden / height:100% lock so the viewport itself
+ * scrolls — scrollbar at the window edge, content free to grow. Every other
+ * screen keeps the locked shell; the class is removed on unmount. */
+html.info-doc,
+html.info-doc body,
+html.info-doc #root {
+  height: auto;
+  overflow: visible;
+  overscroll-behavior: auto;
+}
+
+.info-shell {
+  /* Normal-flow shell — no position:fixed, so it grows with its content and
+   * the document (not an inner element) does the scrolling. */
+  min-height: 100%;
+}
+
+.info-page {
+  padding: 16px;
+  padding-bottom: 48px;
+}
+
+.info-content {
+  /* The reading column: capped and centered here, on a normal block, so the
+   * cap never turns an ancestor into a mid-viewport scroll box. */
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.info-hero {
+  text-align: center;
+  padding: 32px 0 24px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 8px;
+}
+
+.info-hero h1 {
+  color: var(--accent);
+  font-size: 2em;
+  margin: 0 0 4px;
+}
+
+.info-tagline {
+  color: var(--fg);
+  font-size: 1.1em;
+  margin: 0 0 12px;
+}
+
+.info-hero p {
+  max-width: 620px;
+  margin: 0 auto 12px;
+}
+
+.info-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+/* Discreet build stamp at the very bottom of the info page — small, centered,
+ * already dimmed by the .dim class it carries. */
+.info-version {
+  text-align: center;
+  font-size: 0.78em;
+  margin-top: 40px;
+  opacity: 0.7;
+}
+
+/* --- DocViewer: rendered markdown (react-markdown output, no classes of its
+ * own, so styled by element within this wrapper) --- */
+.doc-content {
+  margin-top: 12px;
+  line-height: 1.6;
+}
+
+.doc-content h1,
+.doc-content h2,
+.doc-content h3,
+.doc-content h4 {
+  color: var(--fg);
+  margin: 1.4em 0 0.5em;
+  line-height: 1.3;
+}
+
+.doc-content h1 {
+  font-size: 1.5em;
+}
+.doc-content h2 {
+  font-size: 1.25em;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.2em;
+}
+.doc-content h3 {
+  font-size: 1.1em;
+}
+
+.doc-content p,
+.doc-content li {
+  color: var(--fg);
+}
+
+.doc-content ul,
+.doc-content ol {
+  padding-left: 1.5em;
+}
+
+.doc-content code {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 0 4px;
+  font-size: 0.9em;
+}
+
+.doc-content pre {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 12px;
+  overflow-x: auto;
+}
+
+.doc-content pre code {
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+.doc-content blockquote {
+  border-left: 3px solid var(--border);
+  margin: 0.8em 0;
+  padding: 0 0 0 1em;
+  color: var(--dim);
+}
+
+.doc-content table {
+  border-collapse: collapse;
+  margin: 0.8em 0;
+}
+
+.doc-content th,
+.doc-content td {
+  border: 1px solid var(--border);
+  padding: 4px 10px;
+  text-align: left;
+}
+
+.doc-content hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 1.5em 0;
+}
+
+.doc-content img {
+  max-width: 100%;
+}
+
+/* Pretty-printed JSON docs (agent card, skills index) reuse the code-block
+ * look; overflow-x so long values scroll instead of blowing out the column. */
+.doc-json {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 12px;
+  overflow-x: auto;
+  font-size: 0.9em;
+}
+
+/* --- ApiReference: host for the lazily-loaded <rapi-doc> web component,
+ * which manages its own scroll/layout inside its shadow DOM --- */
+.api-ref {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+/* Hero proof strip: short verifiable facts under the CTA; separators via
+ * gap only, so items wrap freely on narrow screens with no dangling dots. */
+.info-proof {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px 18px;
+  margin-top: 14px;
+  font-size: 0.95em;
+}
+
+.info-vocab-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 8px 0 20px;
+}
+
+.info-vocab-item {
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+.info-vocab-item:first-child {
+  padding-top: 0;
+  border-top: none;
+}
+
+.info-vocab-terms {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 2px;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+  margin: 8px 0 20px;
+}
+
+.info-card {
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 10px 12px;
+  background: var(--panel);
+}
+
+.info-card-title {
+  color: var(--accent);
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.info-code {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 10px 12px;
+  overflow-x: auto;
+  margin: 8px 0;
+}
+
+.info-page code {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 1px 4px;
+  font-size: 0.95em;
+}
+
+.info-page .info-code code {
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+.user-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.user-chip .avatar {
+  width: 16px;
+  height: 16px;
+  border-radius: var(--r-circle);
+}
+
+.linklike {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--accent);
+  cursor: pointer;
+  font: inherit;
+  text-decoration: underline;
+}
+
+/* --- change DAG (issue #45) --- */
+
+.stack-graph {
+  color: var(--fg);
+  display: block;
+  max-width: 100%;
+}
+
+.stack-graph text:focus {
+  outline: var(--focus-ring);
+}
+
+.graph-details summary {
+  cursor: pointer;
+  list-style: revert;
+}
+
+/* --- mobile (<=768px) --- */
+/* Breakpoint must match MOBILE_BREAKPOINT exported from web/src/helpers.ts —
+ * CSS can't reference a JS constant; test/web-breakpoint.test.ts enforces the
+ * pair (every @media width here must equal the constant; @container widths
+ * are exempt — those are component-local content thresholds). */
+
+@media (max-width: 768px) {
+  /* Compact desktop text (13px base, badges at 11px, scattered em-relative
+   * hint text) is uncomfortably small on a phone. Rather than re-listing
+   * individual selectors at bigger sizes, LIFT THE WHOLE SCALE by one step —
+   * every --fs-* consumer moves together and nothing can be forgotten. The
+   * old approach patched body/.badge/.copy-button by hand and silently left
+   * every other 11px/12px rule (board headers, cmdk descriptions, workflow
+   * meta, review-health facts…) at their cramped desktop size. */
+  :root {
+    --fs-xs: 12px;
+    --fs-sm: 13px;
+    --fs-md: 14px;
+    --fs-lg: 15px;
+    /* --fs-xl stays 16px: it is not a scale step but a hard iOS threshold
+     * (see the form-control rule below), so lifting it would be meaningless. */
+    --fs-2xl: 20px;
+  }
+
+  /* "github.com/" is a helpful disambiguator on a wide topbar but is mostly
+   * dead weight (and space we don't have) once the screen is phone-width and
+   * the repo name is already truncating against everything else up there. */
+  .repo-link-host {
+    display: none;
+  }
+
+  /* 16px is the iOS focus-zoom threshold: any focused text control below it
+   * makes Safari zoom the page (belt — the viewport meta's maximum-scale=1 is
+   * the suspenders). This is a floor, not a scale step — the lifted --fs-md
+   * above is only 14px, still under the threshold. .cmdk-input and
+   * .modal-field are listed explicitly because their own class rules set
+   * font shorthands that outrank the bare element selectors here. */
+  input,
+  select,
+  textarea,
+  .modal-field,
+  [data-layer="palette"] form[role="search"] > input {
+    font-size: var(--fs-xl);
+  }
+
+  /* .modal's min-width: 360px overflows any viewport under 360px with zero
+   * margin; .modal-wide's width: 90vw combined with that min-width
+   * resolves to max(360px, 90vw), same problem. Drop the min-width under
+   * the breakpoint and give both a consistent 12px gutter instead. */
+  .modal {
+    min-width: 0;
+    width: calc(100vw - 24px);
+    max-width: calc(100vw - 24px);
+  }
+
+  /* AddFilesModal's file-list rows (.check-row, wrapping now) still can't fit
+   * a 260px-min-width name alongside its byte-count and Remove button on a
+   * phone-width modal — let it shrink instead of forcing the row to overflow
+   * sideways. Left at 260px on wider viewports (ChecksPanel's column
+   * alignment there is intentional). A repo-relative path has no spaces to
+   * break on (only slashes, which CSS doesn't wrap at by default), so a
+   * single long path still forces the row wider than the modal without
+   * overflow-wrap — flex-wrap alone only wraps whole items, not text within
+   * one. */
+  .check-name {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .modal-wide {
+    width: calc(100vw - 24px);
+  }
+
+  /* .cols/.rail/.main: Workspace.tsx and ConflictResolver.tsx toggle between
+   * showing the rail (a list) and .main (the selected item's detail) full-
+   * width via the mobile-detail class (JS-driven, see useIsMobile() call
+   * sites); ChangeReview.tsx gets no JS changes at all — its .main already
+   * precedes .rail.right in DOM order, so flex-direction: column alone
+   * produces the right reading order (description/diff, then CI/checks/
+   * land actions below). .rail:not(.right) in the toggle rule deliberately
+   * excludes ChangeReview's right rail, which always stays visible/stacked,
+   * never toggled — there's no "list" for it to go back to. */
+  .cols {
+    flex-direction: column;
+  }
+
+  .rail,
+  .rail.right,
+  .main {
+    width: 100%;
+    max-width: none;
+  }
+
+  /* In the column-direction .cols, desktop's flex:none would size the rail
+   * to its full CONTENT height — taller than the viewport, clipped by the
+   * body's overflow:hidden, and unscrollable (its clientHeight equals its
+   * scrollHeight, so the rail itself has nothing to scroll). The list rail
+   * is the only visible flex child in list mode: let it fill and scroll. */
+  .rail:not(.right) {
+    flex: 1 1 0;
+    min-height: 0;
+  }
+
+  .rail.right {
+    border-left: none;
+    border-top: 1px solid var(--border);
+    /* Stacked below .main (ChangeReview): unbounded content height would
+     * crush .main toward zero; cap it and let its own overflow-y scroll. */
+    max-height: 45dvh;
+  }
+
+  .resize-handle {
+    /* helpers.ts's useResizableWidth is purely mouse-event-driven (no touch/
+     * pointer handling) — dead UI on touch, hide rather than leave inert. */
+    display: none;
+  }
+
+  .cols.mobile-detail .rail:not(.right) {
+    display: none;
+  }
+
+  .cols:not(.mobile-detail) .main {
+    display: none;
+  }
+
+  /* .diff-split's narrow-stacking now lives in .diff-view's @container rule
+   * (it responds to pane width, which on a phone is narrow anyway);
+   * .conflict-cols stays viewport-driven — its nearest clean container
+   * ancestor is .main, and inline-size containment there would break
+   * position:fixed overlays (see .diff-view's comment). Follow-up candidate
+   * if it ever gets a dedicated wrapper. */
+  .conflict-cols {
+    flex-direction: column;
+  }
+
+  /* Command palette: a 560px-wide, top-anchored box (the desktop layout) leaves
+   * awkward margins on a phone and fights the on-screen keyboard for space —
+   * go full-screen instead, and size tap targets for a finger, not a cursor. */
+  [data-layer="palette"] {
+    padding-top: 0;
+    align-items: stretch;
+  }
+
+  [data-layer="palette"] > article {
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+    max-height: 100%;
+    border: none;
+  }
+
+  [data-layer="palette"] [role="option"] {
+    padding: 12px;
+  }
+
+  .statusbar .link {
+    padding: 6px 0;
+  }
+}
+
+/* --- spinner: the one in-flight affordance (statusbar pending, land modal,
+ * first loads). Sized by font-size so it inherits context scale. --- */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spinner {
+  display: inline-block;
+  width: 0.9em;
+  height: 0.9em;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: var(--r-circle);
+  animation: spin 0.8s linear infinite;
+  vertical-align: -0.1em;
+}
+
+.statusbar .spinner {
+  margin-right: 6px;
+}
+
+/* --- menu: a <details>-backed dropdown ---
+ *
+ * Two consumers shipped as separate copies of the same ~45 lines: Workspace's
+ * mobile topbar overflow menu and Confirmations' split-button alternates.
+ * They differed only in trigger styling, anchor edge and min-width — none of
+ * which were deliberate divergences, they were just typed twice. Built on
+ * native <details> so neither needs open/closed React state.
+ *
+ * Structure:  <details class="menu menu-btn">          (or .menu-caret)
+ *               <summary>…</summary>
+ *               <div class="menu-items">…</div>
+ *             </details>
+ */
+
+.menu {
+  position: relative;
+}
+
+.menu > summary {
+  cursor: pointer;
+  list-style: none;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 2px 8px;
+  color: var(--fg);
+}
+
+.menu > summary::-webkit-details-marker {
+  display: none;
+}
+
+.menu > summary:hover,
+.menu[open] > summary {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Trigger reads as a peer of the bracketed terminal buttons around it. The
+ * brackets are generated boxes here for the same reason they are on <button>
+ * (see that rule) — they are chrome, not label text. */
+.menu-btn > summary::before {
+  content: "[ ";
+  color: var(--dim);
+}
+
+.menu-btn > summary::after {
+  content: " ]";
+  color: var(--dim);
+}
+
+/* Trigger is a bare caret hanging off a primary button — secondary chrome,
+ * so it sits at --dim until interacted with. */
+.menu-caret > summary {
+  padding: 2px 6px;
+  color: var(--dim);
+}
+
+.menu-items {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  z-index: var(--z-dropdown);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 180px;
+  padding: 8px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+}
+
+/* Anchor to the trigger's left edge instead (a menu opening under a control
+ * that sits on the left of its row). */
+.menu-start > .menu-items {
+  right: auto;
+  left: 0;
+}
+
+.menu-items button {
+  width: 100%;
+  text-align: left;
+}
+
+/* --- split-btn: a primary action + a caret dropdown of alternates --- */
+
+.split-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+/* --- repo-group: owner-grouped sections in RepoPicker, shown only when a
+   user tracks repos across more than one GitHub owner/installation --- */
+
+.repo-group {
+  margin-bottom: 8px;
+}
+
+.repo-group summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 4px 0;
+  color: var(--fg);
+  font-weight: bold;
+}
+
+.repo-group summary::-webkit-details-marker {
+  display: none;
+}
+
+.repo-group summary::before {
+  content: "▸ ";
+  color: var(--dim);
+}
+
+.repo-group[open] summary::before {
+  content: "▾ ";
+}
+
+.repo-group-items {
+  padding-left: 14px;
+}
+
+/* --- repository topology: read-only facts observed by local workspace agents --- */
+
+.topology-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-inline-size: 0;
+}
+
+.topology-workspace-picker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.topology-observation,
+.topology-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px 20px;
+  padding-block: 10px;
+  border-block: 1px solid var(--border);
+}
+
+.topology-observation > div,
+.topology-facts > div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-inline-size: 0;
+}
+
+.topology-observation code,
+.topology-facts code,
+.topology-table code {
+  overflow-wrap: anywhere;
+}
+
+.topology-section {
+  min-inline-size: 0;
+}
+
+.topology-url {
+  min-inline-size: 220px;
+  max-inline-size: 42vw;
+}
+
+.topology-warnings {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-block: 8px 0;
+  padding-inline-start: 20px;
+  color: var(--warn);
+}
+
+/* issue #466: inline sandboxed preview panel (ChangeReview diff tab). */
+.preview-panel {
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  margin-bottom: 16px;
+  background: var(--panel);
+}
+
+.preview-panel-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.preview-panel-actions {
+  display: inline-flex;
+  gap: 6px;
+  margin-inline-start: auto;
+}
+
+/* Previewed documents are authored for a light page; the fixed --paper
+   ground keeps a file with no background of its own readable in the dark
+   theme. */
+.preview-frame {
+  display: block;
+  width: 100%;
+  height: 480px;
+  border: none;
+  background: var(--paper);
+}
+
+/* issue #277 (3.8): change route preview badges/chips. */
+.route-badge {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--border);
+  font-size: 0.85em;
+  white-space: nowrap;
+}
+
+.route-badge-same_repo {
+  color: var(--pass);
+  border-color: var(--pass);
+}
+
+.route-badge-user_fork {
+  color: var(--warn);
+  border-color: var(--warn);
+}
+
+.route-badge-unprojected {
+  color: var(--dim);
+}
+
+.dep-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.dep-chip {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--border);
+  font-size: 0.85em;
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .topology-workspace-picker {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .topology-url {
+    max-inline-size: 60vw;
+  }
+}
+
+/* --- revset-powered change discovery (issue #274) --- */
+
+.revset-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-inline-size: 0;
+}
+
+.revset-limit {
+  flex: 0 0 140px;
+}
+
+.revset-results {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-inline-size: 0;
+}
+
+.revset-saved-views {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.saved-view-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.saved-view-row code {
+  overflow-wrap: anywhere;
+  flex: 1;
+}
+
+/* Issue #467: one result row's jjhub change / stack / PR links. */
+.revset-links {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 10px;
+  white-space: nowrap;
+}
+
+.revset-untracked {
+  font-style: italic;
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .revset-limit {
+    flex: none;
+  }
+}

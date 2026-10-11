@@ -1,0 +1,74 @@
+/*
+  design-engine — capabilities: attribute knobs (typed attr() + @property)
+  -----------------------------------------------------------------------------
+  Per-element overrides WITHOUT classes or inline styles: a data-attribute
+  feeds a registered custom property through typed `attr()`. Registration
+  (foundation/properties.css) gives each knob a type and an initial value, so
+  a missing or malformed attribute degrades to the default instead of
+  invalidating the rule. Instances may set the same properties in CSS; the
+  attribute wins only on the element that carries it.
+
+    <ul data-grid data-cols="5">          any integer, not just 2/3/4
+    <article data-span="2">               grid-column span
+    <section data-hue="30">               re-hue the accent for a region
+    <article data-measure="52ch">         override the reading measure
+
+  SUPPORT: typed attr() is Chromium 133+ (Sept 2026: Firefox/Safari pending).
+  Each rule is gated with @supports so other engines keep the enumerated
+  fallbacks in structure/grids.css and the instance's own tokens.
+
+  Verbatim syntax:  attr(<attr-name> type(<syntax>), <fallback>)
+*/
+
+@layer de.capabilities {
+  @supports (width: attr(x type(<length>))) {
+    /* integer column count on any grid container */
+    :where([data-engine]) :where([data-cols]) {
+      --de-cols: attr(data-cols type(<integer>), 0);
+    }
+    :where([data-engine]) :where([data-grid][data-cols], ul[data-cols], ol[data-cols], de-grid[data-cols]) {
+      display: grid;
+      grid-template-columns: repeat(var(--de-cols), minmax(0, 1fr));
+    }
+    @media (max-width: 48rem) {
+      :where([data-engine]) :where([data-cols]) { grid-template-columns: minmax(0, 1fr); }
+    }
+
+    /* span N tracks */
+    :where([data-engine]) :where([data-span]) {
+      --de-span: attr(data-span type(<integer>), 1);
+      grid-column: span var(--de-span);
+    }
+
+    /* re-hue the accent for a region. Custom properties substitute var()
+       where they are DECLARED, so the ramp and the tokens derived from it
+       are re-declared here, on the element that carries the knob (a
+       self-reference like `oklch(from var(--de-color-accent) …)` would be a
+       cycle). Derived tokens the engine reads from the accent are re-derived
+       too, so buttons, rings and tints follow. */
+    :where([data-engine]) :where([data-hue]) {
+      --de-hue: attr(data-hue type(<number>), 250);
+      --de-accent-3: oklch(76% calc(var(--de-chroma) * 0.75) var(--de-hue));
+      --de-accent-5: oklch(44% var(--de-chroma) var(--de-hue));
+      --de-accent-7: oklch(38% calc(var(--de-chroma) * 1.06) var(--de-hue));
+      --de-color-accent:   light-dark(var(--de-accent-5), var(--de-accent-3));
+      --de-color-accent-2: light-dark(var(--de-accent-7), var(--de-accent-3));
+      --de-color-accent-soft: color-mix(in oklab, var(--de-color-accent) 18%, transparent);
+      --de-state-focus-ring: var(--de-color-accent);
+      --de-state-focus-ring-soft: color-mix(in oklab, var(--de-color-accent) 30%, transparent);
+      --de-button-primary-bg: var(--de-color-accent);
+      accent-color: var(--de-color-accent);
+    }
+
+    /* reading measure */
+    :where([data-engine]) :where([data-measure]) {
+      --de-measure: attr(data-measure type(<length>), 70ch);
+    }
+
+    /* an angle knob — instances with rotated elements read it */
+    :where([data-engine]) :where([data-tilt]) {
+      --de-tilt: attr(data-tilt type(<angle>), 0deg);
+      rotate: var(--de-tilt);
+    }
+  }
+}

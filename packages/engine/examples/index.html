@@ -1,0 +1,685 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>design-engine — a classless CSS Zen Garden</title>
+    <link rel="stylesheet" href="../src/index.css" />
+    <style>
+      /* Showcase chrome only — lives outside [data-engine], never restyled by a design. */
+      :root { color-scheme: dark; }
+      .switcher {
+        position: sticky; top: 0; z-index: 1000;
+        display: flex; align-items: center; flex-wrap: wrap; gap: .25rem .5rem;
+        padding: .5rem .75rem;
+        background: #0b0d10; color: #e6e8eb; border-bottom: 1px solid #20262c;
+        font: 500 13px/1 ui-monospace, "SF Mono", Menlo, monospace;
+      }
+      .switcher b { letter-spacing: .04em; margin-inline-end: .25rem; color: #fff; }
+      .switcher button {
+        appearance: none; cursor: pointer;
+        border: 1px solid #2a3138; background: #13171c; color: #aab2bb;
+        padding: .3rem .55rem; border-radius: 6px; font: inherit;
+        transition: background .15s, color .15s, border-color .15s;
+      }
+      .switcher button:hover { color: #fff; border-color: #3a444e; }
+      .switcher button[aria-pressed="true"] { background: #2f6df6; color: #fff; border-color: #2f6df6; }
+      .switcher i { font-style: normal; color: #6b7480; margin-inline: .35rem; }
+      .switcher label { display: inline-flex; align-items: center; gap: .3rem; color: #8b949e; }
+      .switcher span { color: #6b7480; }
+      .switcher select { font: inherit; background: #13171c; color: #e6e8eb; border: 1px solid #2a3138; border-radius: 6px; padding: .25rem .4rem; }
+    </style>
+  </head>
+  <body>
+    <nav class="switcher" aria-label="Designs">
+      <b>design-engine</b>
+      <button data-set-instance="default">default</button>
+      <button data-set-instance="editorial" aria-pressed="true">editorial</button>
+      <button data-set-instance="brutal">brutal</button>
+      <button data-set-instance="glass">glass</button>
+      <button data-set-instance="terminal">terminal</button>
+      <button data-set-instance="zine">zine</button>
+      <button data-set-instance="synthwave">synthwave</button>
+      <button data-set-instance="blueprint">blueprint</button>
+      <button data-set-instance="botanical">botanical</button>
+      <i>·</i>
+      <button data-set-instance="circuit">circuit</button>
+      <button data-set-instance="jjhub">jjhub</button>
+      <button data-set-instance="noitroidvania">noitroidvania</button>
+      <button data-set-instance="snake">snake</button>
+      <i>·</i>
+      <label>theme <select data-set-theme><option value="auto">auto</option><option value="light">light</option><option value="dark">dark</option></select></label>
+      <label>density <select data-set-density><option value="cozy">cozy</option><option value="compact">compact</option><option value="comfortable">comfortable</option></select></label>
+      <i>·</i>
+      <span>mix:</span>
+      <label>palette <select data-set-facet="palette"><option value="">preset</option><option value="default">default</option><option value="editorial">editorial</option><option value="brutal">brutal</option><option value="glass">glass</option><option value="terminal">terminal</option><option value="zine">zine</option><option value="synthwave">synthwave</option><option value="blueprint">blueprint</option><option value="botanical">botanical</option><option value="circuit">circuit</option><option value="jjhub">jjhub</option><option value="noitroidvania">noitroidvania</option><option value="snake">snake</option></select></label>
+      <label>type <select data-set-facet="type"><option value="">preset</option><option value="default">default</option><option value="editorial">editorial</option><option value="brutal">brutal</option><option value="glass">glass</option><option value="terminal">terminal</option><option value="zine">zine</option><option value="synthwave">synthwave</option><option value="blueprint">blueprint</option><option value="botanical">botanical</option><option value="circuit">circuit</option><option value="jjhub">jjhub</option><option value="noitroidvania">noitroidvania</option><option value="snake">snake</option></select></label>
+      <label>shape <select data-set-facet="shape"><option value="">preset</option><option value="default">default</option><option value="editorial">editorial</option><option value="brutal">brutal</option><option value="glass">glass</option><option value="terminal">terminal</option><option value="zine">zine</option><option value="synthwave">synthwave</option><option value="blueprint">blueprint</option><option value="botanical">botanical</option><option value="circuit">circuit</option><option value="jjhub">jjhub</option><option value="noitroidvania">noitroidvania</option><option value="snake">snake</option></select></label>
+      <label>layout <select data-set-facet="layout"><option value="">preset</option><option value="default">default</option><option value="editorial">editorial</option><option value="brutal">brutal</option><option value="glass">glass</option><option value="terminal">terminal</option><option value="zine">zine</option><option value="synthwave">synthwave</option><option value="blueprint">blueprint</option><option value="botanical">botanical</option><option value="circuit">circuit</option><option value="jjhub">jjhub</option><option value="noitroidvania">noitroidvania</option><option value="snake">snake</option></select></label>
+      <label>fx <select data-set-facet="fx"><option value="">preset</option><option value="default">default</option><option value="editorial">editorial</option><option value="brutal">brutal</option><option value="glass">glass</option><option value="terminal">terminal</option><option value="zine">zine</option><option value="synthwave">synthwave</option><option value="blueprint">blueprint</option><option value="botanical">botanical</option><option value="circuit">circuit</option><option value="jjhub">jjhub</option><option value="noitroidvania">noitroidvania</option><option value="snake">snake</option></select></label>
+    </nav>
+
+    <div data-engine data-instance="editorial">
+      <!-- ============ CANONICAL GARDEN MARKUP (classless, semantic) ============ -->
+      <header>
+        <p><small>v0.4 · classless Zen Garden</small></p>
+        <h1>A headless design engine for plain HTML.</h1>
+        <p>Every element on this page is styled by what it <em>is</em> and where it <em>sits</em> in the tree — never by a class. Switch designs in the bar above: the same markup becomes a magazine, a terminal, a blueprint, a garden. The stylesheet is a single <code>@import</code> graph; no build step, no classes, no framework.</p>
+        <nav aria-label="Contents">
+          <a href="#premise">premise</a>
+          <a href="#grammar">grammar</a>
+          <a href="#materials">materials</a>
+          <a href="#sequence">sequence</a>
+          <a href="#interaction">interaction</a>
+          <a href="#vocabulary">vocabulary</a>
+          <a href="#extended">extended</a>
+          <a href="#composition">composition</a>
+        </nav>
+      </header>
+
+      <main>
+        <article>
+          <header>
+            <p><time datetime="2026-09-07">September 7, 2026</time> · <address>by the placement hierarchy</address></p>
+            <h2>On styling by structure, not by class.</h2>
+            <p>Most frameworks make you add a class to every element. This engine takes the opposite stance: it reads the tree and infers intent. The same <code>&lt;article&gt;</code> is prose in a column, but becomes a card when it is nested in a list. A button as the last child of a form reads as the primary action. A <code>&lt;header&gt;</code> inside an article becomes a byline.</p>
+          </header>
+
+          <section id="premise">
+            <h2>The premise</h2>
+            <p>Binding styles to element identity and position is only reliable now because modern CSS finally makes structural inference predictable: <code>:has()</code> for parent-aware rules, <code>:where()</code> for zero-specificity, <code>@layer</code> for ordered cascade, <code>@property</code> for typed tokens, <code>@container</code> for context-aware components, and <code>color-mix()</code> for derived color.</p>
+            <p>Each design you can switch to above is an <em>instance</em> — a complete restyling of this very document through custom properties and layout overrides. The markup never changes. That is the whole demonstration.</p>
+            <aside role="note">
+              <p><strong>Note.</strong> This callout is inferred from <code>role="note"</code> — tone follows the role, not a class.</p>
+            </aside>
+            <blockquote>
+              <p>The tag name is the hook. Where it sits decides what it means.</p>
+              <footer>— <cite>the engine, on itself</cite></footer>
+            </blockquote>
+          </section>
+
+          <section id="grammar">
+            <h2>The grammar</h2>
+            <p>The engine's binding vocabulary is small. Element type plus tree position covers the great majority of intent; a tiny set of escape hatches covers the rest.</p>
+            <pre><code>/* the safe, zero-specificity pattern */
+:where([data-engine]) {
+  & :where(article) {
+    & > :where(header) { /* byline row */ }
+    & > :where(p:first-of-type) { /* lede */ }
+  }
+  & :where(ul:has(> li > article)) { /* card grid */ }
+}</code></pre>
+            <dl>
+              <dt><code>article</code></dt>
+                <dd>Prose in a column — or a card, when nested in a list.</dd>
+              <dt><code>header</code></dt>
+                <dd>Byline when inside an article; site banner when a top-level child.</dd>
+              <dt><code>aside</code></dt>
+                <dd>A callout or marginal note, offset from the main flow.</dd>
+              <dt><code>details</code></dt>
+                <dd>A disclosure widget with a CSS-drawn rotating caret.</dd>
+              <dt><code>form &gt; button:last-child</code></dt>
+                <dd>The primary call to action — accent treatment by position.</dd>
+              <dt><code>&lt;de-grid&gt;</code></dt>
+                <dd>An escape hatch: a layout primitive with no semantic HTML equivalent.</dd>
+            </dl>
+          </section>
+
+          <section id="materials">
+            <h2>The materials</h2>
+            <p>A figure with a caption, and a list of articles that the engine turns into a responsive card grid automatically — equal heights, hover lift, container queries.</p>
+            <figure>
+              <img src="https://picsum.photos/seed/design-engine-2026/960/540" alt="An abstract gradient field representing the design token surface." width="960" height="540" loading="lazy" />
+              <figcaption>Figure 1. A token surface, derived entirely from <code>color-mix()</code> and <code>oklch(from …)</code>.</figcaption>
+            </figure>
+            <ul>
+              <li>
+                <article>
+                  <h3>Foundation</h3>
+                  <p>A scoped reset, typed <code>@property</code> tokens, an <code>@layer</code> spine, and <code>@supports</code> gates that no-op gracefully.</p>
+                </article>
+              </li>
+              <li>
+                <article>
+                  <h3>Structure</h3>
+                  <p>Flow rhythm, sections, cards inferred from lists, grids, split layouts, and a sidebar shell.</p>
+                </article>
+              </li>
+              <li>
+                <article>
+                  <h3>Components</h3>
+                  <p>Dialogs, popovers, menus, tabs, tooltips, badges, progress, breadcrumbs — all inferred.</p>
+                </article>
+              </li>
+            </ul>
+          </section>
+
+          <section id="sequence">
+            <h2>The sequence</h2>
+            <p>How the cascade resolves a single element, from least to most authoritative:</p>
+            <ol>
+              <li>The browser's user-agent stylesheet sets defaults.</li>
+              <li>The engine's reset, scoped under <code>[data-engine]</code>, normalizes them.</li>
+              <li>Tokens (<code>@layer de.tokens</code>) define the design vocabulary.</li>
+              <li>Base, structure, and component layers bind by element + position.</li>
+              <li>The instance layer remaps everything for a distinct design.</li>
+              <li>Host styles, unlayered or in a later layer, always win.</li>
+            </ol>
+            <table>
+              <caption>Layer order, as declared once in <code>layers.css</code>.</caption>
+              <thead>
+                <tr><th scope="col">Layer</th><th scope="col">Responsibility</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>foundation</td><td>reset, properties, scope</td></tr>
+                <tr><td>tokens</td><td>primitives + semantic + component</td></tr>
+                <tr><td>base</td><td>element defaults</td></tr>
+                <tr><td>structure</td><td>hierarchy bindings</td></tr>
+                <tr><td>components</td><td>inferred widgets</td></tr>
+                <tr><td>instances</td><td>full designs</td></tr>
+              </tbody>
+            </table>
+          </section>
+
+          <section id="interaction">
+            <h2>The interaction</h2>
+            <p>Native disclosure, a form whose last button becomes primary, a metered value, and a popover — all styled from semantics alone.</p>
+            <details>
+              <summary>How do instances switch without a build step?</summary>
+              <p>The <code>data-instance</code> attribute selects a token-and-layout pack. Because every engine selector is wrapped in <code>:where()</code>, an instance overrides cleanly without specificity wars — and the markup is untouched.</p>
+            </details>
+            <form>
+              <fieldset>
+                <legend>Subscribe to the hierarchy</legend>
+                <p><label>Email <input type="email" placeholder="you@tree.dom" required /></label></p>
+                <p><label>Plan
+                  <select>
+                    <option>Sprout</option>
+                    <option>Sapling</option>
+                    <option>Old growth</option>
+                  </select>
+                </label></p>
+                <p><label>Notes <textarea placeholder="Tell the engine about your markup…"></textarea></label></p>
+                <p><label><input type="checkbox" checked /> I consent to placement-based styling.</label></p>
+                <p>Frequency:
+                  <label><input type="radio" name="freq" /> Daily</label>
+                  <label><input type="radio" name="freq" checked /> Weekly</label>
+                </p>
+              </fieldset>
+              <p>Progress this quarter: <progress value="62" max="100">62%</progress> <meter value="0.62" min="0" max="1">62%</meter></p>
+              <p>
+                <button type="button" data-variant="ghost">Cancel</button>
+                <button type="submit">Subscribe</button>
+              </p>
+            </form>
+            <p>Need more? <button type="button" popovertarget="popover-info">Open a popover</button> or <button type="button" data-open-dialog="info">a dialog</button>.</p>
+          <section id="vocabulary">
+            <h2>The vocabulary</h2>
+            <p>The first forty-three of fifty-three components in the family vocabulary, bound classlessly: roles, attributes and element placement. The same concepts exist in circuit, jjhub, noitroidvania and impressive-snake, which are also available as designs in the bar above; the rest continue below.</p>
+
+            <h3>Buttons</h3>
+            <p><button type="button">Secondary</button> <button type="button" data-variant="ghost">Ghost</button> <button type="button" data-variant="danger">Danger</button> <button type="button" disabled>Disabled</button> <button type="button" data-icon aria-label="Search">⌕</button> <button type="button" data-icon data-variant="ghost" aria-label="Close">×</button> <button type="button" data-variant="link">Link button</button></p>
+            <p><span role="group" aria-label="Land"><button type="button">Land</button><button type="button" aria-haspopup="menu" aria-label="More">▾</button></span> <span role="group" aria-label="View"><button type="button">Split</button><button type="button">Unified</button></span></p>
+
+            <h3>Form fields</h3>
+            <form onsubmit="return false">
+              <p><label>Repository <input type="text" value="erisera-code/jjhub"> <small>Inferred from the current remote.</small></label></p>
+              <p><label>Change ID <input type="text" aria-invalid="true" value="zz"> <small role="alert">Must be eight characters.</small></label></p>
+              <p><label><input type="checkbox" checked> Stack on land</label> <label><input type="checkbox" role="switch" checked> Notifications</label> <label><input type="radio" name="v" checked> Split</label> <label><input type="radio" name="v"> Unified</label></p>
+            </form>
+
+            <h3>Signals</h3>
+            <p><data value="1">neutral</data> <data value="2" data-tone="info">info</data> <data value="3" data-tone="ok">ok</data> <data value="4" data-tone="warn">warn</data> <data value="5" data-tone="danger">danger</data> · <data data-dot data-tone="ok">live</data> <data data-dot>idle</data> <data data-dot data-tone="danger">error</data></p>
+            <p><span data-chip>reviewer <data value="3">3</data> <button type="button" aria-label="Remove">×</button></span> <span data-chip data-tone="ok">landed</span> <span data-chip data-tone="warn">stale</span></p>
+            <p><span data-swatch style="--c: var(--de-color-accent)">accent</span> <span data-swatch data-color="oklch(70% 0.15 30)">oklch(70% .15 30)</span> · <span data-swatch data-step="1">common</span> <span data-swatch data-step="2">uncommon</span> <span data-swatch data-step="3">rare</span> <span data-swatch data-step="4">epic</span> <span data-swatch data-step="5">relic</span> <span data-swatch data-step="6">cursed</span></p>
+            <p><span data-avatar>JH</span> <span data-avatar="sm">AB</span> <span data-avatar="lg">CD</span> <span data-avatar="square">SQ</span> · <span aria-busy="true">Landing…</span> <progress>indeterminate</progress></p>
+
+            <h3>Notices</h3>
+            <section data-banner role="alert"><p><strong>Diverged.</strong> The remote moved under this stack.</p><p><button type="button" data-variant="ghost">Later</button> <button type="button">Rebase</button></p></section>
+            <div data-stage style="min-height: 11rem">
+              <output data-toasts="bottom-end">
+                <article data-toast role="status"><p><strong>Landed.</strong> Three commits pushed.</p><button type="button" aria-label="Dismiss">×</button></article>
+                <article data-toast role="alert"><p><strong>Failed.</strong> Check run timed out.</p><p><button type="button" data-variant="link">Retry</button></p><button type="button" aria-label="Dismiss">×</button></article>
+              </output>
+            </div>
+            <p data-empty><strong>No changes yet.</strong> Create one with <code>jjhub change new</code>.</p>
+
+            <h3>Overlays</h3>
+            <div data-stage style="min-height: 16rem">
+              <dialog data-palette open>
+                <form role="search" onsubmit="return false"><input type="search" placeholder="Search or run a command…" value="lan"></form>
+                <ul role="listbox">
+                  <li role="option" aria-selected="true"><span>Land change</span><small>zzqwv</small><kbd>L</kbd></li>
+                  <li role="option"><span>Open pull request</span><kbd>P</kbd></li>
+                  <li role="option"><span>Toggle dark mode</span></li>
+                </ul>
+                <footer><kbd>↑</kbd><kbd>↓</kbd> move <kbd>↵</kbd> run <kbd>esc</kbd> close</footer>
+              </dialog>
+            </div>
+            <p><span role="tooltip" style="position: static; display: inline-block">Stable change id, kept across rebases</span></p>
+            <div role="menu"><button role="menuitem">Rebase <kbd>R</kbd></button><button role="menuitem">Squash</button><hr><button role="menuitem">Abandon</button></div>
+
+            <h3>Navigation</h3>
+            <div role="tablist" aria-label="Views"><button role="tab" aria-selected="true">Changes</button><button role="tab">Checks</button><button role="tab">Review</button></div>
+            <nav aria-label="breadcrumb"><ul><li><a href="#">repos</a></li><li><a href="#">jjhub</a></li><li>changes</li></ul></nav>
+            <p>Press <kbd>⌘</kbd> <kbd>K</kbd> for the palette.</p>
+            <hr>
+
+            <h3>Data</h3>
+            <ul role="listbox" aria-label="Changes">
+              <li role="option" aria-selected="true"><span>zzqwv</span> add tests <small>2m</small></li>
+              <li role="option" data-cursor><span>pmrtx</span> fix build <small>5m</small><menu><li><button type="button">Land</button></li></menu></li>
+              <li role="option" aria-disabled="true"><span>kwlop</span> abandoned <small>1d</small></li>
+            </ul>
+            <figure>
+              <figcaption>src/layers.css <button type="button">Copy</button></figcaption>
+              <pre><code><b data-sx="kw">@layer</b> <span data-sx="fn">de.reset</span><span data-sx="punct">,</span> <span data-sx="fn">de.tokens</span><span data-sx="punct">;</span> <i data-sx="cm">/* the spine */</i></code></pre>
+            </figure>
+            <pre data-terminal data-title="~/jjhub — zsh"><kbd>$ npx jjhub change list</kbd><samp>zzqwv  add tests        open</samp><samp>pmrtx  fix build        landed</samp></pre>
+            <nav aria-label="pagination"><a rel="prev" href="#grammar"><small>Previous</small> The grammar</a><a rel="next" href="#sequence"><small>Next</small> The sequence</a></nav>
+            <section data-board aria-label="Land readiness">
+              <section><h3>Draft <small>1</small></h3><ul><li><article><h4>kwlop</h4><p>Spike on rebases.</p></article></li></ul></section>
+              <section><h3>Ready <small>2</small></h3><ul><li><article><h4>zzqwv</h4><p>Add tests.</p></article></li><li><article><h4>pmrtx</h4><p>Fix build.</p></article></li></ul></section>
+              <section><h3>Landed</h3><ul><li><article><h4>aabbc</h4><p>Initial import.</p></article></li></ul></section>
+            </section>
+
+            <h3>Regions</h3>
+            <div data-shell style="--de-shell-min: 14rem">
+              <header><strong>jjhub</strong> <nav aria-label="Primary"><a href="#" aria-current="page">Changes</a><a href="#">Ops</a></nav> <button type="button" data-theme-toggle aria-pressed="false" aria-label="Toggle theme"></button></header>
+              <nav aria-label="Rail"><ul><li><a href="#" aria-current="page">zzqwv</a></li><li><a href="#">pmrtx</a></li><li><a href="#">kwlop</a></li></ul></nav>
+              <div data-resize role="separator" aria-orientation="vertical"></div>
+              <main><h4>zzqwv · add tests</h4><p>Main region.</p></main>
+              <footer><span aria-busy="true">syncing</span><span>3 changes</span></footer>
+            </div>
+            <div data-scroll style="--de-scroll-max: 6rem"><p>A scroll area with a thin themed scrollbar.</p><p>Line two.</p><p>Line three.</p><p>Line four.</p><p>Line five.</p><p>Line six.</p></div>
+            <div data-stage data-pattern="grid" style="min-height: 8rem"><div data-scrim><p>A scrim over a grid pattern.</p></div></div>
+            <de-cluster><span data-step="1">cluster</span><span data-step="2">of</span><span data-step="3">steps</span></de-cluster>
+          </section>
+
+          <section id="extended">
+            <h2>The rest of the vocabulary</h2>
+            <p>Ten more components, common across other frameworks and libraries — rows 44 through 53 of the same shared matrix as circuit, jjhub, noitroidvania and impressive-snake, which are also available as designs in the bar above.</p>
+
+            <h3>Range &amp; segmented control</h3>
+            <p><label>Zoom <input type="range" min="0" max="100" value="40"> <output>40</output></label></p>
+            <p><fieldset data-segmented><legend>View</legend><label><input type="radio" name="ext-view" checked> Day</label><label><input type="radio" name="ext-view"> Week</label><label><input type="radio" name="ext-view"> Month</label></fieldset></p>
+
+            <h3>Combobox</h3>
+            <p><label>Fruit
+              <div data-combobox>
+                <input type="text" role="combobox" aria-expanded="false" aria-controls="ext-fruit" aria-autocomplete="list" placeholder="Search…">
+                <ul role="listbox" id="ext-fruit" hidden>
+                  <li role="option">Apple</li>
+                  <li role="option">Apricot</li>
+                  <li role="option">Banana</li>
+                  <li role="option">Cherry</li>
+                </ul>
+              </div>
+            </label></p>
+
+            <h3>Skeleton</h3>
+            <p data-skeleton="text"></p>
+            <p data-skeleton="text"></p>
+            <p><span data-skeleton="avatar"></span> <span data-skeleton="text" style="display: inline-block; inline-size: 8rem"></span></p>
+
+            <h3>Statistic &amp; rating</h3>
+            <p><span data-stat><data value="1204">1,204</data><span>Active users</span><small data-trend="up">+4.2%</small></span> <span data-stat><data value="97">97%</data><span>Uptime</span><small data-trend="flat">steady</small></span></p>
+            <p><span role="img" aria-label="4 out of 5 stars" data-rating style="--de-rating-value: 4"></span></p>
+
+            <h3>Stepper &amp; timeline</h3>
+            <ol data-steps><li data-status="done">Account</li><li data-status="current">Shipping</li><li>Payment</li></ol>
+            <ol data-timeline>
+              <li><time datetime="2026-09-01">Sep 1</time><p>Repo created.</p></li>
+              <li><time datetime="2026-09-05">Sep 5</time><p>First release.</p></li>
+              <li data-status="current"><time datetime="2026-09-09">Sep 9</time><p>Extended vocabulary added.</p></li>
+            </ol>
+
+            <h3>Carousel</h3>
+            <div data-carousel aria-roledescription="carousel" aria-label="Screenshots">
+              <div data-snap="x">
+                <figure><img src="https://picsum.photos/seed/de1/480/240" alt="Screenshot one" loading="lazy"><figcaption>One</figcaption></figure>
+                <figure><img src="https://picsum.photos/seed/de2/480/240" alt="Screenshot two" loading="lazy"><figcaption>Two</figcaption></figure>
+                <figure><img src="https://picsum.photos/seed/de3/480/240" alt="Screenshot three" loading="lazy"><figcaption>Three</figcaption></figure>
+              </div>
+              <nav aria-label="Slides"><button type="button" data-prev aria-label="Previous">‹</button><button type="button" data-next aria-label="Next">›</button></nav>
+              <div role="tablist" aria-label="Slide" data-dots><button type="button" role="tab" aria-selected="true" aria-label="Slide 1"></button><button type="button" role="tab" aria-label="Slide 2"></button><button type="button" role="tab" aria-label="Slide 3"></button></div>
+            </div>
+
+            <h3>Drawer</h3>
+            <p><button type="button" data-open-dialog="ext-drawer">Open a drawer</button></p>
+            <dialog id="ext-drawer" data-sheet="end">
+              <article>
+                <header><h3>Filters</h3></header>
+                <p>A &lt;dialog&gt; anchored to an edge instead of centred — the same open/close contract as any other dialog.</p>
+                <p><button type="button" data-close>Dismiss</button></p>
+              </article>
+            </dialog>
+          </section>
+
+          <section id="composition">
+            <h2>The composition</h2>
+            <p>Regions nest. This section keeps the page's design; the one below carries its own <code>data-instance</code>, and because every layout and effect rule is <code>@scope</code>d, the nearer design wins inside it while tokens keep flowing. The grid after it reads an integer from <code>data-cols</code> through typed <code>attr()</code>, and the last card re-hues the accent with <code>data-hue</code>.</p>
+            <section data-instance="terminal" data-theme="dark">
+              <h3>A terminal inside the page</h3>
+              <p>Same markup, different region: <code>section[data-instance="terminal"]</code>. Its palette is a <code>light-dark()</code> pair forced to the dark side by <code>data-theme</code> on this element alone.</p>
+            </section>
+            <ul data-cols="4">
+              <li><article><h3>One</h3><p><code>data-cols="4"</code> on the list.</p></article></li>
+              <li><article><h3>Two</h3><p>Any integer, not just 2, 3 or 4.</p></article></li>
+              <li><article><h3>Three</h3><p>Collapses to one column when narrow.</p></article></li>
+              <li><article data-hue="30"><h3>Four</h3><p>This card sets <code>data-hue="30"</code>: <a href="#composition">its links</a> and <button type="button">its button</button> follow.</p></article></li>
+            </ul>
+          </section>
+
+            <dialog id="info">
+              <article>
+                <header><h3>A native dialog</h3></header>
+                <p>Styled from <code>&lt;dialog&gt;</code> with a themed <code>::backdrop</code> and entry transition via <code>@starting-style</code>.</p>
+                <p><button type="button" data-close>Dismiss</button></p>
+              </article>
+            </dialog>
+            <p id="popover-info" popover>Peek. A popover, opened with <code>popovertarget</code>, tinted by the same overlay token.</p>
+          </section>
+        </article>
+
+        <aside>
+          <nav aria-label="Design archive">
+            <h2>Designs</h2>
+            <p>Thirteen restylings of the markup above. Pick one from the bar to see the same tree become something else.</p>
+            <ol>
+              <li><a href="?instance=default">default</a> — neutral control</li>
+              <li><a href="?instance=editorial">editorial</a> — magazine spread</li>
+              <li><a href="?instance=brutal">brutal</a> — Swiss grid</li>
+              <li><a href="?instance=glass">glass</a> — glassmorphism</li>
+              <li><a href="?instance=terminal">terminal</a> — CRT phosphor</li>
+              <li><a href="?instance=zine">zine</a> — risograph</li>
+              <li><a href="?instance=synthwave">synthwave</a> — neon retrofuture</li>
+              <li><a href="?instance=blueprint">blueprint</a> — drafting</li>
+              <li><a href="?instance=botanical">botanical</a> — organic</li>
+              <li><a href="?instance=circuit">circuit</a> — the erisera docs system, hue-driven</li>
+              <li><a href="?instance=jjhub">jjhub</a> — the JJHub terminal UI</li>
+              <li><a href="?instance=noitroidvania">noitroidvania</a> — the Ashfall game chrome</li>
+              <li><a href="?instance=snake">snake</a> — the Impressive Snake HUD</li>
+            </ol>
+          </nav>
+        </aside>
+      </main>
+
+      <footer>
+        <p><small>design-engine v0.4 · MIT · styled entirely by placement hierarchy. <a href="https://github.com">source</a></small></p>
+      </footer>
+      <!-- ============ END CANONICAL GARDEN MARKUP ============ -->
+    </div>
+
+    <script>
+      // The only JavaScript in the whole showcase: the design switcher, and the
+      // handful of behaviours the vocabulary demos need (open/close, select,
+      // dismiss, copy). The engine itself is pure CSS.
+      (function () {
+        var scope = document.querySelector('[data-engine]');
+        var body = document.documentElement;
+        var buttons = document.querySelectorAll('.switcher [data-set-instance]');
+        function setInstance(name) {
+          scope.setAttribute('data-instance', name);
+          buttons.forEach(function (b) {
+            b.setAttribute('aria-pressed', b.getAttribute('data-set-instance') === name ? 'true' : 'false');
+          });
+        }
+        buttons.forEach(function (b) {
+          b.addEventListener('click', function () { setInstance(b.getAttribute('data-set-instance')); });
+        });
+        var themeSel = document.querySelector('.switcher [data-set-theme]');
+        // data-theme belongs on the engine root (or any region inside it), never
+        // on <html>: the modes only look at the anchor and its descendants.
+        function setTheme(v, persist) {
+          if (v === 'auto' || !v) scope.removeAttribute('data-theme'); else scope.setAttribute('data-theme', v);
+          themeSel.value = v || 'auto';
+          document.querySelectorAll('[data-theme-toggle]').forEach(function (t) { t.setAttribute('aria-pressed', v === 'light' ? 'true' : 'false'); });
+          if (persist !== false) { try { localStorage.setItem('de-theme', v || 'auto'); } catch (err) {} }
+        }
+        themeSel.addEventListener('change', function () { setTheme(themeSel.value); });
+        var densSel = document.querySelector('.switcher [data-set-density]');
+        densSel.addEventListener('change', function () { scope.setAttribute('data-density', densSel.value); });
+        document.querySelectorAll('.switcher [data-set-facet]').forEach(function (sel) {
+          sel.addEventListener('change', function () {
+            var attr = 'data-' + sel.getAttribute('data-set-facet');
+            if (sel.value) scope.setAttribute(attr, sel.value); else scope.removeAttribute(attr);
+          });
+        });
+
+        // dialogs: open / close
+        document.querySelectorAll('[data-open-dialog]').forEach(function (b) {
+          b.addEventListener('click', function () {
+            var d = document.getElementById(b.getAttribute('data-open-dialog'));
+            if (d && d.showModal) d.showModal();
+          });
+        });
+        document.querySelectorAll('dialog [data-close]').forEach(function (b) {
+          b.addEventListener('click', function () { var d = b.closest('dialog'); if (d) d.close(); });
+        });
+
+        // command palette: ⌘K / Ctrl+K opens the (static, open) demo as a real modal; Esc closes
+        var palette = document.querySelector('dialog[data-palette]');
+        if (palette) {
+          document.addEventListener('keydown', function (e) {
+            if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+              e.preventDefault();
+              if (palette.open) palette.close();
+              palette.removeAttribute('open'); palette.showModal();
+              var input = palette.querySelector('input'); if (input) { input.focus(); input.select(); }
+            }
+          });
+          function paletteVisible() {
+            return Array.prototype.slice.call(palette.querySelectorAll('[role="option"]')).filter(function (o) { return !o.hidden; });
+          }
+          palette.addEventListener('keydown', function (e) {
+            var opts = paletteVisible();
+            var i = opts.findIndex(function (o) { return o.getAttribute('aria-selected') === 'true'; });
+            if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+              e.preventDefault();
+              if (!opts.length) return;
+              var n = (i + (e.key === 'ArrowDown' ? 1 : opts.length - 1)) % opts.length;
+              palette.querySelectorAll('[role="option"]').forEach(function (o) { o.setAttribute('aria-selected', 'false'); });
+              opts[n].setAttribute('aria-selected', 'true');
+            }
+            if (e.key === 'Enter') { e.preventDefault(); palette.close(); }
+          });
+          palette.addEventListener('click', function (e) {
+            var o = e.target.closest('[role="option"]'); if (!o) return;
+            palette.querySelectorAll('[role="option"]').forEach(function (x) { x.setAttribute('aria-selected', x === o ? 'true' : 'false'); });
+          });
+          palette.addEventListener('close', function () { palette.setAttribute('open', ''); });
+          // typing filters the list to options whose label matches
+          var paletteInput = palette.querySelector('input');
+          if (paletteInput) {
+            paletteInput.addEventListener('input', function () {
+              var q = paletteInput.value.trim().toLowerCase();
+              var all = Array.prototype.slice.call(palette.querySelectorAll('[role="option"]'));
+              all.forEach(function (o) {
+                var label = (o.querySelector('span') || o).textContent.toLowerCase();
+                o.hidden = q.length > 0 && label.indexOf(q) === -1;
+              });
+              var visible = paletteVisible();
+              var stillSelected = visible.some(function (o) { return o.getAttribute('aria-selected') === 'true'; });
+              if (!stillSelected) {
+                all.forEach(function (o) { o.setAttribute('aria-selected', 'false'); });
+                if (visible.length) visible[0].setAttribute('aria-selected', 'true');
+              }
+            });
+          }
+        }
+
+        // tabs: click selects; arrow keys move selection with a roving tabindex
+        document.querySelectorAll('[role="tablist"]').forEach(function (list) {
+          var tabs = Array.prototype.slice.call(list.querySelectorAll('[role="tab"]'));
+          function selectTab(t, focus) {
+            tabs.forEach(function (x) {
+              var on = x === t;
+              x.setAttribute('aria-selected', on ? 'true' : 'false');
+              x.setAttribute('tabindex', on ? '0' : '-1');
+            });
+            if (focus) t.focus();
+          }
+          var initial = tabs.find(function (t) { return t.getAttribute('aria-selected') === 'true'; }) || tabs[0];
+          if (initial) selectTab(initial, false);
+          list.addEventListener('click', function (e) {
+            var t = e.target.closest('[role="tab"]'); if (!t) return;
+            selectTab(t, false);
+          });
+          list.addEventListener('keydown', function (e) {
+            var i = tabs.findIndex(function (t) { return t.getAttribute('aria-selected') === 'true'; });
+            if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+              e.preventDefault();
+              var n = (i + (e.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length;
+              selectTab(tabs[n], true);
+            } else if (e.key === 'Home') {
+              e.preventDefault(); selectTab(tabs[0], true);
+            } else if (e.key === 'End') {
+              e.preventDefault(); selectTab(tabs[tabs.length - 1], true);
+            }
+          });
+        });
+
+        // list rows: click selects, arrow keys move the cursor
+        document.querySelectorAll('ul[role="listbox"]:not(dialog ul)').forEach(function (list) {
+          list.setAttribute('tabindex', '0');
+          list.addEventListener('click', function (e) {
+            var o = e.target.closest('[role="option"]'); if (!o || o.getAttribute('aria-disabled') === 'true' || e.target.closest('button')) return;
+            list.querySelectorAll('[role="option"]').forEach(function (x) { x.setAttribute('aria-selected', x === o ? 'true' : 'false'); });
+          });
+          list.addEventListener('keydown', function (e) {
+            var opts = Array.prototype.slice.call(list.querySelectorAll('[role="option"]'));
+            if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+              e.preventDefault();
+              var enabled = opts.filter(function (o) { return o.getAttribute('aria-disabled') !== 'true'; });
+              if (!enabled.length) return;
+              var cur = opts.find(function (o) { return o.hasAttribute('data-cursor'); });
+              var i = cur ? enabled.indexOf(cur) : -1;
+              var n = (i + (e.key === 'ArrowDown' ? 1 : enabled.length - 1)) % enabled.length;
+              opts.forEach(function (o) { o.removeAttribute('data-cursor'); });
+              enabled[n].setAttribute('data-cursor', '');
+            } else if (e.key === 'Enter' || e.key === ' ') {
+              var o = opts.find(function (x) { return x.hasAttribute('data-cursor'); });
+              if (!o || o.getAttribute('aria-disabled') === 'true') return;
+              e.preventDefault();
+              opts.forEach(function (x) { x.setAttribute('aria-selected', x === o ? 'true' : 'false'); });
+            }
+          });
+        });
+
+        // chips and toasts: the labelled trailing button removes its parent
+        document.addEventListener('click', function (e) {
+          var b = e.target.closest('[data-chip] > button, [data-toast] > button[aria-label]'); if (!b) return;
+          var host = b.closest('[data-chip], [data-toast]'); if (host) host.remove();
+        });
+
+        // code figure: copy
+        document.querySelectorAll('figure > figcaption > button').forEach(function (b) {
+          b.addEventListener('click', function () {
+            var pre = b.closest('figure').querySelector('pre'); if (!pre) return;
+            var done = function () { var t = b.textContent; b.textContent = 'Copied'; setTimeout(function () { b.textContent = t; }, 1200); };
+            if (navigator.clipboard) navigator.clipboard.writeText(pre.textContent).then(done, done); else done();
+          });
+        });
+
+        // theme toggle buttons cycle light → dark → auto → light…
+        document.querySelectorAll('[data-theme-toggle]').forEach(function (t) {
+          t.addEventListener('click', function () {
+            var cur = scope.getAttribute('data-theme') || 'auto';
+            var next = cur === 'light' ? 'dark' : cur === 'dark' ? 'auto' : 'light';
+            setTheme(next);
+          });
+        });
+
+        // menus: a menuitem click closes an enclosing popover/dialog
+        document.querySelectorAll('[role="menuitem"]').forEach(function (m) {
+          m.addEventListener('click', function () { var p = m.closest('[popover]'); if (p && p.hidePopover) p.hidePopover(); });
+        });
+
+        // slider: keep a paired <output> in sync with the value
+        document.querySelectorAll('input[type="range"] + output').forEach(function (out) {
+          var slider = out.previousElementSibling;
+          slider.addEventListener('input', function () { out.value = slider.value; });
+        });
+
+        // combobox: type to filter, arrow keys move through the visible options, Enter/click picks one
+        document.querySelectorAll('[data-combobox]').forEach(function (box) {
+          var input = box.querySelector('input[role="combobox"]');
+          var list = box.querySelector('[role="listbox"]');
+          if (!input || !list) return;
+          var allOpts = Array.prototype.slice.call(list.querySelectorAll('[role="option"]'));
+          function visible() { return allOpts.filter(function (o) { return !o.hidden; }); }
+          function open() { list.hidden = false; input.setAttribute('aria-expanded', 'true'); }
+          function close() { list.hidden = true; input.setAttribute('aria-expanded', 'false'); allOpts.forEach(function (o) { o.removeAttribute('data-cursor'); }); }
+          function pick(o) { input.value = o.textContent; close(); input.focus(); }
+          input.addEventListener('input', function () {
+            var q = input.value.trim().toLowerCase();
+            allOpts.forEach(function (o) { o.hidden = q.length > 0 && o.textContent.toLowerCase().indexOf(q) === -1; });
+            open();
+          });
+          input.addEventListener('focus', open);
+          input.addEventListener('keydown', function (e) {
+            var opts = visible();
+            if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+              e.preventDefault();
+              if (!opts.length) return;
+              open();
+              var cur = opts.find(function (o) { return o.hasAttribute('data-cursor'); });
+              var i = cur ? opts.indexOf(cur) : -1;
+              var n = (i + (e.key === 'ArrowDown' ? 1 : opts.length - 1)) % opts.length;
+              allOpts.forEach(function (o) { o.removeAttribute('data-cursor'); });
+              opts[n].setAttribute('data-cursor', '');
+              opts[n].scrollIntoView({ block: 'nearest' });
+            } else if (e.key === 'Enter') {
+              var cursored = opts.find(function (o) { return o.hasAttribute('data-cursor'); });
+              if (cursored) { e.preventDefault(); pick(cursored); }
+            } else if (e.key === 'Escape') {
+              close();
+            }
+          });
+          list.addEventListener('click', function (e) {
+            var o = e.target.closest('[role="option"]'); if (o) pick(o);
+          });
+          document.addEventListener('click', function (e) {
+            if (!box.contains(e.target)) close();
+          });
+        });
+
+        // carousel: prev/next scroll one slide; dots reflect and drive the current slide
+        document.querySelectorAll('[data-carousel]').forEach(function (car) {
+          var track = car.querySelector('[data-snap]');
+          var prev = car.querySelector('[data-prev]');
+          var next = car.querySelector('[data-next]');
+          var dots = Array.prototype.slice.call(car.querySelectorAll('[data-dots] > [role="tab"]'));
+          if (!track) return;
+          function slideWidth() { var s = track.firstElementChild; return s ? s.getBoundingClientRect().width + parseFloat(getComputedStyle(track).columnGap || getComputedStyle(track).gap || 0) : track.clientWidth; }
+          function go(delta) { track.scrollBy({ left: delta * slideWidth(), behavior: 'smooth' }); }
+          if (prev) prev.addEventListener('click', function () { go(-1); });
+          if (next) next.addEventListener('click', function () { go(1); });
+          dots.forEach(function (dot, i) {
+            dot.addEventListener('click', function () { track.scrollTo({ left: i * slideWidth(), behavior: 'smooth' }); });
+          });
+          if (dots.length) {
+            var syncDots = function () {
+              var i = Math.round(track.scrollLeft / Math.max(1, slideWidth()));
+              dots.forEach(function (dot, k) { dot.setAttribute('aria-selected', k === i ? 'true' : 'false'); });
+            };
+            track.addEventListener('scrollend', syncDots);
+            track.addEventListener('scroll', function () { clearTimeout(track._deSync); track._deSync = setTimeout(syncDots, 120); });
+          }
+        });
+
+        var params = new URLSearchParams(location.search);
+        var ini = params.get('instance'); if (ini) setInstance(ini);
+        ['palette', 'type', 'shape', 'layout', 'fx'].forEach(function (f) {
+          var v = params.get(f); if (!v) return;
+          scope.setAttribute('data-' + f, v);
+          var sel = document.querySelector('.switcher [data-set-facet="' + f + '"]'); if (sel) sel.value = v;
+        });
+        var th = params.get('theme');
+        if (th) setTheme(th);
+        else { try { var saved = localStorage.getItem('de-theme'); if (saved) setTheme(saved, false); } catch (err) {} }
+      })();
+    </script>
+  </body>
+</html>

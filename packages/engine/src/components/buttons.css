@@ -1,0 +1,115 @@
+/*
+  design-engine — components: buttons
+  -----------------------------------------------------------------------------
+  Buttons are inferred from <button>, input[type=submit/button/reset], and
+  <a role="button">. The primary action variant is inferred from placement:
+  a button as the LAST child of a <form> or inside a <menu> reads as the
+  primary CTA. Variant intent comes from data-variant or aria-label keywords,
+  not classes.
+*/
+
+@layer de.components {
+  :where([data-engine]) :where(button, input[type="submit"], input[type="button"], input[type="reset"], a[role="button"]) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--de-space-2);
+    inline-size: auto;
+    max-inline-size: none;
+    padding: var(--de-button-pad);
+    font-size: var(--de-text-base);
+    font-weight: 550;
+    line-height: var(--de-leading-tight);
+    color: var(--de-button-fg);
+    background: var(--de-button-bg);
+    border: var(--de-button-border);
+    border-radius: var(--de-button-radius);
+    cursor: pointer;
+    user-select: none;
+    transition:
+      background var(--de-transition),
+      border-color var(--de-transition),
+      color var(--de-transition),
+      transform var(--de-dur-fast) var(--de-ease);
+  }
+
+  :where([data-engine]) :where(button:hover, input[type="submit"]:hover, a[role="button"]:hover) {
+    border-color: var(--de-color-faint);
+    background: var(--de-color-surface-2);
+  }
+
+  :where([data-engine]) :where(button:active, a[role="button"]:active) {
+    transform: translateY(1px);
+  }
+
+  :where([data-engine]) :where(button:disabled) {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* primary CTA = inferred from placement: last child of a form, or in a menu */
+  :where([data-engine]) :where(form > button:last-child, form > *:last-child > button:last-child, menu button) {
+    background: var(--de-button-primary-bg);
+    color: var(--de-button-primary-fg);
+    border-color: transparent;
+  }
+
+  :where([data-engine]) :where(form > button:last-child:hover, form > *:last-child > button:last-child:hover, menu button:hover) {
+    background: var(--de-color-accent-2);
+  }
+
+  /* intent variants via data-attribute (escape hatch, not a class).
+     Scoped to button-like controls so they never affect arbitrary elements. */
+  :where([data-engine]) :where(:is(button, input[type="submit"], input[type="button"], input[type="reset"], a[role="button"])[data-variant="danger"]) {
+    background: var(--de-color-danger);
+    color: var(--de-color-accent-fg);
+    border-color: transparent;
+  }
+
+  :where([data-engine]) :where(:is(button, input[type="submit"], input[type="button"], input[type="reset"], a[role="button"])[data-variant="ghost"]) {
+    background: transparent;
+    border-color: transparent;
+    color: var(--de-color-fg);
+  }
+
+  :where([data-engine]) :where(:is(button, input[type="submit"], input[type="button"], input[type="reset"], a[role="button"])[data-variant="ghost"]:hover) {
+    background: var(--de-color-surface-2);
+  }
+
+  /* ---- icon button: a glyph with an accessible name, square ---- */
+  :where([data-engine]) :where(button[data-icon], a[role="button"][data-icon]) {
+    inline-size: 2.25em;
+    padding: 0;
+    justify-content: center;
+    font-size: var(--de-text-base);
+    line-height: 1;
+  }
+  :where([data-engine]) :where(:is(button, a[role="button"])[data-icon][data-variant="ghost"]) { border-color: transparent; background: transparent; }
+
+  /* ---- link-styled button: reads as inline text, keeps button semantics ---- */
+  :where([data-engine]) :where(:is(button, input[type="submit"], input[type="button"])[data-variant="link"]) {
+    display: inline;
+    padding: 0;
+    min-inline-size: 0;
+    min-block-size: 0;
+    border: 0;
+    background: transparent;
+    color: var(--de-color-accent);
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+    font: inherit;
+  }
+  :where([data-engine]) :where(:is(button, input[type="submit"], input[type="button"])[data-variant="link"]:hover) { color: var(--de-color-accent-2); background: transparent; }
+
+  /* ---- button group / split: buttons in a role=group share edges ---- */
+  :where([data-engine]) :where([role="group"]:has(> button)) {
+    display: inline-flex;
+    max-inline-size: none;
+  }
+  :where([data-engine]) :where([role="group"]:has(> button)) > :where(button) { border-radius: 0; }
+  :where([data-engine]) :where([role="group"]:has(> button)) > :where(button:not(:first-child)) { margin-inline-start: -1px; }
+  :where([data-engine]) :where([role="group"]:has(> button)) > :where(button:first-child) { border-start-start-radius: var(--de-button-radius); border-end-start-radius: var(--de-button-radius); }
+  :where([data-engine]) :where([role="group"]:has(> button)) > :where(button:last-child) { border-start-end-radius: var(--de-button-radius); border-end-end-radius: var(--de-button-radius); }
+  :where([data-engine]) :where([role="group"]:has(> button)) > :where(button[aria-haspopup]) { padding-inline: 0.6em; }
+  :where([data-engine]) :where([role="group"]:has(> button)) > :where(button:hover, button:focus-visible) { position: relative; z-index: 1; }
+}

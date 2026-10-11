@@ -1,0 +1,64 @@
+/*
+  design-engine — components: carousel
+  -----------------------------------------------------------------------------
+  Navigation chrome around the existing [data-snap="x"] scroll-snap track
+  (capabilities/scroll-snap.css already does the snapping itself):
+    <div data-carousel>
+      <div data-snap="x">
+        <figure>…</figure>
+        <figure>…</figure>
+      </div>
+      <nav aria-label="Slides">
+        <button type="button" data-prev aria-label="Previous">‹</button>
+        <button type="button" data-next aria-label="Next">›</button>
+      </nav>
+      <div role="tablist" aria-label="Slide" data-dots>
+        <button type="button" role="tab" aria-selected="true" aria-label="Slide 1"></button>
+        <button type="button" role="tab" aria-label="Slide 2"></button>
+      </div>
+    </div>
+  Prev/next and the track share one grid cell so the buttons float over the
+  track without needing it to be position:relative itself; the buttons
+  themselves are real icon-buttons, not a background layer. Advancing is a
+  few lines of JS (scrollBy one slide) — see examples/index.html.
+*/
+
+@layer de.components {
+  :where([data-engine]) :where([data-carousel]) {
+    display: grid;
+  }
+  :where([data-engine]) :where([data-carousel]) > :where([data-snap]) {
+    grid-area: 1 / 1;
+    min-inline-size: 0;
+  }
+  :where([data-engine]) :where([data-carousel]) > :where(nav) {
+    grid-area: 1 / 1;
+    align-self: center;
+    display: flex;
+    justify-content: space-between;
+    padding-inline: var(--de-space-2);
+    pointer-events: none;
+  }
+  :where([data-engine]) :where([data-carousel]) > :where(nav) > :where(button) {
+    pointer-events: auto;
+  }
+
+  /* dot pagination — a row of tabs, not a rail; the selected dot fills */
+  :where([data-engine]) :where([data-carousel] > [role="tablist"][data-dots]) {
+    justify-content: center;
+    gap: var(--de-space-2);
+    padding-block-start: var(--de-space-2);
+    border-block-end: none;
+  }
+  :where([data-engine]) :where([data-carousel] > [role="tablist"][data-dots] > [role="tab"]) {
+    inline-size: 0.5rem;
+    block-size: 0.5rem;
+    padding: 0;
+    border-radius: 50%;
+    background: var(--de-color-faint);
+    border: none;
+  }
+  :where([data-engine]) :where([data-carousel] > [role="tablist"][data-dots] > [role="tab"][aria-selected="true"]) {
+    background: var(--de-color-accent);
+  }
+}

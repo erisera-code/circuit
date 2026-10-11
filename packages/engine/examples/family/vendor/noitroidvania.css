@@ -1,0 +1,870 @@
+/* Ashfall UI — generated from src/ds/*.ts. Do not edit.
+   Regenerate: DS_CSS_WRITE=1 npx vitest run tests/designSystem.test.ts
+   Scope: everything is under .ui-root. Put that class on one element and
+   the whole system is available inside it. No dependencies, no build. */
+
+.ui-root {
+  --ui-bg: #07070b;
+  --ui-scrim: rgba(5,5,9,.80);
+  --ui-panel: #0b0c11;
+  --ui-panel-2: #10121a;
+  --ui-panel-3: #161923;
+  --ui-well: #05050a;
+  --ui-cell: #0a0b10;
+  --ui-line: #262b36;
+  --ui-line-hot: #3c4454;
+  --ui-line-soft: #14161d;
+  --ui-fg: #d7d2c8;
+  --ui-fg-dim: #8d8779;
+  --ui-fg-mute: #5b5750;
+  --ui-ink-inv: #000;
+  --ui-accent: #e0a860;
+  --ui-accent-2: #6fd3c7;
+  --ui-good: #7fd17f;
+  --ui-bad: #d2544a;
+  --ui-warn: #e0b040;
+  --ui-r-common: #8d8779;
+  --ui-r-uncommon: #7fb069;
+  --ui-r-rare: #5b9bd5;
+  --ui-r-epic: #a97fd0;
+  --ui-r-relic: #e0a860;
+  --ui-r-cursed: #c0506e;
+  --ui-sx-kw: #d08cd8;
+  --ui-sx-str: #a8c878;
+  --ui-sx-fn: #78b8e8;
+  --ui-sx-cm: #6a6f7c;
+  --ui-sx-num: #e8b878;
+  --ui-sx-tag: #e88070;
+  --ui-sx-attr: #c8b060;
+  --ui-sx-punct: #8a8d99;
+  --ui-sx-type: #78d0c0;
+  --ui-sx-bool: #e090a0;
+  --ui-font: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --ui-fs: 12px;
+  --ui-fs-label: 10px;
+  --ui-fs-tiny: 9px;
+  --ui-u: calc(var(--ui-fs) / 12px);
+  --ui-gap: 6px;
+  --ui-dur: 140ms;
+  --ui-ease: linear;
+  --ui-mark: inset 0 0 0 1px var(--ui-accent);
+}
+
+.ui-root {
+  font-family: var(--ui-font);
+  font-size: var(--ui-fs);
+  line-height: 1.35;
+  color: var(--ui-fg);
+  letter-spacing: .04em;
+  /* Tabular figures are not a flourish. Half of what this interface prints is a
+     number that changes while you are looking at it, and proportional digits
+     make a counter jitter horizontally on every tick. */
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+}
+
+.ui-root *, .ui-root *::before, .ui-root *::after { box-sizing: border-box; }
+/* Recycling pools hide their spare elements with [hidden]; flex and grid both
+   override the UA rule for it, so restate it once with weight. Any list that
+   reuses its DOM rather than rebuilding it needs this. */
+.ui-root [hidden] { display: none !important; }
+
+.ui-root button, .ui-root input, .ui-root select, .ui-root textarea {
+  font: inherit; letter-spacing: inherit; color: inherit;
+  background: var(--ui-panel-2); border: 1px solid var(--ui-line);
+  border-radius: 0; padding: 2px 6px; cursor: pointer;
+}
+.ui-root button:hover, .ui-root select:hover { border-color: var(--ui-line-hot); background: var(--ui-panel-3); }
+.ui-root button:active { background: var(--ui-panel); }
+.ui-root button[disabled] { opacity: .35; cursor: default; }
+.ui-root input, .ui-root textarea { cursor: text; }
+/* :focus-visible, not :focus — a mouse click on a button must not draw a ring,
+   and a keyboard tab to it must. The offset is what keeps the ring off the
+   1px border it would otherwise sit exactly on top of. */
+.ui-root :focus-visible { outline: 1px solid var(--ui-accent); outline-offset: 1px; }
+.ui-root ::selection { background: var(--ui-accent); color: var(--ui-ink-inv); }
+
+/* ---- layer: a full-bleed plane inside the root, for stacking overlays ---- */
+/* The host decides pointer behaviour on the root's direct children, so
+   passivity is set by the mounting code rather than fought over here. */
+.ui-layer { position: absolute; inset: 0; }
+.ui-clickable { pointer-events: auto; }
+
+/* ---- utilities: one property each, and never more ---- */
+/* If a helper grows a second property it has stopped being a utility and has
+   become a component that has not been named yet. */
+.ui-dim  { color: var(--ui-fg-dim); }
+.ui-mute { color: var(--ui-fg-mute); }
+.ui-good { color: var(--ui-good); }
+.ui-bad  { color: var(--ui-bad); }
+.ui-warn { color: var(--ui-warn); }
+.ui-nowrap { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ui-grow { flex: 1 1 auto; min-width: 0; }
+.ui-row { display: flex; align-items: center; gap: var(--ui-gap); }
+/* The heading treatment of the entire system: uppercase, widely tracked, small.
+   Tracking is what makes small caps readable; caps at normal tracking are a
+   solid block. */
+.ui-caps { text-transform: uppercase; letter-spacing: .16em; font-size: var(--ui-fs-label); }
+
+/* ---- ramp: a categorical colour, chosen by a data attribute ---- */
+/* Attribute-driven rather than one class per step, so the markup carries the
+   *value* and the sheet owns the mapping. Renaming a step is one edit here and
+   one in the data, and never a third somewhere in the middle. */
+.ui-rar { color: var(--ui-r-common); }
+.ui-rar[data-rarity="uncommon"] { color: var(--ui-r-uncommon); }
+.ui-rar[data-rarity="rare"]     { color: var(--ui-r-rare); }
+.ui-rar[data-rarity="epic"]     { color: var(--ui-r-epic); }
+.ui-rar[data-rarity="relic"]    { color: var(--ui-r-relic); }
+.ui-rar[data-rarity="cursed"]   { color: var(--ui-r-cursed); }
+
+/* ---- meter: a 0..1 fill, written as --f on the element ---- */
+/* Transform-driven: scaleX is compositor-only, width is layout. At 60 Hz with a
+   dozen meters live that difference is the whole per-frame UI budget. Set --f
+   rather than a width, and set it only when the quantised value actually moved.
+   --c overrides the fill colour; leaving it unset gives the dim ink, which is
+   the right default for a meter nobody has assigned a meaning to. */
+.bar { position: relative; height: 6px; border: 1px solid var(--ui-line); background: var(--ui-well); overflow: hidden; }
+.bar > i { position: absolute; inset: 0; transform-origin: 0 50%; transform: scaleX(var(--f, 0)); background: var(--c, var(--ui-fg-dim)); }
+
+/* ---- swatch: a sample of a colour, as a box ---- */
+/* The colour is data, so it arrives as `--c` — the same property name the meter's
+   fill takes, because "the colour this element is showing, decided by something
+   other than the sheet" is one idea and deserves one spelling. `--sz` is the
+   edge, defaulting to the label type's size so a swatch set inline with a row of
+   text is the height of the words beside it.
+
+   It is here rather than in an application because a box of a colour is not a
+   thing any one application owns: this system's own gallery drew one with five
+   inline styles, and the editor in `tools/` drew three more at 20px, 12px and
+   10px. Four hand-tuned copies of one idea is the count docs/28 §6.3 says makes
+   a concept rather than a coincidence. */
+.ui-swatch {
+  display: inline-block; flex: none;
+  width: var(--sz, var(--ui-fs-label)); height: var(--sz, var(--ui-fs-label));
+  border: 1px solid var(--ui-line); background: var(--c, var(--ui-cell));
+}
+
+/* ---- chip: a small bordered noun, inline with text ---- */
+.chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  border: 1px solid var(--ui-line); background: var(--ui-panel-2);
+  padding: 0 4px; font-size: var(--ui-fs-label); color: var(--ui-fg-dim); white-space: nowrap;
+}
+
+/* ---- dialog: a scrim, and a thing in front of the page ---- */
+/* The scrim is a sibling of the panel, not its parent: a panel that is a child
+   of its own backdrop inherits the backdrop's opacity, which is how dimmed
+   dialogs happen. */
+.scrim { position: absolute; inset: 0; background: var(--ui-scrim); }
+.panel {
+  position: absolute; inset: 20px;
+  display: flex; flex-direction: column;
+  background: var(--ui-panel); border: 1px solid var(--ui-line-hot);
+}
+.panel__head { display: flex; align-items: center; gap: 12px; padding: 6px 10px; border-bottom: 1px solid var(--ui-line); background: var(--ui-panel-2); }
+.panel__title { letter-spacing: .3em; text-transform: uppercase; color: var(--ui-accent); }
+.panel__body { flex: 1 1 auto; display: flex; min-height: 0; }
+.panel__foot { display: flex; align-items: center; gap: 10px; padding: 4px 10px; border-top: 1px solid var(--ui-line); background: var(--ui-panel-2); font-size: var(--ui-fs-label); color: var(--ui-fg-mute); }
+
+/* ---- key cap: a keyboard key, printed as the button and not as the verb ---- */
+/* The bare-element selector is how a footer full of <kbd> gets this for free;
+   .ui-key is how anything else asks for it. One rule, two ways in, so the two
+   cannot drift — which is the failure this system has already had four times
+   in TypeScript (docs/25 §5.2) and twenty-three times in CSS (docs/28 §5). */
+.ui-key, .panel__foot kbd { border: 1px solid var(--ui-line-hot); padding: 0 3px; color: var(--ui-fg-dim); }
+
+/* ---- tabs: one-of-N along an edge ---- */
+/* gap:0 and a shared border: tabs are a strip, not a row of buttons, and the
+   1px between two of them would double up without the border-right dance. */
+.tabs { display: flex; gap: 0; }
+.tabs > button { border-right: none; text-transform: uppercase; letter-spacing: .16em; font-size: var(--ui-fs-label); padding: 3px 10px; color: var(--ui-fg-dim); }
+.tabs > button:last-child { border-right: 1px solid var(--ui-line); }
+.tabs > button[data-on="1"] { color: var(--ui-accent); border-color: var(--ui-line-hot); background: var(--ui-panel-3); }
+
+/* ---- list: a scrolling column of rows ---- */
+/* min-height:0 on the column is load-bearing and is the single most common
+   reason a flex scroller does not scroll: without it the column refuses to
+   shrink below its content and the overflow happens to the page instead. */
+.col { display: flex; flex-direction: column; min-height: 0; min-width: 0; }
+.col__head { padding: 4px 8px; border-bottom: 1px solid var(--ui-line); color: var(--ui-fg-mute); text-transform: uppercase; letter-spacing: .18em; font-size: var(--ui-fs-label); }
+.scroll { overflow-y: auto; overflow-x: hidden; flex: 1 1 auto; min-height: 0; scrollbar-width: thin; scrollbar-color: var(--ui-line-hot) transparent; }
+.scroll::-webkit-scrollbar { width: 8px; }
+.scroll::-webkit-scrollbar-thumb { background: var(--ui-line-hot); }
+
+/* A row is a hit target, a separator and three states: hovered, under the
+   cursor, and dimmed. Hover and cursor are different things and both are
+   needed — a keyboard cursor that vanishes because the mouse is elsewhere is
+   how a list stops being navigable without a mouse. */
+.row {
+  display: flex; align-items: center; gap: 6px;
+  padding: 2px 8px; border-bottom: 1px solid var(--ui-line-soft); cursor: pointer;
+}
+.row:hover { background: var(--ui-panel-2); }
+.row[data-cursor="1"] { background: var(--ui-panel-3); box-shadow: var(--ui-mark); }
+.row[data-dim="1"] { opacity: .4; }
+.row__glyph { width: 16px; text-align: center; }
+.row__acts { display: flex; gap: 3px; }
+.row__acts button { font-size: var(--ui-fs-tiny); padding: 0 4px; letter-spacing: .1em; }
+
+/* ======================================================================= */
+/* The components below were added for parity with two sibling systems
+   (docs/33). Every one of them spends the same vocabulary as the ten above,
+   and two conventions are stated once here rather than at each rule:
+   padding and gaps are calc(Npx * var(--ui-u)) so the box follows the
+   interface scale; anything hard-edged and small — a check box, a dot, a
+   square button — is round(nearest, …, 1px) so a border never lands on a half
+   pixel. Label type takes --ui-fs-label, exactly as the ten above do, so the
+   one-line decision in docs/28 §6.4 reaches these too. */
+
+/* ---- sr-only: read by a screen reader, drawn by nothing ---- */
+/* The one helper with more than one property, and it is not a utility in the
+   sense above: the clip pattern is a single idea that happens to take six
+   declarations, and splitting it would leave five that mean nothing alone. */
+.ui-sr-only {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip-path: inset(50%); white-space: nowrap; margin: -1px;
+}
+
+/* ---- button: the element default, named, so it can carry a variant ---- */
+/* base.ts already makes every button look like this; .btn is that look as a
+   class, so an <a> can wear it and so a variant has something to hang off. The
+   primary variant is *not* a filled wash — an accent border, the top surface
+   step and accent ink. A filled accent block would be the loudest thing on any
+   screen of this system, and "if two things are accent, one is wrong" already
+   forbids two of them. Danger is --ui-bad on border and ink; the label is the
+   first carrier of the meaning and the colour the second. */
+.ui-root .btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: calc(4px * var(--ui-u)); padding: calc(2px * var(--ui-u)) calc(8px * var(--ui-u));
+  border: 1px solid var(--ui-line); background: var(--ui-panel-2); color: var(--ui-fg);
+  text-transform: uppercase; letter-spacing: .12em; font-size: var(--ui-fs-label);
+  white-space: nowrap; text-decoration: none; cursor: pointer; line-height: 1.35;
+}
+.ui-root .btn:hover { border-color: var(--ui-line-hot); background: var(--ui-panel-3); }
+.ui-root .btn:active { background: var(--ui-panel); }
+.ui-root .btn[disabled], .ui-root .btn[aria-disabled="true"] { opacity: .35; cursor: default; pointer-events: none; }
+.ui-root .btn[data-variant="primary"] { border-color: var(--ui-accent); background: var(--ui-panel-3); color: var(--ui-accent); }
+.ui-root .btn[data-variant="primary"]:hover { border-color: var(--ui-accent); background: var(--ui-panel-2); color: var(--ui-fg); }
+.ui-root .btn[data-variant="ghost"] { border-color: transparent; background: transparent; color: var(--ui-fg-dim); }
+.ui-root .btn[data-variant="ghost"]:hover { border-color: var(--ui-line-hot); background: var(--ui-panel-2); color: var(--ui-fg); }
+.ui-root .btn[data-variant="danger"] { border-color: var(--ui-bad); color: var(--ui-bad); }
+.ui-root .btn[data-variant="danger"]:hover { border-color: var(--ui-bad); background: var(--ui-panel-3); }
+
+/* ---- icon button: a square, a glyph, and a label nobody sees ---- */
+/* Square because a glyph has no word to set its width, and the markup must
+   carry aria-label — a button whose only content is "✕" says nothing to a
+   screen reader. Pairs with .btn for the border and the variants. */
+.ui-root .btn-icon {
+  width: round(nearest, calc(20px * var(--ui-u)), 1px); height: round(nearest, calc(20px * var(--ui-u)), 1px);
+  padding: 0; line-height: 1; letter-spacing: 0; font-size: var(--ui-fs);
+}
+
+/* ---- link button: a button that reads as a run of text ---- */
+/* For the action that lives inside a sentence. It is still a button, so it
+   still takes the keyboard and the focus ring; only the box is gone. The second
+   accent rather than the first: a link is a thing that follows, not the thing
+   you chose. */
+.ui-root .ui-linkbtn {
+  border: none; background: none; padding: 0; display: inline; cursor: pointer;
+  color: var(--ui-accent-2); text-decoration: underline; text-underline-offset: 2px;
+}
+.ui-root .ui-linkbtn:hover, .ui-root .ui-linkbtn:active { border: none; background: none; color: var(--ui-fg); }
+
+/* ---- button group: buttons that share their borders, like tabs ---- */
+/* The same border-right dance as .tabs, because a group is a strip too. A
+   member with data-on="1" is the chosen segment, and reads exactly as the
+   active tab does — one spelling of "chosen", not two. */
+.btngroup { display: inline-flex; gap: 0; }
+.btngroup > button, .btngroup > .btn { border-right: none; }
+.btngroup > button:last-child, .btngroup > .btn:last-child { border-right: 1px solid var(--ui-line); }
+.btngroup > button[data-on="1"], .btngroup > .btn[data-on="1"] { color: var(--ui-accent); border-color: var(--ui-line-hot); background: var(--ui-panel-3); }
+
+/* ---- field: a label, a control, a hint, and the error under it ---- */
+/* The wrapper owns width and state; the control inside it is the bare element
+   base.ts already styles. --w is the width, arriving as data the way --sz and
+   --c do. data-invalid="1" turns the control's edge --ui-bad and shows the
+   error line, which carries a glyph so the colour is not the whole signal. */
+.field { display: flex; flex-direction: column; gap: calc(3px * var(--ui-u)); width: var(--w, auto); min-width: 0; }
+.field > input, .field > select, .field > textarea { width: 100%; }
+.field > textarea { min-height: calc(48px * var(--ui-u)); resize: vertical; }
+.field__label { text-transform: uppercase; letter-spacing: .16em; font-size: var(--ui-fs-label); color: var(--ui-fg-dim); }
+.field__hint { font-size: var(--ui-fs-tiny); color: var(--ui-fg-mute); }
+.field__error { display: none; font-size: var(--ui-fs-tiny); color: var(--ui-bad); }
+.field__error::before { content: '✕ '; }
+.field[data-invalid="1"] > input, .field[data-invalid="1"] > select, .field[data-invalid="1"] > textarea { border-color: var(--ui-bad); }
+.field[data-invalid="1"] .field__error { display: block; }
+.field[data-invalid="1"] .field__label { color: var(--ui-bad); }
+
+/* ---- check, radio, switch: native inputs drawn as glyph boxes ---- */
+/* appearance:none, then the control is text: [ ] and [x], ( ) and (o), and a
+   two-cell switch whose thumb moves from the left cell to the right. The glyph
+   changes *and* the colour changes, so a form reads in monochrome. They are
+   still the native elements, so :checked, the keyboard, the label's click and
+   the form's value all come for free. */
+.ui-root .ui-check, .ui-root .ui-radio, .ui-root .ui-switch {
+  appearance: none; -webkit-appearance: none; margin: 0; padding: 0; border: none; background: none;
+  display: inline-block; width: auto; height: auto; line-height: 1; cursor: pointer;
+  color: var(--ui-fg-dim); white-space: pre; vertical-align: baseline;
+}
+.ui-root .ui-check:hover, .ui-root .ui-radio:hover, .ui-root .ui-switch:hover { color: var(--ui-fg); border: none; background: none; }
+.ui-root .ui-check:checked, .ui-root .ui-radio:checked, .ui-root .ui-switch:checked { color: var(--ui-accent); }
+.ui-root .ui-check[disabled], .ui-root .ui-radio[disabled], .ui-root .ui-switch[disabled] { opacity: .35; cursor: default; }
+.ui-check::before { content: '[ ]'; }
+.ui-check:checked::before { content: '[x]'; }
+.ui-radio::before { content: '( )'; }
+.ui-radio:checked::before { content: '(o)'; }
+.ui-switch::before { content: '[■ ]'; }
+.ui-switch:checked::before { content: '[ ■]'; }
+
+/* ---- badge: a chip with a tone, and the glyph that tone implies ---- */
+/* Where .chip is a noun, .badge is a verdict. The border is currentColor so
+   the tone reaches the edge, and each tone brings its glyph — ✓ ✕ ! ◆ — so
+   four badges in a row stay countable with the colour turned off. */
+.badge {
+  display: inline-flex; align-items: center; gap: calc(3px * var(--ui-u));
+  border: 1px solid var(--ui-line); padding: 0 calc(4px * var(--ui-u));
+  font-size: var(--ui-fs-tiny); text-transform: uppercase; letter-spacing: .12em;
+  color: var(--ui-fg-dim); white-space: nowrap;
+}
+.badge[data-tone] { border-color: currentColor; }
+.badge[data-tone="good"] { color: var(--ui-good); }
+.badge[data-tone="bad"] { color: var(--ui-bad); }
+.badge[data-tone="warn"] { color: var(--ui-warn); }
+.badge[data-tone="accent"] { color: var(--ui-accent); }
+.badge[data-tone="good"]::before { content: '✓'; }
+.badge[data-tone="bad"]::before { content: '✕'; }
+.badge[data-tone="warn"]::before { content: '!'; }
+.badge[data-tone="accent"]::before { content: '◆'; }
+
+/* ---- dot: a one-glyph state light ---- */
+/* Four states, four glyphs: ○ nothing, ● live, ◐ idle, ⊗ error. The glyph is
+   the state and the colour agrees with it, which is the rule about signals
+   applied to the smallest possible element. */
+.ui-dot { display: inline-block; width: 1ch; text-align: center; color: var(--ui-fg-mute); line-height: 1; }
+.ui-dot::before { content: '○'; }
+.ui-dot[data-state="live"] { color: var(--ui-good); }
+.ui-dot[data-state="live"]::before { content: '●'; }
+.ui-dot[data-state="idle"] { color: var(--ui-warn); }
+.ui-dot[data-state="idle"]::before { content: '◐'; }
+.ui-dot[data-state="error"] { color: var(--ui-bad); }
+.ui-dot[data-state="error"]::before { content: '⊗'; }
+
+/* ---- card: a bordered surface with a head, a body and a foot ---- */
+/* The first surface step and the default edge. A card that can be clicked says
+   so with data-hot, and on hover it takes the raised edge and the next surface
+   step — the elevation rule, not a shadow. */
+.card { display: flex; flex-direction: column; min-width: 0; border: 1px solid var(--ui-line); background: var(--ui-panel); }
+.card__head { display: flex; align-items: center; gap: var(--ui-gap); padding: calc(4px * var(--ui-u)) calc(8px * var(--ui-u)); border-bottom: 1px solid var(--ui-line-soft); text-transform: uppercase; letter-spacing: .16em; font-size: var(--ui-fs-label); color: var(--ui-fg-dim); }
+.card__body { padding: calc(8px * var(--ui-u)); flex: 1 1 auto; min-height: 0; }
+.card__foot { display: flex; align-items: center; gap: var(--ui-gap); padding: calc(4px * var(--ui-u)) calc(8px * var(--ui-u)); border-top: 1px solid var(--ui-line-soft); font-size: var(--ui-fs-label); color: var(--ui-fg-mute); }
+.card[data-hot="1"] { cursor: pointer; }
+.card[data-hot="1"]:hover { border-color: var(--ui-line-hot); background: var(--ui-panel-2); }
+
+/* ---- callout: an aside with a tone and a glyph ---- */
+/* No fill. The tone recolours the whole border plus a glyph in the gutter —
+   i ✓ ! ✕ — the same border-recolour treatment .banner uses on its top and
+   bottom edges, so neither primitive spells a one-sided coloured rail. The
+   default (untoned) border is --ui-fg-dim, same as the glyph and title, so a
+   callout still reads as more than a plain --ui-line box before any tone is
+   applied. */
+.callout {
+  display: grid; grid-template-columns: auto 1fr; column-gap: calc(8px * var(--ui-u)); row-gap: calc(2px * var(--ui-u));
+  padding: calc(6px * var(--ui-u)) calc(10px * var(--ui-u));
+  border: 1px solid var(--ui-fg-dim);
+}
+.callout::before { content: 'i'; grid-row: 1 / span 2; width: 1ch; text-align: center; color: var(--ui-fg-dim); }
+.callout__title { text-transform: uppercase; letter-spacing: .16em; font-size: var(--ui-fs-label); color: var(--ui-fg-dim); }
+.callout__body { color: var(--ui-fg); }
+.callout[data-tone="tip"] { border-color: var(--ui-good); }
+.callout[data-tone="tip"]::before { content: '✓'; color: var(--ui-good); }
+.callout[data-tone="tip"] .callout__title { color: var(--ui-good); }
+.callout[data-tone="warn"] { border-color: var(--ui-warn); }
+.callout[data-tone="warn"]::before { content: '!'; color: var(--ui-warn); }
+.callout[data-tone="warn"] .callout__title { color: var(--ui-warn); }
+.callout[data-tone="danger"] { border-color: var(--ui-bad); }
+.callout[data-tone="danger"]::before { content: '✕'; color: var(--ui-bad); }
+.callout[data-tone="danger"] .callout__title { color: var(--ui-bad); }
+
+/* ---- banner: a full-width strip with a message and its actions ---- */
+/* Edges top and bottom only, because a banner spans its container and a side
+   border would draw a box where there is a strip. Tone goes on the edge and on
+   a glyph; the actions sit at the far end so the dismiss is always last. */
+.banner { display: flex; align-items: center; gap: var(--ui-gap); padding: calc(4px * var(--ui-u)) calc(10px * var(--ui-u)); border-top: 1px solid var(--ui-line); border-bottom: 1px solid var(--ui-line); background: var(--ui-panel-2); }
+.banner::before { content: 'i'; width: 1ch; text-align: center; color: var(--ui-fg-dim); flex: none; }
+.banner__acts { margin-left: auto; display: flex; gap: calc(3px * var(--ui-u)); flex: none; }
+.banner[data-tone="warn"] { border-color: var(--ui-warn); }
+.banner[data-tone="warn"]::before { content: '!'; color: var(--ui-warn); }
+.banner[data-tone="bad"] { border-color: var(--ui-bad); }
+.banner[data-tone="bad"]::before { content: '✕'; color: var(--ui-bad); }
+.banner[data-tone="good"] { border-color: var(--ui-good); }
+.banner[data-tone="good"]::before { content: '✓'; color: var(--ui-good); }
+
+/* ---- notice: a stack of transient messages at a corner of the layer ---- */
+/* Named "notice" and not "toast" because a toast is a thing this game has —
+   the seam vocabulary reserves the word. The stack sits at a corner of
+   .ui-layer, chosen by data-at, and nothing slides: a notice appears, and a
+   notice leaving takes the one fade the system has. Tone is a glyph and an
+   edge, never a fill. */
+.notices { position: absolute; top: calc(10px * var(--ui-u)); right: calc(10px * var(--ui-u)); display: flex; flex-direction: column; gap: var(--ui-gap); width: calc(260px * var(--ui-u)); max-width: calc(100% - 20px); pointer-events: none; }
+.notices[data-at="tl"] { right: auto; left: calc(10px * var(--ui-u)); }
+.notices[data-at="bl"] { top: auto; right: auto; bottom: calc(10px * var(--ui-u)); left: calc(10px * var(--ui-u)); }
+.notices[data-at="br"] { top: auto; bottom: calc(10px * var(--ui-u)); }
+.notice { pointer-events: auto; display: flex; align-items: flex-start; gap: var(--ui-gap); padding: calc(4px * var(--ui-u)) calc(8px * var(--ui-u)); border: 1px solid var(--ui-line-hot); background: var(--ui-panel-2); transition: opacity var(--ui-dur) var(--ui-ease); }
+.notice::before { content: 'i'; width: 1ch; text-align: center; color: var(--ui-fg-dim); flex: none; }
+.notice__body { flex: 1 1 auto; min-width: 0; }
+.notice__acts { display: flex; gap: calc(3px * var(--ui-u)); flex: none; }
+.notice[data-gone="1"] { opacity: 0; }
+.notice[data-tone="good"] { border-color: var(--ui-good); }
+.notice[data-tone="good"]::before { content: '✓'; color: var(--ui-good); }
+.notice[data-tone="warn"] { border-color: var(--ui-warn); }
+.notice[data-tone="warn"]::before { content: '!'; color: var(--ui-warn); }
+.notice[data-tone="bad"] { border-color: var(--ui-bad); }
+.notice[data-tone="bad"]::before { content: '✕'; color: var(--ui-bad); }
+
+/* ---- dialog, compact: a centred panel with an actions row ---- */
+/* .panel fills its stage; the dialog variant is the same panel shrunk to its
+   content and centred with inset:0 + margin:auto, which lands on whole pixels
+   where a translate(-50%) would not. It also works on a native <dialog>, whose
+   ::backdrop takes the scrim. The actions row is the foot's shape with the
+   buttons on the trailing side. */
+.panel--dialog { inset: 0; margin: auto; padding: 0; color: inherit; width: min(calc(420px * var(--ui-u)), calc(100% - 40px)); height: fit-content; max-height: calc(100% - 40px); }
+.panel--dialog::backdrop { background: var(--ui-scrim); }
+.panel--dialog > .panel__body { flex-direction: column; gap: var(--ui-gap); padding: calc(10px * var(--ui-u)); }
+.panel__acts { display: flex; justify-content: flex-end; gap: calc(4px * var(--ui-u)); padding: calc(6px * var(--ui-u)) calc(10px * var(--ui-u)); border-top: 1px solid var(--ui-line); background: var(--ui-panel-2); }
+
+/* ---- popover: an anchored box, one step up ---- */
+/* Second surface step and the raised edge, because it sits on whatever it was
+   opened from. Positioned by the host — an inline top/left, or a native
+   [popover], whose UA position it overrides to stay in its containing block. */
+.popover { position: absolute; z-index: 1; min-width: calc(160px * var(--ui-u)); padding: calc(6px * var(--ui-u)) calc(8px * var(--ui-u)); border: 1px solid var(--ui-line-hot); background: var(--ui-panel-2); color: var(--ui-fg); }
+.popover__head { text-transform: uppercase; letter-spacing: .16em; font-size: var(--ui-fs-label); color: var(--ui-fg-dim); padding-bottom: calc(4px * var(--ui-u)); margin-bottom: calc(4px * var(--ui-u)); border-bottom: 1px solid var(--ui-line-soft); }
+
+/* ---- tooltip: a label that appears on demand ---- */
+/* The third surface step, so it is the topmost thing wherever it appears, and
+   pointer-events:none so it can never sit between the cursor and the thing it
+   describes. Show and hide with the hidden attribute; role="tooltip". */
+.tooltip { position: absolute; z-index: 1; padding: calc(2px * var(--ui-u)) calc(6px * var(--ui-u)); border: 1px solid var(--ui-line-hot); background: var(--ui-panel-3); color: var(--ui-fg); font-size: var(--ui-fs-label); white-space: nowrap; pointer-events: none; }
+
+/* ---- menu: a <details> whose summary is a button ---- */
+/* Native open/close, native keyboard, no script. The summary wears .btn; the
+   list is absolute under it and takes the raised edge. Items are buttons or
+   links in a column, and the separator is the soft line between rows. */
+.menu { position: relative; display: inline-block; }
+.menu > summary { list-style: none; }
+.menu > summary::-webkit-details-marker { display: none; }
+.menu > summary::after { content: ' ▾'; }
+.menu[open] > summary { border-color: var(--ui-line-hot); background: var(--ui-panel-3); }
+.menu__items { position: absolute; top: 100%; left: 0; z-index: 1; min-width: 100%; margin-top: -1px; display: flex; flex-direction: column; padding: calc(2px * var(--ui-u)) 0; border: 1px solid var(--ui-line-hot); background: var(--ui-panel-2); }
+.menu__items > .menu__item { display: flex; align-items: center; gap: var(--ui-gap); width: 100%; padding: calc(2px * var(--ui-u)) calc(10px * var(--ui-u)); border: none; background: none; color: var(--ui-fg); text-align: left; text-decoration: none; white-space: nowrap; cursor: pointer; }
+.menu__items > .menu__item:hover { border: none; background: var(--ui-panel-3); }
+.menu__items > .menu__item[disabled] { opacity: .35; cursor: default; }
+.menu__sep { border: none; border-top: 1px solid var(--ui-line-soft); margin: calc(2px * var(--ui-u)) 0; }
+
+/* ---- palette: a command list behind a search line ---- */
+/* Markup and CSS only; the host filters the list and moves the cursor. The
+   input is a combobox, the list a listbox of options, so the cursor is
+   aria-activedescendant rather than focus, and the item under it takes the
+   same mark a list row does. The help line at the foot is a row of key caps. */
+.palette { display: flex; flex-direction: column; width: min(calc(520px * var(--ui-u)), calc(100% - 40px)); max-height: calc(100% - 80px); margin: calc(40px * var(--ui-u)) auto 0; border: 1px solid var(--ui-line-hot); background: var(--ui-panel); }
+.palette__bar { display: flex; align-items: center; border-bottom: 1px solid var(--ui-line); background: var(--ui-panel-2); }
+.palette__bar::before { content: '›'; padding-left: calc(10px * var(--ui-u)); color: var(--ui-accent); }
+.palette__bar > .palette__input { flex: 1 1 auto; min-width: 0; border: none; background: none; padding: calc(6px * var(--ui-u)) calc(8px * var(--ui-u)); font-size: var(--ui-fs); }
+.palette__list { flex: 1 1 auto; min-height: 0; }
+.palette__item { display: flex; align-items: center; gap: var(--ui-gap); padding: calc(3px * var(--ui-u)) calc(10px * var(--ui-u)); border-bottom: 1px solid var(--ui-line-soft); cursor: pointer; }
+.palette__item:hover { background: var(--ui-panel-2); }
+.palette__item[data-cursor="1"] { background: var(--ui-panel-3); box-shadow: var(--ui-mark); }
+.palette__hint { margin-left: auto; font-size: var(--ui-fs-tiny); color: var(--ui-fg-mute); white-space: nowrap; }
+.palette__help { display: flex; gap: calc(12px * var(--ui-u)); padding: calc(3px * var(--ui-u)) calc(10px * var(--ui-u)); border-top: 1px solid var(--ui-line); font-size: var(--ui-fs-tiny); color: var(--ui-fg-mute); }
+
+/* ---- disclosure: a <details> with a turning glyph ---- */
+/* ▸ closed, ▾ open — the glyph is the state, the summary is the heading
+   treatment, and the body is indented under the glyph so the text lines up
+   with the title rather than with the arrow. */
+.disclosure { border-top: 1px solid var(--ui-line-soft); }
+.disclosure > summary { list-style: none; display: flex; align-items: center; gap: calc(6px * var(--ui-u)); padding: calc(3px * var(--ui-u)) calc(8px * var(--ui-u)); text-transform: uppercase; letter-spacing: .16em; font-size: var(--ui-fs-label); color: var(--ui-fg-dim); cursor: pointer; }
+.disclosure > summary::-webkit-details-marker { display: none; }
+.disclosure > summary::before { content: '▸'; width: 1ch; }
+.disclosure > summary:hover { color: var(--ui-fg); }
+.disclosure[open] > summary { color: var(--ui-fg); }
+.disclosure[open] > summary::before { content: '▾'; }
+.disclosure__body { padding: calc(2px * var(--ui-u)) calc(8px * var(--ui-u)) calc(8px * var(--ui-u)) calc(8px * var(--ui-u) + 1ch + calc(6px * var(--ui-u))); }
+
+/* ---- table: a real <table>, and its key/value cousin ---- */
+/* Column heads are the caps treatment; rows are the soft line, exactly as
+   .row is; the row under the cursor takes the mark on its first cell, since a
+   collapsed <tr> cannot reliably carry an inset shadow of its own. Numbers go
+   right with data-num, so a column of them lines up on the units. */
+.table { border-collapse: collapse; width: 100%; }
+.table caption { text-align: left; padding: calc(3px * var(--ui-u)) calc(8px * var(--ui-u)); text-transform: uppercase; letter-spacing: .16em; font-size: var(--ui-fs-label); color: var(--ui-fg-mute); }
+.table th { text-align: left; font-weight: normal; padding: calc(3px * var(--ui-u)) calc(8px * var(--ui-u)); border-bottom: 1px solid var(--ui-line); text-transform: uppercase; letter-spacing: .16em; font-size: var(--ui-fs-label); color: var(--ui-fg-mute); white-space: nowrap; }
+.table td { padding: calc(2px * var(--ui-u)) calc(8px * var(--ui-u)); border-bottom: 1px solid var(--ui-line-soft); vertical-align: top; }
+.table th[data-num], .table td[data-num] { text-align: right; }
+.table tbody tr:hover { background: var(--ui-panel-2); }
+.table tr[data-cursor="1"] { background: var(--ui-panel-3); }
+.table tr[data-cursor="1"] > td:first-child { box-shadow: var(--ui-mark); }
+.table tr[data-dim="1"] { opacity: .4; }
+.kv { border-collapse: collapse; }
+.kv th { text-align: left; font-weight: normal; padding: calc(2px * var(--ui-u)) calc(16px * var(--ui-u)) calc(2px * var(--ui-u)) 0; color: var(--ui-fg-dim); white-space: nowrap; width: 1%; vertical-align: top; }
+.kv td { padding: calc(2px * var(--ui-u)) 0; color: var(--ui-fg); vertical-align: top; }
+.kv tr + tr > th, .kv tr + tr > td { border-top: 1px solid var(--ui-line-soft); }
+
+/* ---- code: a captioned block, with the ten syntax classes ---- */
+/* A <figure>: the caption is a strip on the second surface step with room for
+   a copy button at its end, and the <pre> sits in the well, because code is a
+   thing you look into. The .sx-* classes are the only readers of the --ui-sx-*
+   tokens; a highlighter emits them and this sheet owns the colours. */
+.code { display: flex; flex-direction: column; min-width: 0; margin: 0; border: 1px solid var(--ui-line); background: var(--ui-well); }
+.code__cap { display: flex; align-items: center; gap: var(--ui-gap); padding: calc(3px * var(--ui-u)) calc(8px * var(--ui-u)); border-bottom: 1px solid var(--ui-line); background: var(--ui-panel-2); text-transform: uppercase; letter-spacing: .16em; font-size: var(--ui-fs-label); color: var(--ui-fg-mute); }
+.code__acts { margin-left: auto; display: flex; gap: calc(3px * var(--ui-u)); }
+.code pre { margin: 0; padding: calc(8px * var(--ui-u)) calc(10px * var(--ui-u)); overflow-x: auto; line-height: 1.5; tab-size: 2; scrollbar-width: thin; scrollbar-color: var(--ui-line-hot) transparent; }
+.code code { font: inherit; }
+.sx-kw { color: var(--ui-sx-kw); }
+.sx-str { color: var(--ui-sx-str); }
+.sx-fn { color: var(--ui-sx-fn); }
+.sx-cm { color: var(--ui-sx-cm); font-style: italic; }
+.sx-num { color: var(--ui-sx-num); }
+.sx-tag { color: var(--ui-sx-tag); }
+.sx-attr { color: var(--ui-sx-attr); }
+.sx-punct { color: var(--ui-sx-punct); }
+.sx-type { color: var(--ui-sx-type); }
+.sx-bool { color: var(--ui-sx-bool); }
+
+/* ---- terminal: a window strip, a prompt, an output ---- */
+/* The three lights are the three status colours in their usual order, and
+   they are decoration — the state of nothing — which is why they are not
+   .ui-dot. The body is the page colour, not the well: a terminal is a surface
+   you type on, not a groove you look into. */
+.term { display: flex; flex-direction: column; min-width: 0; border: 1px solid var(--ui-line-hot); background: var(--ui-bg); }
+.term__bar { display: flex; align-items: center; gap: calc(5px * var(--ui-u)); padding: calc(4px * var(--ui-u)) calc(8px * var(--ui-u)); border-bottom: 1px solid var(--ui-line); background: var(--ui-panel-2); text-transform: uppercase; letter-spacing: .16em; font-size: var(--ui-fs-tiny); color: var(--ui-fg-mute); }
+.term__light::before { content: '●'; }
+.term__light:nth-of-type(1) { color: var(--ui-bad); }
+.term__light:nth-of-type(2) { color: var(--ui-warn); }
+.term__light:nth-of-type(3) { color: var(--ui-good); margin-right: calc(4px * var(--ui-u)); }
+.term__body { margin: 0; padding: calc(8px * var(--ui-u)) calc(10px * var(--ui-u)); overflow-x: auto; line-height: 1.5; scrollbar-width: thin; scrollbar-color: var(--ui-line-hot) transparent; }
+.term__prompt { display: block; color: var(--ui-fg); }
+.term__prompt::before { content: '$ '; color: var(--ui-accent); }
+.term__out { display: block; color: var(--ui-fg-dim); white-space: pre-wrap; }
+
+/* ---- empty: the dashed box where content is not ---- */
+/* The one dashed border in the system, because an empty state is the outline
+   of a thing rather than the thing. Everything in it is the third ink weight,
+   which is legal here precisely because nothing in it is actionable — the
+   action, if there is one, is a .btn beside the text. */
+.empty { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: calc(4px * var(--ui-u)); padding: calc(20px * var(--ui-u)) calc(12px * var(--ui-u)); border: 1px dashed var(--ui-line); color: var(--ui-fg-mute); text-align: center; }
+.empty__glyph { font-size: calc(18px * var(--ui-u)); line-height: 1; }
+.empty__title { text-transform: uppercase; letter-spacing: .16em; font-size: var(--ui-fs-label); color: var(--ui-fg-dim); }
+
+/* ---- spinner: a stepped glyph, and the one thing that moves ---- */
+/* "Nothing moves" (docs/28 §1) has one exception, and this is it: an in-flight
+   state has no static spelling that is not a lie about progress. So the
+   spinner is eight braille frames stepped through with no interpolation — a
+   glyph that changes, not a thing that turns — at six durations per cycle, so
+   the single duration token still governs it. Under prefers-reduced-motion it
+   stops and prints an ellipsis, which says the same thing without moving. The
+   markup carries role="status" and a label; the glyph says nothing aloud. */
+.ui-spin { display: inline-block; width: 1ch; color: var(--ui-accent-2); line-height: 1; }
+.ui-spin::before { content: '⠋'; animation: ui-spin calc(var(--ui-dur) * 6) step-end infinite; }
+@keyframes ui-spin {
+  0% { content: '⠋'; }
+  12.5% { content: '⠙'; }
+  25% { content: '⠹'; }
+  37.5% { content: '⠸'; }
+  50% { content: '⠼'; }
+  62.5% { content: '⠴'; }
+  75% { content: '⠦'; }
+  87.5% { content: '⠧'; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ui-spin::before { animation: none; content: '…'; }
+  .notice { transition: none; }
+  .ui-skeleton::after { animation: none; display: none; }
+}
+
+/* ---- avatar: initials in a bordered square ---- */
+/* A square, not a circle — the system has no rounded corners and a person is
+   not the exception. Initials in caps at the label size; an <img> inside
+   covers the box and the initials behind it are the fallback for free. */
+.avatar { display: inline-grid; place-items: center; flex: none; overflow: hidden; width: var(--sz, round(nearest, calc(20px * var(--ui-u)), 1px)); height: var(--sz, round(nearest, calc(20px * var(--ui-u)), 1px)); border: 1px solid var(--ui-line-hot); background: var(--ui-panel-2); text-transform: uppercase; letter-spacing: .08em; font-size: var(--ui-fs-label); color: var(--ui-fg); }
+.avatar > img { display: block; width: 100%; height: 100%; object-fit: cover; }
+
+/* ---- crumb: where you are, as a path ---- */
+/* An <ol>, because a path is ordered. The separator is a slash in the third
+   ink, drawn by the sheet so the markup carries only the names; the last item
+   is aria-current and reads in the first ink. */
+.crumb { display: flex; flex-wrap: wrap; align-items: center; gap: calc(4px * var(--ui-u)); margin: 0; padding: 0; list-style: none; font-size: var(--ui-fs-label); color: var(--ui-fg-dim); }
+.crumb > li + li::before { content: '/'; color: var(--ui-fg-mute); margin-right: calc(4px * var(--ui-u)); }
+.crumb a { color: inherit; text-decoration: none; }
+.crumb a:hover { color: var(--ui-fg); text-decoration: underline; text-underline-offset: 2px; }
+.crumb [aria-current="page"] { color: var(--ui-fg); }
+
+/* ---- pager: previous and next ---- */
+/* Two .btn links at either end of a rule, with the arrows drawn by the sheet.
+   A missing side is simply absent from the markup; the next link keeps its
+   place with margin-left:auto. */
+.pager { display: flex; align-items: center; gap: var(--ui-gap); padding-top: calc(6px * var(--ui-u)); border-top: 1px solid var(--ui-line); }
+.pager__prev::before { content: '← '; }
+.pager__next { margin-left: auto; }
+.pager__next::after { content: ' →'; }
+.pager__label { text-transform: uppercase; letter-spacing: .16em; font-size: var(--ui-fs-tiny); color: var(--ui-fg-mute); }
+
+/* ---- separator: a rule, optionally captioned ---- */
+/* An <hr>. With data-label it becomes a caps caption followed by the rule,
+   which is the section-title treatment .col__head gives a column, freed from
+   the column. */
+.ui-sep { display: flex; align-items: center; gap: var(--ui-gap); margin: calc(6px * var(--ui-u)) 0; border: none; height: auto; color: var(--ui-fg-mute); }
+.ui-sep[data-label]::before { content: attr(data-label); text-transform: uppercase; letter-spacing: .16em; font-size: var(--ui-fs-label); white-space: nowrap; }
+.ui-sep::after { content: ''; flex: 1 1 auto; border-top: 1px solid var(--ui-line); }
+
+/* ---- theme toggle: the contrast switch, as a button with a glyph ---- */
+/* Pairs with the high-contrast mode the host already has (docs/28 §6.1): the
+   host flips aria-pressed and writes the theme's tokens. ◐ off, ◑ on — the
+   glyph changes with the state, and the pressed state is the chosen colour. */
+.ui-theme-toggle::before { content: '◐'; }
+.ui-theme-toggle[aria-pressed="true"]::before { content: '◑'; }
+.ui-root .ui-theme-toggle[aria-pressed="true"] { color: var(--ui-accent); border-color: var(--ui-line-hot); }
+
+/* ---- grid: a background texture, drawn from tokens ---- */
+/* Two gradients at the soft line colour on the page colour, on a cell the
+   interface scale sets, rounded so the hairlines land on pixels. Decoration for
+   a stage or an empty main pane; nothing should be read against it. */
+.ui-grid {
+  background-color: var(--ui-bg);
+  background-image: linear-gradient(var(--ui-line-soft) 1px, transparent 1px), linear-gradient(90deg, var(--ui-line-soft) 1px, transparent 1px);
+  background-size: round(nearest, calc(24px * var(--ui-u)), 1px) round(nearest, calc(24px * var(--ui-u)), 1px);
+}
+
+/* ---- shell: top, rail, main, status bar ---- */
+/* A grid inside .ui-layer: a strip across the top, a rail down the side, the
+   main pane, and a status bar across the bottom. The rail width is --rail,
+   arriving as data so a drag on the resize handle can write it. The status bar
+   is __statusbar, not __status: "status" is a word this game uses for an
+   affliction and the seam vocabulary reserves it. */
+.shell { position: absolute; inset: 0; display: grid; grid-template-columns: var(--rail, calc(220px * var(--ui-u))) 1fr; grid-template-rows: auto 1fr auto; grid-template-areas: "top top" "rail main" "foot foot"; background: var(--ui-bg); }
+.shell__top { grid-area: top; display: flex; align-items: center; gap: var(--ui-gap); padding: calc(4px * var(--ui-u)) calc(10px * var(--ui-u)); border-bottom: 1px solid var(--ui-line); background: var(--ui-panel-2); }
+.shell__rail { grid-area: rail; position: relative; display: flex; flex-direction: column; min-height: 0; border-right: 1px solid var(--ui-line); background: var(--ui-panel); }
+.shell__main { grid-area: main; position: relative; min-width: 0; min-height: 0; overflow: auto; scrollbar-width: thin; scrollbar-color: var(--ui-line-hot) transparent; }
+.shell__statusbar { grid-area: foot; display: flex; align-items: center; gap: calc(12px * var(--ui-u)); padding: calc(2px * var(--ui-u)) calc(10px * var(--ui-u)); border-top: 1px solid var(--ui-line); background: var(--ui-panel-2); font-size: var(--ui-fs-label); color: var(--ui-fg-mute); }
+.shell__resize { position: absolute; top: 0; right: round(nearest, calc(-3px * var(--ui-u)), 1px); width: round(nearest, calc(5px * var(--ui-u)), 1px); height: 100%; cursor: col-resize; z-index: 1; }
+.shell__resize:hover, .shell__resize[data-on="1"] { background: var(--ui-line-hot); }
+
+/* ---- board: columns of cards ---- */
+/* A horizontal scroller of fixed-width columns, each a bordered surface with
+   a head and a stack of .card. The column's own list is a .scroll, so a tall
+   column scrolls inside itself and the board scrolls only sideways. */
+.board { display: flex; align-items: flex-start; gap: var(--ui-gap); padding: var(--ui-gap); min-height: 0; overflow-x: auto; scrollbar-width: thin; scrollbar-color: var(--ui-line-hot) transparent; }
+.board__col { flex: 0 0 calc(220px * var(--ui-u)); display: flex; flex-direction: column; min-height: 0; max-height: 100%; border: 1px solid var(--ui-line); background: var(--ui-panel); }
+.board__head { display: flex; align-items: center; gap: var(--ui-gap); padding: calc(4px * var(--ui-u)) calc(8px * var(--ui-u)); border-bottom: 1px solid var(--ui-line); text-transform: uppercase; letter-spacing: .16em; font-size: var(--ui-fs-label); color: var(--ui-fg-dim); }
+.board__count { margin-left: auto; color: var(--ui-fg-mute); }
+.board__cards { display: flex; flex-direction: column; gap: var(--ui-gap); padding: var(--ui-gap); }
+
+/* ---- params: a parameter list ---- */
+/* Name, type, default and requirement on one line, the description under it,
+   rows on the soft line. The type is the second accent (it is derived from
+   the name), the default is prefixed "=" by the sheet, and required is a word
+   in the warning tone, because a word is the first carrier. */
+.params { display: flex; flex-direction: column; margin: 0; padding: 0; list-style: none; }
+.param { display: flex; flex-direction: column; gap: calc(2px * var(--ui-u)); padding: calc(4px * var(--ui-u)) 0; border-bottom: 1px solid var(--ui-line-soft); }
+.param__head { display: flex; flex-wrap: wrap; align-items: baseline; gap: calc(8px * var(--ui-u)); }
+.param__name { color: var(--ui-fg); }
+.param__type { color: var(--ui-accent-2); font-size: var(--ui-fs-label); }
+.param__default { color: var(--ui-fg-mute); font-size: var(--ui-fs-label); }
+.param__default::before { content: '= '; }
+.param__req { color: var(--ui-warn); text-transform: uppercase; letter-spacing: .16em; font-size: var(--ui-fs-tiny); }
+.param__desc { color: var(--ui-fg-dim); }
+
+/* ======================================================================= */
+/* The ten components below extend the shared vocabulary a second time
+   (docs/33 §4's sibling systems added rows 44-53). Same two conventions as
+   the block above: padding and gaps are calc(Npx * var(--ui-u)); hard-edged
+   small chrome is round(nearest, …, 1px). */
+
+/* ---- slider: a native range input, drawn as a thin track and an accent thumb ---- */
+/* appearance:none removes the browser's own control from the input itself,
+   which is what lets the input's own box become the groove — a background
+   and a fixed height, nothing more. The two vendor thumb pseudo-elements are
+   styled to match; the runnable-track pseudo is deliberately left alone, both
+   because this system's own box already draws the groove and because its
+   name is not this system's to spell (docs/33's game-noun seam would refuse
+   a literal "track" in a selector this file ships, the same as it refuses a
+   real game noun). :focus-visible is inherited from base.ts. */
+.ui-root .ui-slider {
+  appearance: none; -webkit-appearance: none; -moz-appearance: none;
+  width: 100%; height: round(nearest, calc(4px * var(--ui-u)), 1px);
+  padding: 0; margin: calc(8px * var(--ui-u)) 0; border: none;
+  background: var(--ui-well); cursor: pointer;
+}
+.ui-root .ui-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: round(nearest, calc(12px * var(--ui-u)), 1px); height: round(nearest, calc(12px * var(--ui-u)), 1px);
+  border: 1px solid var(--ui-line-hot); background: var(--ui-accent);
+}
+.ui-root .ui-slider::-moz-range-thumb {
+  width: round(nearest, calc(12px * var(--ui-u)), 1px); height: round(nearest, calc(12px * var(--ui-u)), 1px);
+  border: 1px solid var(--ui-line-hot); background: var(--ui-accent); border-radius: 0;
+}
+.ui-root .ui-slider[disabled] { opacity: .35; cursor: default; }
+
+/* ---- segmented: a single-choice group of adjoining segments, on real radios ---- */
+/* The same border-right dance as .tabs and .btngroup — a strip, not three
+   boxes — but built on native radio inputs rather than data-on, so the group
+   is keyboard- and screen-reader-native for free. The input wears .ui-sr-only
+   rather than a second clip rule invented for it; :has() reads its state onto
+   the label, which is the hit target and the paint surface. */
+.segmented { display: inline-flex; gap: 0; }
+.segmented__opt {
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--ui-line); border-right: none;
+  padding: calc(2px * var(--ui-u)) calc(10px * var(--ui-u));
+  text-transform: uppercase; letter-spacing: .12em; font-size: var(--ui-fs-label);
+  color: var(--ui-fg-dim); cursor: pointer;
+}
+.segmented__opt:last-child { border-right: 1px solid var(--ui-line); }
+.segmented__opt:hover { color: var(--ui-fg); background: var(--ui-panel-2); }
+.segmented__opt:has(:checked) { color: var(--ui-accent); border-color: var(--ui-line-hot); background: var(--ui-panel-3); }
+.segmented__opt:has(:focus-visible) { outline: 1px solid var(--ui-accent); outline-offset: -2px; }
+
+/* ---- combobox: a text input with a filterable list of options beneath it ---- */
+/* The wrapper is the positioning context; the input is the bare element
+   base.ts already styles, wearing role="combobox". The list takes the
+   popover treatment — second surface step, raised edge — and each option
+   reuses .palette__item's shape: the cursor is data-cursor, exactly as it is
+   in .palette and .row, so every list in this system agrees on what "the
+   option under the cursor" looks like. */
+.combobox { position: relative; display: inline-block; }
+.combobox__list {
+  position: absolute; top: 100%; left: 0; z-index: 1; width: 100%; margin-top: -1px;
+  max-height: calc(200px * var(--ui-u)); overflow-y: auto;
+  border: 1px solid var(--ui-line-hot); background: var(--ui-panel-2);
+  scrollbar-width: thin; scrollbar-color: var(--ui-line-hot) transparent;
+}
+.combobox__item { padding: calc(3px * var(--ui-u)) calc(8px * var(--ui-u)); border-bottom: 1px solid var(--ui-line-soft); cursor: pointer; }
+.combobox__item:last-child { border-bottom: none; }
+.combobox__item:hover { background: var(--ui-panel-3); }
+.combobox__item[data-cursor="1"] { background: var(--ui-panel-3); box-shadow: var(--ui-mark); }
+.combobox__item[data-dim="1"] { opacity: .4; }
+
+/* ---- skeleton: a loading placeholder, and the second thing that moves ---- */
+/* docs/28 §1's "nothing moves" already has one bounded exception, the
+   spinner; this is the second, bounded the same way — one keyframes block,
+   ui-prefixed, a duration that is a multiple of --ui-dur, stopped under
+   prefers-reduced-motion. It is not a glyph that changes, because a
+   placeholder has no glyph to step through: the moving part is a highlight
+   sweeping once across a flat well, never a colour cycling through hues. */
+.ui-skeleton { position: relative; display: block; overflow: hidden; background: var(--ui-well); color: transparent; }
+.ui-skeleton::after {
+  content: ''; position: absolute; inset: 0; transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgb(from var(--ui-fg) r g b / .08), transparent);
+  animation: ui-shimmer calc(var(--ui-dur) * 14) linear infinite;
+}
+.ui-skeleton[data-shape="line"] { height: 1em; }
+.ui-skeleton[data-shape="text"] { height: 1em; margin: calc(2px * var(--ui-u)) 0; }
+.ui-skeleton[data-shape="avatar"] { display: inline-block; width: round(nearest, calc(20px * var(--ui-u)), 1px); height: round(nearest, calc(20px * var(--ui-u)), 1px); vertical-align: middle; }
+.ui-skeleton[data-shape="block"] { width: 100%; height: calc(80px * var(--ui-u)); }
+@keyframes ui-shimmer { to { transform: translateX(100%); } }
+
+/* ---- stat: a value, a label, and an optional trend ---- */
+/* The trend carries its direction as a glyph and a colour together, never
+   colour alone — the same discipline .badge and .ui-dot already apply, run
+   over an arrow instead of a tone. */
+.stat { display: inline-flex; flex-direction: column; gap: calc(2px * var(--ui-u)); }
+.stat__value { font-size: calc(22px * var(--ui-u)); line-height: 1.1; color: var(--ui-fg); }
+.stat__label { text-transform: uppercase; letter-spacing: .16em; font-size: var(--ui-fs-label); color: var(--ui-fg-dim); }
+.stat__trend { display: inline-flex; align-items: center; gap: calc(3px * var(--ui-u)); font-size: var(--ui-fs-label); color: var(--ui-fg-mute); }
+.stat__trend[data-dir="up"] { color: var(--ui-good); }
+.stat__trend[data-dir="up"]::before { content: '▲'; }
+.stat__trend[data-dir="down"] { color: var(--ui-bad); }
+.stat__trend[data-dir="down"]::before { content: '▼'; }
+.stat__trend[data-dir="flat"] { color: var(--ui-fg-dim); }
+.stat__trend[data-dir="flat"]::before { content: '▬'; }
+
+/* ---- rating: a read-only star rating, fractional, out of five ---- */
+/* Two stacked layers of the same five glyphs — the third ink underneath, the
+   accent above it clipped to the fraction — so 3.5 shows a half star rather
+   than rounding to a whole one. --v is the fraction 0..1, the same "the value
+   arrives as a custom property" idiom --f and --c already use. The number
+   itself belongs in the markup's aria-label / role="img", never in colour
+   alone. */
+.ui-rating { position: relative; display: inline-block; line-height: 1; color: var(--ui-fg-mute); white-space: nowrap; }
+.ui-rating::before { content: '★★★★★'; }
+.ui-rating::after {
+  content: '★★★★★'; position: absolute; inset: 0; overflow: hidden;
+  width: calc(var(--v, 0) * 100%); color: var(--ui-accent);
+}
+
+/* ---- stepper: numbered steps on a neutral connecting line ---- */
+/* The line is --ui-line, drawn once per step from its own centre to the
+   previous one's, and it never carries the state: docs/28 §3's rule about a
+   one-sided coloured rail applies exactly as much to a horizontal progress
+   line as it did to a row cursor or a callout, so state lives only on the
+   step markers. The current step takes --ui-mark's full ring, the same "this
+   is the one" mark a list row or a palette item takes; a done step is a
+   filled square, and its glyph is markup, the same way an avatar's initials
+   or a row's glyph are markup rather than a generated one of finitely many
+   tones. */
+.stepper { position: relative; display: flex; list-style: none; margin: 0; padding: 0; }
+.stepper__step { position: relative; flex: 1 1 0; display: flex; flex-direction: column; align-items: center; gap: calc(4px * var(--ui-u)); text-align: center; }
+.stepper__step::before {
+  content: ''; position: absolute; top: round(nearest, calc(10px * var(--ui-u)), 1px); left: -50%; width: 100%; height: 1px;
+  background: var(--ui-line); z-index: 0;
+}
+.stepper__step:first-child::before { display: none; }
+.stepper__num {
+  position: relative; z-index: 1; display: grid; place-items: center;
+  width: round(nearest, calc(20px * var(--ui-u)), 1px); height: round(nearest, calc(20px * var(--ui-u)), 1px);
+  border: 1px solid var(--ui-line-hot); background: var(--ui-panel); color: var(--ui-fg-dim); font-size: var(--ui-fs-label);
+}
+.stepper__label { font-size: var(--ui-fs-label); color: var(--ui-fg-mute); text-transform: uppercase; letter-spacing: .1em; }
+.stepper__step[data-status="current"] .stepper__num { border-color: var(--ui-accent); color: var(--ui-accent); box-shadow: var(--ui-mark); }
+.stepper__step[data-status="current"] .stepper__label { color: var(--ui-fg); }
+.stepper__step[data-status="done"] .stepper__num { border-color: var(--ui-good); background: var(--ui-good); color: var(--ui-ink-inv); }
+.stepper__step[data-status="done"] .stepper__label { color: var(--ui-fg-dim); }
+
+/* ---- timeline: a vertical sequence of dated events ---- */
+/* The connecting line lives in a fixed gutter the width of one marker,
+   drawn once on the list rather than once per item, so it runs continuously
+   behind every dot instead of as N short segments that have to line up. */
+.timeline { position: relative; margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: calc(14px * var(--ui-u)); }
+.timeline::before {
+  content: ''; position: absolute; top: 0; bottom: 0;
+  left: calc(round(nearest, calc(18px * var(--ui-u)), 1px) / 2);
+  width: 1px; background: var(--ui-line);
+}
+.timeline__item { position: relative; padding-left: round(nearest, calc(24px * var(--ui-u)), 1px); }
+.timeline__dot {
+  position: absolute; top: calc(2px * var(--ui-u)); left: 0;
+  width: round(nearest, calc(18px * var(--ui-u)), 1px); height: round(nearest, calc(18px * var(--ui-u)), 1px);
+  display: grid; place-items: center;
+  border: 1px solid var(--ui-line-hot); background: var(--ui-panel); color: var(--ui-fg-dim); font-size: var(--ui-fs-tiny);
+}
+.timeline__item[data-status="current"] .timeline__dot { border-color: var(--ui-accent); color: var(--ui-accent); box-shadow: var(--ui-mark); }
+.timeline__date { font-size: var(--ui-fs-label); color: var(--ui-fg-mute); text-transform: uppercase; letter-spacing: .1em; }
+.timeline__body { color: var(--ui-fg); }
+
+/* ---- carousel: a horizontally snapping set of slides ---- */
+/* Native scroll-snap does the sliding; the sheet only draws the frame, the
+   arrow buttons (a plain .btn.btn-icon each, positioned) and the dot
+   pagination, whose chosen dot reads data-on="1" — the same attribute .tabs
+   and .btngroup already use for "this one is current", so a fourth
+   component does not invent a second spelling of it. */
+.carousel { position: relative; }
+.carousel__slides { display: flex; gap: var(--ui-gap); overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
+.carousel__slides::-webkit-scrollbar { display: none; }
+.carousel__slide { flex: 0 0 100%; scroll-snap-align: start; min-width: 0; }
+.carousel__prev, .carousel__next { position: absolute; top: 50%; transform: translateY(-50%); z-index: 1; }
+.carousel__prev { left: calc(4px * var(--ui-u)); }
+.carousel__next { right: calc(4px * var(--ui-u)); }
+.carousel__dots { display: flex; justify-content: center; gap: calc(6px * var(--ui-u)); margin-top: calc(6px * var(--ui-u)); }
+.carousel__dots > button { width: round(nearest, calc(6px * var(--ui-u)), 1px); height: round(nearest, calc(6px * var(--ui-u)), 1px); padding: 0; border: 1px solid var(--ui-line-hot); background: none; }
+.carousel__dots > button[data-on="1"] { background: var(--ui-accent); border-color: var(--ui-accent); }
+
+/* ---- drawer: the panel, anchored to an edge instead of centred ---- */
+/* Same scrim, same .panel__head/__body/__foot, same open/close semantics as
+   .panel--dialog — the only difference is geometry. data-edge picks which
+   edge it sits flush against; the cross-axis is full-bleed and the main axis
+   is a fixed measure, so a start/end drawer is a full-height strip and a
+   top/bottom drawer is a full-width one. */
+.panel--drawer { inset: 0; margin: 0; }
+.panel--drawer[data-edge="start"] { right: auto; width: min(calc(320px * var(--ui-u)), 85%); }
+.panel--drawer[data-edge="end"] { left: auto; width: min(calc(320px * var(--ui-u)), 85%); }
+.panel--drawer[data-edge="top"] { bottom: auto; height: min(calc(240px * var(--ui-u)), 85%); }
+.panel--drawer[data-edge="bottom"] { top: auto; height: min(calc(240px * var(--ui-u)), 85%); }

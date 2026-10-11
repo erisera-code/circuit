@@ -1,0 +1,83 @@
+/*
+  design-engine — components: command palette
+  -----------------------------------------------------------------------------
+  A native <dialog> carrying data-palette:
+
+    <dialog data-palette>
+      <form role="search"><input type="search" placeholder="Search or run a command…"></form>
+      <ul role="listbox">
+        <li role="option" aria-selected="true"><span>Land change</span><kbd>L</kbd></li>
+        <li role="option">Open pull request</li>
+      </ul>
+      <footer><kbd>↑</kbd><kbd>↓</kbd> move <kbd>↵</kbd> run <kbd>esc</kbd> close</footer>
+    </dialog>
+
+  Top-anchored, search field flush to the top edge, options as rows, the
+  selected option carried by aria-selected. Works statically with [open] and
+  inside a [data-stage].
+*/
+
+@layer de.components {
+  :where([data-engine]) :where(dialog[data-palette]) {
+    margin: 12vh auto auto;
+    inline-size: min(36rem, 92vw);
+    max-inline-size: none;
+    padding: 0;
+    row-gap: 0;
+    overflow: hidden;
+    border-radius: var(--de-radius-md);
+  }
+  :where([data-engine]) :where([data-stage] > dialog[data-palette]) { position: absolute; inset: 0; margin: var(--de-space-4) auto auto; }
+
+  :where([data-engine]) :where(dialog[data-palette]) > :where(form) {
+    display: block;
+    padding: 0;
+    border-block-end: 1px solid var(--de-color-line);
+  }
+  :where([data-engine]) :where(dialog[data-palette]) :where(input[type="search"]) {
+    inline-size: 100%;
+    max-inline-size: none;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    padding: var(--de-space-3) var(--de-space-4);
+    font-size: var(--de-text-base);
+  }
+  :where([data-engine]) :where(dialog[data-palette]) :where(input[type="search"]:focus-visible) { outline: none; box-shadow: none; }
+
+  :where([data-engine]) :where(dialog[data-palette]) > :where(ul[role="listbox"]) {
+    list-style: none;
+    padding: var(--de-space-1);
+    max-inline-size: none;
+    max-block-size: 40vh;
+    overflow: auto;
+  }
+  :where([data-engine]) :where(dialog[data-palette]) :where(li[role="option"]) {
+    display: flex;
+    align-items: center;
+    gap: var(--de-space-3);
+    padding: var(--de-space-2) var(--de-space-3);
+    border-radius: var(--de-radius-sm);
+    max-inline-size: none;
+    cursor: pointer;
+  }
+  :where([data-engine]) :where(dialog[data-palette]) :where(li[role="option"]) > :where(kbd) { margin-inline-start: auto; }
+  :where([data-engine]) :where(dialog[data-palette]) :where(li[role="option"]:hover) { background: var(--de-state-hover-overlay); }
+  :where([data-engine]) :where(dialog[data-palette]) :where(li[role="option"][aria-selected="true"]) {
+    background: var(--de-color-accent-soft);
+    color: var(--de-color-fg);
+  }
+  :where([data-engine]) :where(dialog[data-palette]) :where(li[role="option"]) > :where(small) { color: var(--de-color-muted); }
+  :where([data-engine]) :where(dialog[data-palette]) :where(li[role="option"][aria-selected="true"]) > :where(small) { color: var(--de-color-fg); }
+
+  :where([data-engine]) :where(dialog[data-palette]) > :where(footer) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--de-space-2);
+    align-items: center;
+    padding: var(--de-space-2) var(--de-space-4);
+    border-block-start: 1px solid var(--de-color-line);
+    font-size: var(--de-text-xs);
+    color: var(--de-color-muted);
+  }
+}
